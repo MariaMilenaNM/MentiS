@@ -1,0 +1,350 @@
+.painel-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    background-color: #f0f2f7;
+    color: #1a1a3e;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.sidebar {
+    position:sticky;
+    top:0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    min-width: 280px;
+    background: #0A0B26;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0 0 0;
+    transition: width 0.3s ease, min-width 0.3s ease;
+}
+
+.sidebar-fechada {
+    width: 56px;
+    min-width: 56px;
+}
+
+.btn-toggle-sidebar {
+    background: none;
+    border: none;
+    color: #91C1FF;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 10px 18px;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+.btn-toggle-sidebar:hover {
+    background: rgba(255,255,255,0.07);
+}
+
+.sidebar-conteudo {
+    padding: 0 20px 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #91C1FF;
+    color: #0A0B26;
+    font-size: 2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+}
+
+.sidebar-nome {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+}
+
+.sidebar-tag {
+    display: block;
+    text-align: center;
+    font-size: 0.78rem;
+    color: #91C1FF;
+    margin-bottom: 8px;
+}
+
+.sidebar-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    margin: 14px 0;
+}
+
+.info-item {
+    margin-bottom: 12px;
+}
+
+.info-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #91C1FF;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.info-valor {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.85);
+    word-break: break-word;
+}
+
+.btn-editar {
+    width: 100%;
+    padding: 10px;
+    background: #91C1FF;
+    color: #0A0B26;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-editar:hover { opacity: 0.85; }
+
+.campo-edit {
+    margin-bottom: 10px;
+}
+
+.campo-edit label {
+    display: block;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+}
+
+.campo-edit input,
+.campo-edit select {
+    width: 100%;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 0.88rem;
+}
+
+.campo-edit select option {
+    background: #0A0B26;
+}
+
+.btn-salvar-edit {
+    width: 100%;
+    padding: 9px;
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 6px;
+    font-size: 0.88rem;
+}
+
+.btn-salvar-edit:hover { opacity: 0.88; }
+
+.btn-cancelar-edit {
+    width: 100%;
+    padding: 9px;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.88rem;
+}
+
+.btn-cancelar-edit:hover { background: rgba(255,255,255,0.07); }
+
+.btn-sair-painel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: fit-content; /* Ajusta o tamanho ao conteúdo */
+    margin: 18px auto 0 auto; /* Centraliza horizontalmente */
+    padding: 6px 16px; /* Reduz o tamanho do botão */
+    background: transparent; /* Remove fundo sólido para visual mais limpo */
+    color: #ef4444; /* Vermelho moderno e suave */
+    border: 1px solid #ef4444;
+    border-radius: 8px; /* Mantém a consistência de bordas do painel */
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-sair-painel:hover {
+    background: rgba(239, 68, 68, 0.703);
+}
+
+.painel-main {
+    flex: 1;
+    padding: 32px 28px;
+    overflow-y: auto;
+}
+
+.painel-header {
+    margin-bottom: 28px;
+}
+
+.painel-header h1 {
+    font-size: 1.9rem;
+    color: #0A0B26;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.painel-header p {
+    color: #1a1a3e;
+    font-size: 0.95rem;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.psi-card {
+    background: white;
+    border-radius: 14px;
+    padding: 22px 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.psi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.psi-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #0A0B26;
+    color: #91C1FF;
+    font-size: 1.8rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+.psi-info {
+    width: 100%;
+}
+
+.psi-nome {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0A0B26;
+    margin-bottom: 4px;
+}
+
+.psi-crp {
+    display: block;
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.psi-modalidade {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.tag-remota     { background: #dbeafe; color: #1d4ed8; }
+.tag-presencial { background: #dcfce7; color: #166534; }
+.tag-ambas      { background: #ede9fe; color: #6d28d9; }
+
+.psi-contato {
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-bottom: 2px;
+}
+
+.psi-btn-insta {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 18px;
+    background: #0A0B26;
+    color: white;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.psi-btn-insta:hover {
+    background: #0a0a6e;
+}
+
+.sem-dados {
+    color: #6b7280;
+    font-size: 0.95rem;
+    padding: 20px 0;
+}
+
+.paginacao {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+    justify-content: center;
+}
+
+.pag-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    border: 2px solid #dde1ea;
+    background: white;
+    color: #1a1a3e;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pag-btn:hover {
+    border-color: #0A0B26;
+    color: #0A0B26;
+}
+
+.pag-btn.pag-ativa {
+    background: #0A0B26;
+    color: white;
+    border-color: #0A0B26;
+}

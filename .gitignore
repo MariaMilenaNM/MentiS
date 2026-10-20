@@ -1,0 +1,78 @@
+# --- Lixo da IDE da Dupla (JetBrains/IntelliJ) ---
+.idea/
+*.iml
+out/
+gen/
+
+# --- Lixo do seu VS Code ---
+.vscode/
+.history/
+*.log
+
+# --- Lixo do Windows ---
+Thumbs.db
+desktop.ini
+
+# Default ignored files
+/shelf/
+/workspace.xml
+
+# Ignored default folder with query files
+/queries/
+
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+# Editor-based HTTP Client requests
+/httpRequests/
+
+# Ambientes Virtuais (bolhas de proteção)
+.venv/
+venv/
+env/
+
+# Banco de dados local
+*.db
+*.sqlite3
+
+# Arquivos compilados do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+#node
+node_modules/
+
+# Keep environment variables out of version control
+.env
+
+/generated/prisma
+
+#frontReact:
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

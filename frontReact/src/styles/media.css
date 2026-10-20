@@ -1,0 +1,160 @@
+@media screen and (max-width: 760px) {
+  
+  header {
+    flex-direction: column;
+    padding: 20px 15px; 
+    gap: 25px; 
+  }
+
+  #marca {
+    gap: 10px;
+  }
+
+  .logo-imagem {
+    width: 32px;
+  }
+
+  #textos-marca h1 {
+    font-size: 24px; 
+  }
+
+  nav {
+    width: 100%; 
+  }
+
+  nav ul {
+    flex-direction: column;
+    gap: 10px; 
+    align-items: center;
+  }
+
+  nav a {
+    font-size: 12px;
+  }
+
+  #inscrevaButton {
+    padding: 10px 24px; 
+    font-size: 12px;
+    margin-top: 10px; 
+  }
+
+  .hero {
+    padding: 30px 20px;
+    text-align: left;
+  }
+
+  .hero-texto {
+    max-width: 100%;
+  }
+
+  .hero-texto h2 {
+    font-size: 26px;
+    line-height: 1.2;
+  }
+
+  .hero-texto p{
+    font-size: 15px;
+    margin: 15px 0 25px 0;
+  }
+
+  .imagem-direita {
+    max-width: 100%;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    width: 80%;
+  }
+
+  .btn-encontrar{
+    width: 270px;
+    padding: 10px 24px; 
+    font-size: 10px;
+    margin-top: 10px; 
+  }
+
+  .caracteristicas {
+    padding: 40px 20px;
+  }
+
+  .grade {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .profissionais {
+    padding: 40px 20px;
+  }
+
+  .profissionais h2 {
+    text-align: center;
+  }
+
+  .trust-bar {
+    flex-direction: column;
+    gap: 30px;
+    align-items: flex-start;
+    padding: 0 20px;
+  }
+
+  .faq-section {
+    padding: 40px 20px;
+  }
+
+  .faq-container {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .faq-left, .faq-right {
+    width: 100%;
+  }
+
+  .faq-left {
+    align-items: center;
+    text-align: center;
+  }
+
+  footer {
+    flex-direction: column;
+    padding: 40px 20px;
+    gap: 30px;
+    text-align: center;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .footer-links .sep {
+    display: none;
+  }
+
+  /*
+  main {
+    flex-direction: column;
+  }
+
+  form {
+    margin: 0 auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: white;
+  }
+
+  img {
+    width: 100px;
+    margin-top: 20px;
+  }
+    */
+}
