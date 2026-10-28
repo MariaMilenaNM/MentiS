@@ -30,17 +30,20 @@ frontReact/
 │   │   ├── crudPaciente.js       # POST /cadastrar, POST /login, GET /:id
 │   │   ├── crudProfissional.js   # CRUD completo /profissionais
 │   │   └── crudPainel.js         # GET/PUT /pacientes/:id (com token)
+│   ├── components/               # Componentes reutilizáveis
+│   │   └── ErrorBoundary.jsx     # Error Boundary para capturar erros de renderização
 │   ├── styles/                   # CSS
 │   │   ├── style.css             # Global + LandingPage
 │   │   ├── login.css             # Paciente + Profissional pages
 │   │   ├── painel.css            # Dashboard
 │   │   └── media.css             # Media queries (responsivo)
-│   ├── App.jsx                   # Definição de rotas
+│   ├── App.jsx                   # Definição de rotas (com ErrorBoundary)
 │   └── main.jsx                  # Entry point (BrowserRouter + StrictMode)
 ├── index.html
 ├── package.json
 ├── vite.config.js
-└── eslint.config.js
+├── eslint.config.js
+└── .env                          # VITE_API_URL
 ```
 
 ---
@@ -62,7 +65,7 @@ frontReact/
 - **NUNCA** faça `fetch`/`axios` diretamente no JSX ou no componente.
 - Crie funções em `/services` para abstrair a comunicação com o backend.
 - Services exportam funções assíncronas nomeadas (ex: `cadastrarPaciente`, `getProfissionais`).
-- Base URL hardcoded: `http://127.0.0.1:5000` ⚠️ **Tech debt: usar variável de ambiente**.
+- Base URL via env: `import.meta.env.VITE_API_URL` (com fallback para `http://127.0.0.1:5000`).
 
 ### 4. Estilização
 - CSS puro, organizado por arquivo por página/funcionalidade.
@@ -80,6 +83,11 @@ frontReact/
 - Execute `npm run lint` antes de commit.
 - Siga regras do `eslint.config.js` (React Hooks, React Refresh).
 - Evite `any` — use tipagem inferida ou JSDoc.
+
+### 7. Testes
+- Execute `npm run test` para rodar testes unitários (Vitest + Testing Library).
+- Testes localizados em `src/hooks/*.test.js`.
+- Cobertura atual: `usePaciente`, `usePainel`, `useProfissional`.
 
 ---
 
@@ -111,13 +119,9 @@ Painel/index.jsx → usePainel.js → carrega perfil + psicólogos
 ---
 
 ## ⚠️ Frontend-Specific Tech Debt
-1. **Hardcoded API URL** - `http://127.0.0.1:5000` em services (usar `import.meta.env.VITE_API_URL`)
-2. **Sem Error Boundaries** - Falha em componente quebra app inteiro
-3. **Senha no localStorage** - Token JWT guardado, mas não há refresh/renewal
-4. **Validação fraca no front** - Depende do backend para validações
-5. **Acessibilidade** - Faltando ARIA labels, foco visível, contraste em alguns pontos
-6. **TypeScript** - Projeto em JS puro, migração futura recomendada
-7. **Testes** - Nenhum teste unitário/integrado configurado
+1. **Token JWT refresh/renewal** - Token guardado no localStorage, mas não há mecanismo de refresh (expira em 1h)
+2. **TypeScript** - Projeto em JS puro, migração futura recomendada
+3. **Acessibilidade** - Melhorias contínuas em ARIA labels, foco visível, contraste
 
 ---
 
@@ -129,6 +133,8 @@ npm run dev                 # Dev server (porta 5173 default)
 npm run build               # Build produção (output em /dist)
 npm run lint                # ESLint (verifica hooks, react-refresh)
 npm run preview             # Preview do build de produção
+npm run test                # Rodar testes (Vitest)
+npm run test:watch          # Rodar testes em modo watch
 ```
 
 ---
