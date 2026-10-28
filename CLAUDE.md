@@ -37,10 +37,10 @@ Todos os commits devem seguir rigorosamente o padrão abaixo:
 ## 🔧 Tech Stack Overview
 | Camada | Tecnologias |
 |--------|-------------|
-| **Frontend** | React 19, Vite, React Router DOM 7, Plain CSS |
-| **Backend** | Node.js (ESM), Express 5, Prisma ORM |
+| **Frontend** | React 19, Vite, React Router DOM 7, Plain CSS, Vitest |
+| **Backend** | Node.js (ESM), Express 5, Prisma ORM, Zod, Winston, bcrypt, express-rate-limit |
 | **Database** | SQLite3 (`dev.db`) |
-| **Auth** | JWT (jsonwebtoken) — *hardcoded secret, plain text passwords (tech debt)* |
+| **Auth** | JWT (jsonwebtoken) — *env-based secret, bcrypt password hashing* |
 
 ---
 
@@ -68,12 +68,11 @@ MentiS/
 ---
 
 ## ⚠️ Known Technical Debt (Project-Wide)
-1. **Plain text passwords** - No bcrypt hashing in `pacienteRepository`
-2. **Hardcoded JWT secret** - "TiaMimi" in `crudPacienteRotas.js`
-3. **No input validation/sanitization** on backend
-4. **No error boundaries** in React
-5. **CRP validation** - Manual flag only, API integration deferred to v2
-6. **RAG/LangChain agent** - Not yet implemented (see README for sprint plan)
+1. **CRP validation** - Manual flag only, API integration deferred to v2
+2. **RAG/LangChain agent** - Not yet implemented (see README for sprint plan)
+3. **TypeScript migration** - Project still in plain JavaScript
+4. **JWT token refresh** - No refresh/renewal mechanism (1h expiry)
+5. **Token rotation** - JWT stored in localStorage without automatic rotation
 
 ---
 
@@ -102,6 +101,7 @@ npm run preview
 ---
 
 ## 📌 Development Notes
-- Backend API base URL: `http://127.0.0.1:5000` (hardcoded in frontend services)
+- Backend API base URL: `import.meta.env.VITE_API_URL` (frontend) / `process.env.PORT || 5000` (backend)
 - Database file: `backend/prisma/dev.db` (gitignored)
 - Frontend expects backend running on port 5000
+- Environment files: `backend/.env` (JWT_SECRET, PORT, NODE_ENV) and `frontReact/.env` (VITE_API_URL)
