@@ -143,7 +143,11 @@ describe('useProfissional', () => {
 
       const { result } = renderHook(() => useProfissional());
 
-      act(() => {
+      // Aguardar carregamento inicial
+      await waitFor(() => expect(result.current.carregando).toBe(false));
+
+      // Set form e aguardar atualização
+      await act(async () => {
         result.current.setForm({
           nome: 'Novo Psicólogo',
           crp: '67890',
@@ -155,9 +159,27 @@ describe('useProfissional', () => {
         });
       });
 
+      // Verificar se form foi atualizado
+      expect(result.current.form.modPresencial).toBe(true);
+      expect(result.current.form.modRemota).toBe(false);
+      expect(result.current.form.nome).toBe('Novo Psicólogo');
+
+      // Debug: verificar erros de validação
+      // Se houver erros, o handleCreate não chama criarProfissional
+      if (Object.keys(result.current.formErros).length > 0) {
+        console.log('Erros de validação:', result.current.formErros);
+      }
+
       await act(async () => {
-        result.current.handleCreate();
+        await result.current.handleCreate();
       });
+
+      // Aguardar carregando voltar a false após a operação
+      await waitFor(() => expect(result.current.carregando).toBe(false), { timeout: 2000 });
+
+      await waitFor(() => {
+        expect(criarProfissional).toHaveBeenCalled();
+      }, { timeout: 2000 });
 
       expect(criarProfissional).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -176,7 +198,11 @@ describe('useProfissional', () => {
 
       const { result } = renderHook(() => useProfissional());
 
-      act(() => {
+      // Aguardar carregamento inicial
+      await waitFor(() => expect(result.current.carregando).toBe(false));
+
+      // Set form e aguardar atualização
+      await act(async () => {
         result.current.setForm({
           nome: 'Teste',
           crp: '12345',
@@ -188,16 +214,29 @@ describe('useProfissional', () => {
         });
       });
 
+      // Verificar se form foi atualizado
+      expect(result.current.form.modPresencial).toBe(true);
+      expect(result.current.form.modRemota).toBe(false);
+      expect(result.current.form.nome).toBe('Teste');
+
+      // Verificar se validação passa
+      expect(result.current.formErros).toEqual({});
+
       await act(async () => {
-        result.current.handleCreate();
+        await result.current.handleCreate();
       });
 
-      expect(result.current.formErros.submit).toBe('Erro ao criar profissional. Tente novamente.');
+      // Aguardar carregando voltar a false
+      await waitFor(() => expect(result.current.carregando).toBe(false));
+
+      await waitFor(() => {
+        expect(result.current.formErros.submit).toBe('Erro ao criar profissional. Tente novamente.');
+      });
     });
   });
 
   describe('abrirEdicao', () => {
-    it('deve buscar profissional e preencher formulário de edição', async () => {
+    it('deve buscar profissional e preencher formulário de edição normalizando modalidade', async () => {
       getProfissionais.mockResolvedValue([]);
       const mockProfissional = { id: 1, nome: 'Teste', crp: 12345, modalidade: 'Presencial', link: 'https://instagram.com/teste', numero: '(11) 99999-9999', contato: 'teste@teste.com' };
       buscarProfissionalPorId.mockResolvedValue(mockProfissional);
@@ -209,7 +248,48 @@ describe('useProfissional', () => {
       });
 
       expect(buscarProfissionalPorId).toHaveBeenCalledWith(1);
-      expect(result.current.editForm).toEqual(mockProfissional);
+      // Agora o editForm inclui modPresencial e modRemota normalizados
+      expect(result.current.editForm).toEqual({
+        ...mockProfissional,
+        modPresencial: true,
+        modRemota: false
+      });
+    });
+
+    it('deve normalizar modalidade "Presencial e Remota" corretamente', async () => {
+      getProfissionais.mockResolvedValue([]);
+      const mockProfissional = { id: 2, nome: 'Teste 2', crp: 54321, modalidade: 'Presencial e Remota', link: '', numero: '(11) 99999-9999', contato: 'teste2@teste.com' };
+      buscarProfissionalPorId.mockResolvedValue(mockProfissional);
+
+      const { result } = renderHook(() => useProfissional());
+
+      await act(async () => {
+        result.current.abrirEdicao(2);
+      });
+
+      expect(result.current.editForm).toEqual({
+        ...mockProfissional,
+        modPresencial: true,
+        modRemota: true
+      });
+    });
+
+    it('deve normalizar modalidade "Remota" corretamente', async () => {
+      getProfissionais.mockResolvedValue([]);
+      const mockProfissional = { id: 3, nome: 'Teste 3', crp: 98765, modalidade: 'Remota', link: '', numero: '(11) 99999-9999', contato: 'teste3@teste.com' };
+      buscarProfissionalPorId.mockResolvedValue(mockProfissional);
+
+      const { result } = renderHook(() => useProfissional());
+
+      await act(async () => {
+        result.current.abrirEdicao(3);
+      });
+
+      expect(result.current.editForm).toEqual({
+        ...mockProfissional,
+        modPresencial: false,
+        modRemota: true
+      });
     });
   });
 
@@ -226,7 +306,7 @@ describe('useProfissional', () => {
       });
 
       act(() => {
-        result.current.setEditForm({ ...mockProfissional, nome: '' });
+        result.current.setEditForm({ ...mockProfissional, modPresencial: true, modRemota: false, nome: '' });
       });
 
       await act(async () => {
@@ -249,15 +329,17 @@ describe('useProfissional', () => {
       });
 
       act(() => {
-        result.current.setEditForm({ ...mockProfissional, nome: 'Teste Atualizado' });
+        result.current.setEditForm({ ...mockProfissional, modPresencial: true, modRemota: false, nome: 'Teste Atualizado' });
       });
 
       await act(async () => {
         result.current.handleUpdate();
       });
 
-      expect(atualizarProfissionalBd).toHaveBeenCalledWith(1, expect.objectContaining({ nome: 'Teste Atualizado' }));
-      expect(result.current.editForm).toBeNull();
+      await waitFor(() => {
+        expect(atualizarProfissionalBd).toHaveBeenCalledWith(1, expect.objectContaining({ nome: 'Teste Atualizado' }));
+        expect(result.current.editForm).toBeNull();
+      });
     });
 
     it('deve mostrar erro se atualizarProfissionalBd falhar', async () => {
@@ -273,14 +355,16 @@ describe('useProfissional', () => {
       });
 
       act(() => {
-        result.current.setEditForm({ ...mockProfissional, nome: 'Teste Atualizado' });
+        result.current.setEditForm({ ...mockProfissional, modPresencial: true, modRemota: false, nome: 'Teste Atualizado' });
       });
 
       await act(async () => {
         result.current.handleUpdate();
       });
 
-      expect(result.current.editErros.submit).toBe('Erro ao atualizar profissional. Tente novamente.');
+      await waitFor(() => {
+        expect(result.current.editErros.submit).toBe('Erro ao atualizar profissional. Tente novamente.');
+      });
     });
   });
 
