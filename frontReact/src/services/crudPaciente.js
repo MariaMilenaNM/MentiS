@@ -9,11 +9,11 @@ export async function cadastrarPaciente(nome, data, email, telefone, cidade, est
             body: JSON.stringify({ nome, data, email, telefone, cidade, estado, senha })
         });
 
-        const data = await response.json();
+        const responseData = await response.json();
 
-        if (response.status === 409) return { status: 'duplicado', erro: data.erro || 'E-mail já cadastrado' };
-        if (!response.ok) return { status: 'erro', erro: data.erro || 'Erro ao cadastrar' };
-        return { status: 'ok', data };
+        if (response.status === 409) return { status: 'duplicado', erro: responseData.erro || 'E-mail já cadastrado' };
+        if (!response.ok) return { status: 'erro', erro: responseData.erro || 'Erro ao cadastrar' };
+        return { status: 'ok', data: responseData };
     } catch (error) {
         console.error('Erro ao cadastrar paciente:', error);
         return { status: 'erro', erro: 'Erro de conexão com o servidor' };
