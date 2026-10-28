@@ -19,7 +19,8 @@ export const pacienteAtualizacaoSchema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100).optional(),
   telefone: z.string().min(10, "Telefone inválido").max(15).optional(),
   cidade: z.string().min(2, "Cidade inválida").max(100).optional(),
-  estado: z.string().length(2, "Estado deve ter 2 letras (ex: SP)").optional()
+  estado: z.string().length(2, "Estado deve ter 2 letras (ex: SP)").optional(),
+  senha: z.string().min(6, "Senha deve ter pelo menos 6 caracteres").max(100).optional()
 }).refine(data => Object.keys(data).length > 0, {
   message: "Pelo menos um campo deve ser fornecido para atualização"
 });
