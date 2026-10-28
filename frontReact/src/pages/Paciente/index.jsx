@@ -11,6 +11,7 @@ export default function Paciente() {
         cadTelefone, setCadTelefone, cadCidade, setCadCidade,
         cadEstado, setCadEstado, cadSenha, setCadSenha, cadSenhaConf, setCadSenhaConf,
         cadErro,
+        sucessoMsg, limparSucessoMsg,
         handleLogin, handleCadastro
     } = usePaciente();
 
@@ -69,6 +70,11 @@ export default function Paciente() {
 
                         {telaAtual === 'cadastro' && (
                             <div id="formCadastro">
+                                {sucessoMsg && (
+                                    <div className="sucesso-mensagem" role="status" aria-live="polite" onClick={limparSucessoMsg} style={{ cursor: 'pointer' }}>
+                                        {sucessoMsg}
+                                    </div>
+                                )}
                                 {cadErro && (
                                     <div className="erro-mensagem" role="alert" aria-live="polite">
                                         {cadErro}

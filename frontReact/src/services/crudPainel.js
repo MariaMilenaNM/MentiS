@@ -7,13 +7,17 @@ function getToken() {
 
 async function authenticatedFetch(url, options = {}) {
     const token = getToken();
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+    };
+    // Só adiciona Authorization header se token existir
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
     const response = await fetch(url, {
         ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            ...options.headers
-        }
+        headers
     });
     return response;
 }
@@ -37,7 +41,10 @@ export async function atualizarPacienteBd(id, dados) {
             body: JSON.stringify(dados)
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.erro || 'Erro ao atualizar');
+        if (!res.ok) {
+            const msg = data.erro || `Erro ao atualizar (${res.status})`;
+            throw new Error(msg);
+        }
         return data;
     } catch (error) {
         console.error('Erro ao atualizar paciente:', error);

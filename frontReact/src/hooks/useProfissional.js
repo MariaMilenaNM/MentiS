@@ -102,7 +102,8 @@ export function useProfissional() {
             contato: form.contato
         };
 
-        const erros = validarFormulario(dadosSubmit);
+        // Validar usando o form original (que tem modPresencial/modRemota)
+        const erros = validarFormulario(form);
         if (Object.keys(erros).length > 0) {
             setFormErros(erros);
             return;
@@ -130,7 +131,14 @@ export function useProfissional() {
         try {
             const resultado = await buscarProfissionalPorId(id);
             if (resultado) {
-                setEditForm(resultado);
+                // Normalizar modalidade (string da API) para checkboxes (booleanos do form)
+                const modalidade = resultado.modalidade || "";
+                const editFormNormalizado = {
+                    ...resultado,
+                    modPresencial: modalidade.includes("Presencial"),
+                    modRemota: modalidade.includes("Remota")
+                };
+                setEditForm(editFormNormalizado);
                 setEditErros({});
             }
         } catch (error) {
@@ -188,9 +196,11 @@ export function useProfissional() {
         form,
         setForm,
         formErros,
+        setFormErros,
         editForm,
         setEditForm,
         editErros,
+        setEditErros,
         carregando,
         handleCreate,
         abrirEdicao,

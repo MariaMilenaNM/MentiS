@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { buscarPacientePorId, atualizarPacienteBd } from '../services/crudPainel.js';
 import { getProfissionais } from '../services/crudProfissional.js';
@@ -18,21 +18,52 @@ export function usePainel() {
 
     const [editForm, setEditForm] = useState({ nome: '', telefone: '', cidade: '', estado: '' });
     const [editErro, setEditErro] = useState('');
+    const [sucessoMsg, setSucessoMsg] = useState('');
 
-    // Verificar token no carregamento
+    // Verificar token no carregamento E quando a janela ganha foco/aba volta ativa
     useEffect(() => {
-        const token = getToken();
-        if (token && isTokenExpired(token)) {
-            logout();
-            navigate('/paciente');
-        }
+        const verificarToken = () => {
+            const token = getToken();
+            if (token && isTokenExpired(token)) {
+                logout();
+                navigate('/paciente');
+            }
+        };
+
+        verificarToken();
+
+        // Revalidar quando usuário volta para a aba/janela
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                verificarToken();
+            }
+        };
+
+        const handleFocus = () => {
+            verificarToken();
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
     }, [navigate]);
 
     // useCallback para estabilizar a função e evitar re-renders infinitos
+    // useRef para capturar navigate estável sem adicionar como dependência
+    const navigateRef = useRef(navigate);
+    // Atualiza ref via useEffect para não violar regras de render
+    useEffect(() => {
+        navigateRef.current = navigate;
+    }, [navigate]);
+
     const carregarDados = useCallback(async () => {
         const storage = getPacienteLogado();
         if (!storage) {
-            navigate('/paciente');
+            navigateRef.current('/paciente');
             return;
         }
 
@@ -42,7 +73,7 @@ export function usePainel() {
                 setPacienteLogado(pacienteAtt);
             } else {
                 logout();
-                navigate('/paciente');
+                navigateRef.current('/paciente');
                 return;
             }
 
@@ -51,9 +82,9 @@ export function usePainel() {
         } catch (error) {
             console.error('Erro ao carregar dados do painel:', error);
             logout();
-            navigate('/paciente');
+            navigateRef.current('/paciente');
         }
-    }, [navigate]);
+    }, []); // navigate removido das deps - usa ref estável
 
     // dependência com useCallback
     useEffect(() => {
@@ -85,6 +116,9 @@ export function usePainel() {
                 estado: pacienteLogado.estado || ''
             });
             setEditErro('');
+            setSucessoMsg('');
+        } else {
+            setSucessoMsg('');
         }
         setModoEdicao(!modoEdicao);
     };
@@ -124,7 +158,7 @@ export function usePainel() {
                 setPacienteLogado(pacienteAtualizado);
             }
             setModoEdicao(false);
-            alert('Perfil atualizado com sucesso!');
+            setSucessoMsg('Perfil atualizado com sucesso!');
         } catch {
             setEditErro('Erro ao salvar. Tente novamente.');
         }
@@ -139,6 +173,8 @@ export function usePainel() {
     const psicologosPagina = todosPsicologos.slice(indexInicio, indexInicio + ITENS_POR_PAGINA);
     const totalPaginas = Math.ceil(todosPsicologos.length / ITENS_POR_PAGINA);
 
+    const limparSucessoMsg = () => setSucessoMsg('');
+
     return {
         pacienteLogado,
         todosPsicologos,
@@ -147,6 +183,8 @@ export function usePainel() {
         paginaAtual, setPaginaAtual,
         editForm, setEditForm,
         editErro,
+        sucessoMsg,
+        limparSucessoMsg,
         formatarData,
         toggleSidebar,
         toggleEdicao,

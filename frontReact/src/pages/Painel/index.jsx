@@ -4,7 +4,7 @@ import '../../styles/painel.css';
 export default function Painel() {
     const {
         pacienteLogado, sidebarAberta, modoEdicao, paginaAtual, setPaginaAtual,
-        editForm, setEditForm, editErro, formatarData, toggleSidebar, toggleEdicao,
+        editForm, setEditForm, editErro, sucessoMsg, limparSucessoMsg, formatarData, toggleSidebar, toggleEdicao,
         salvarEdicao, sair, psicologosPagina, totalPaginas, todosPsicologos
     } = usePainel();
 
@@ -55,6 +55,11 @@ export default function Painel() {
 
                     {modoEdicao && (
                         <div id="formEditar" style={{ marginTop: '14px' }}>
+                            {sucessoMsg && (
+                                <div className="sucesso-mensagem" role="status" aria-live="polite" onClick={limparSucessoMsg} style={{ cursor: 'pointer' }}>
+                                    {sucessoMsg}
+                                </div>
+                            )}
                             {editErro && (
                                 <div className="erro-mensagem" role="alert" aria-live="polite">
                                     {editErro}
@@ -145,7 +150,9 @@ export default function Painel() {
                     ) : (
                         psicologosPagina.map(p => {
                             const letra = p.nome ? p.nome.charAt(0).toUpperCase() : '?';
-                            const linkInsta = p.link ? p.link.replace('@', '') : '';
+                            // Validação segura do link do Instagram: apenas username alfanumérico + underscore/pontos
+                            const instagramUsername = p.link ? p.link.replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace('@', '').split('/')[0] : '';
+                            const instagramValido = instagramUsername && /^[a-zA-Z0-9_.]+$/.test(instagramUsername);
                             const classeTag = p.modalidade === 'Presencial e Remota' ? 'ambas' : p.modalidade?.toLowerCase();
 
                             return (
@@ -155,12 +162,12 @@ export default function Painel() {
                                         <h3 className="psi-nome">{p.nome}</h3>
                                         <span className="psi-crp">CRP: {p.crp}</span>
                                         <span className={`psi-modalidade tag-${classeTag}`}>{p.modalidade}</span>
-                                        <p className="psi-contato"> {p.contato}</p>
-                                        <p className="psi-contato"> {p.numero}</p>
+                                        <p className="psi-contato"><strong>E-mail:</strong> {p.contato}</p>
+                                        <p className="psi-contato"><strong>Telefone:</strong> {p.numero}</p>
                                     </div>
-                                    {p.link && (
+                                    {instagramValido && (
                                         <a
-                                            href={`https://instagram.com/${linkInsta}`}
+                                            href={`https://instagram.com/${instagramUsername}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="psi-btn-insta"

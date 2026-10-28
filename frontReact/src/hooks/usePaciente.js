@@ -21,6 +21,9 @@ export function usePaciente() {
     const [cadSenhaConf, setCadSenhaConf] = useState('');
     const [cadErro, setCadErro] = useState('');
 
+    // Toast/success message não-bloqueante
+    const [sucessoMsg, setSucessoMsg] = useState('');
+
     const validarEmail = (email) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
@@ -56,6 +59,7 @@ export function usePaciente() {
 
     const handleCadastro = async () => {
         setCadErro('');
+        setSucessoMsg('');
 
         if (!cadNome || !cadData || !cadEmail || !cadTelefone || !cadCidade || !cadEstado || !cadSenha) {
             setCadErro('Preencha todos os campos!');
@@ -95,7 +99,8 @@ export function usePaciente() {
             return;
         }
 
-        alert('Conta criada com sucesso! Faça login.');
+        // Toast não-bloqueante em vez de alert()
+        setSucessoMsg('Conta criada com sucesso! Redirecionando para login...');
         setTelaAtual('login');
         // Limpar formulário
         setCadNome('');
@@ -107,6 +112,8 @@ export function usePaciente() {
         setCadSenha('');
         setCadSenhaConf('');
     };
+
+    const limparSucessoMsg = () => setSucessoMsg('');
 
     return {
         telaAtual, setTelaAtual,
@@ -122,6 +129,7 @@ export function usePaciente() {
         cadSenha, setCadSenha,
         cadSenhaConf, setCadSenhaConf,
         cadErro,
+        sucessoMsg, limparSucessoMsg,
         handleLogin, handleCadastro
     };
 }

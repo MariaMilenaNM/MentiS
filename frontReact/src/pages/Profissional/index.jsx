@@ -4,7 +4,7 @@ import '../../styles/login.css';
 
 export default function Profissional() {
     const {
-        profissionais, form, setForm, formErros, editForm, setEditForm, editErros, carregando,
+        profissionais, form, setForm, formErros, setFormErros, editForm, setEditForm, editErros, setEditErros, carregando,
         handleCreate, abrirEdicao, handleUpdate, handleDelete
     } = useProfissional();
 
@@ -16,7 +16,11 @@ export default function Profissional() {
         }));
         // Limpar erro do campo quando o usuário digita
         if (formErros[name]) {
-            setForm(prev => prev); // trigger re-render para limpar erro
+            setFormErros(prev => {
+                const next = { ...prev };
+                delete next[name];
+                return next;
+            });
         }
     };
 
@@ -27,7 +31,11 @@ export default function Profissional() {
             [name]: value
         }));
         if (editErros[name]) {
-            setEditForm(prev => prev);
+            setEditErros(prev => {
+                const next = { ...prev };
+                delete next[name];
+                return next;
+            });
         }
     };
 
