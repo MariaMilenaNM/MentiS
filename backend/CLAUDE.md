@@ -9,6 +9,11 @@
 - Express 5
 - Prisma ORM
 - SQLite
+- Zod (validação)
+- Winston (logs estruturados)
+- bcrypt (hash de senhas)
+- express-rate-limit (rate limiting)
+- dotenv (variáveis de ambiente)
 
 ---
 
@@ -22,9 +27,13 @@ backend/
 ├── repository/                 # Camada de acesso a dados (centraliza comunicação com BD)
 │   ├── profissionalRepository.js
 │   └── pacienteRepository.js
+├── utils/                      # Utilitários compartilhados
+│   ├── validation.js           # Schemas Zod + middleware validate()
+│   └── logger.js               # Winston logger configurado
 ├── prisma/
 │   ├── schema.prisma           # Models: Profissional & Paciente
 │   └── migrations/
+├── .env                        # JWT_SECRET, PORT, NODE_ENV
 └── package.json
 ```
 
@@ -58,9 +67,10 @@ backend/
 
 ### 5. Autenticação (JWT)
 - Middleware `verificarToken` em `crudPacienteRotas.js` valida `Authorization: Bearer <token>`.
-- Secret hardcoded: `"TiaMimi"` ⚠️ **Tech debt - mover para env**.
+- Secret via env: `process.env.JWT_SECRET` (obrigatório, servidor falha se ausente).
 - Token expira em 1h.
 - Rotas protegidas: `GET/PUT/DELETE /pacientes/:id`.
+- ⚠️ **Tech debt**: No refresh/renewal mechanism for expired tokens.
 
 ---
 
@@ -69,7 +79,7 @@ backend/
 model Profissional {
   id         Int    @id @default(autoincrement())
   nome       String
-  crp        Int
+  crp        Int    @unique
   modalidade String
   link       String
   numero     String
@@ -84,7 +94,7 @@ model Paciente {
   telefone String
   cidade   String
   estado   String
-  senha    String  // ⚠️ PLAIN TEXT - Tech debt: add bcrypt
+  senha    String  // ✅ Hashed with bcrypt (SALT_ROUNDS=10)
 }
 ```
 
@@ -112,27 +122,40 @@ model Paciente {
 
 ---
 
-## 🧪 Repository Pattern (Exemplo)
+## 🧪 Repository Pattern (Exemplo - Atualizado com bcrypt)
 ```javascript
 // repository/pacienteRepository.js
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
+
 const prisma = new PrismaClient();
+const SALT_ROUNDS = 10;
 
 export const pacienteRepository = {
   findByEmail: async (email) => 
     await prisma.paciente.findUnique({ where: { email } }),
   
-  create: async (data) => 
-    await prisma.paciente.create({ data }),
+  create: async (data) => {
+    const hashedSenha = await bcrypt.hash(data.senha, SALT_ROUNDS);
+    return await prisma.paciente.create({ data: { ...data, senha: hashedSenha } });
+  },
   
-  findByEmailAndSenha: async (email, senha) => 
-    await prisma.paciente.findFirst({ where: { email, senha } }),
+  findByEmailAndSenha: async (email, senha) => {
+    const paciente = await prisma.paciente.findUnique({ where: { email } });
+    if (!paciente) return null;
+    const senhaValida = await bcrypt.compare(senha, paciente.senha);
+    return senhaValida ? paciente : null;
+  },
   
   findById: async (id) => 
     await prisma.paciente.findUnique({ where: { id } }),
   
-  update: async (id, data) => 
-    await prisma.paciente.update({ where: { id }, data }),
+  update: async (id, data) => {
+    if (data.senha) {
+      data.senha = await bcrypt.hash(data.senha, SALT_ROUNDS);
+    }
+    return await prisma.paciente.update({ where: { id }, data });
+  },
   
   delete: async (id) => 
     await prisma.paciente.delete({ where: { id } })
@@ -142,12 +165,9 @@ export const pacienteRepository = {
 ---
 
 ## ⚠️ Backend-Specific Tech Debt
-1. **Senhas em texto plano** - Implementar bcrypt no `create` e `findByEmailAndSenha`
-2. **JWT secret hardcoded** - Usar `process.env.JWT_SECRET`
-3. **Validação de entrada** - Adicionar validação (ex: Zod, express-validator)
-4. **CRP** - Apenas flag manual, sem integração com API oficial
-5. **Rate limiting** - Não implementado
-6. **Logs estruturados** - Apenas `morgan('dev')`
+1. **CRP** - Apenas flag manual, sem integração com API oficial
+2. **JWT token refresh** - No refresh/renewal mechanism (1h expiry)
+3. **TypeScript migration** - Project still in plain JavaScript
 
 ---
 
@@ -156,7 +176,7 @@ export const pacienteRepository = {
 cd backend
 npm install                 # Instalar dependências
 node app.js                 # Iniciar servidor (porta 5000)
-# ou: npm run dev           # Se script "dev" for adicionado
+# ou: npm run dev           # Com --watch (node --watch app.js)
 npx prisma generate         # Gerar Prisma Client
 npx prisma migrate dev      # Rodar migrations
 npx prisma studio           # Abrir Prisma Studio (GUI)
