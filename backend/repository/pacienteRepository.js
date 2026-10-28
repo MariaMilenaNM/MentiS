@@ -47,11 +47,14 @@ export const pacienteRepository = {
 
     update: async (id, data) => {
         try {
-            // Se estiver atualizando a senha, fazer hash
-            if (data.senha) {
-                data.senha = await bcrypt.hash(data.senha, SALT_ROUNDS);
+            // Criar cópia para não mutar o objeto original (evita side effects)
+            const dataToUpdate = { ...data };
+
+            // Se estiver atualizando a senha, fazer hash na cópia
+            if (dataToUpdate.senha) {
+                dataToUpdate.senha = await bcrypt.hash(dataToUpdate.senha, SALT_ROUNDS);
             }
-            return await prisma.paciente.update({ where: { id }, data });
+            return await prisma.paciente.update({ where: { id }, data: dataToUpdate });
         } catch (error) {
             throw new Error(`Erro ao atualizar paciente: ${error.message}`);
         }

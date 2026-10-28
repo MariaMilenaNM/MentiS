@@ -30,6 +30,15 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Rate limiting para profissionais
+const profissionalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 50, // máximo 50 requisições por IP
+  message: { erro: "Muitas requisições, tente novamente mais tarde" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 app.use(cors());
 app.use(express.json());
 
@@ -43,10 +52,13 @@ app.use(morgan("combined", {
 app.use(limiter);
 
 // Rotas de autenticação com rate limiting mais restritivo
+// As rotas reais são /pacientes/cadastrar e /pacientes/login (prefixo adicionado pelo app.use('/pacientes', crudPaciente))
+// Aplicamos o limiter nas rotas específicas ANTES do mount do crudPaciente
 app.use("/pacientes/cadastrar", authLimiter);
 app.use("/pacientes/login", authLimiter);
 
-app.use("/profissionais", crudProfissional);
+// Rotas de profissionais com rate limiting e proteção futura
+app.use("/profissionais", profissionalLimiter, crudProfissional);
 app.use("/pacientes", crudPaciente);
 
 // Health check

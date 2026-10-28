@@ -20,6 +20,7 @@ export const pacienteAtualizacaoSchema = z.object({
   telefone: z.string().min(10, "Telefone inválido").max(15).optional(),
   cidade: z.string().min(2, "Cidade inválida").max(100).optional(),
   estado: z.string().length(2, "Estado deve ter 2 letras (ex: SP)").optional(),
+  email: z.string().email("E-mail inválido").optional(),
   senha: z.string().min(6, "Senha deve ter pelo menos 6 caracteres").max(100).optional()
 }).refine(data => Object.keys(data).length > 0, {
   message: "Pelo menos um campo deve ser fornecido para atualização"
@@ -31,7 +32,8 @@ export const profissionalSchema = z.object({
   modalidade: z.enum(["Presencial", "Remota", "Presencial e Remota"], {
     errorMap: () => ({ message: "Modalidade deve ser: Presencial, Remota ou Presencial e Remota" })
   }),
-  link: z.string().url("Link deve ser uma URL válida").optional().or(z.literal("")),
+  // URL válida OU string vazia OU undefined (opcional)
+  link: z.union([z.string().url("Link deve ser uma URL válida"), z.literal("")]).optional(),
   numero: z.string().min(10, "Número inválido").max(15),
   contato: z.string().email("E-mail de contato inválido")
 });
@@ -40,7 +42,8 @@ export const profissionalAtualizacaoSchema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100).optional(),
   crp: z.number().int().positive("CRP deve ser um número positivo").optional(),
   modalidade: z.enum(["Presencial", "Remota", "Presencial e Remota"]).optional(),
-  link: z.string().url("Link deve ser uma URL válida").optional().or(z.literal("")),
+  // URL válida OU string vazia OU undefined (opcional)
+  link: z.union([z.string().url("Link deve ser uma URL válida"), z.literal("")]).optional(),
   numero: z.string().min(10, "Número inválido").max(15).optional(),
   contato: z.string().email("E-mail de contato inválido").optional()
 }).refine(data => Object.keys(data).length > 0, {

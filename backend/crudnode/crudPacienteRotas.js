@@ -86,6 +86,11 @@ routes.get("/:id", verificarToken, asyncHandler(async (req, res) => {
         return res.status(400).json({ erro: "ID inválido" });
     }
 
+    // Verificação de posse: paciente só pode acessar próprio perfil
+    if (req.paciente.id !== id) {
+        return res.status(403).json({ erro: "Acesso negado: você só pode visualizar seu próprio perfil" });
+    }
+
     const paciente = await pacienteRepository.findById(id);
 
     if (!paciente) {
@@ -104,10 +109,23 @@ routes.put("/:id", verificarToken, validate(pacienteAtualizacaoSchema), asyncHan
         return res.status(400).json({ erro: "ID inválido" });
     }
 
+    // Verificação de posse: paciente só pode atualizar próprio perfil
+    if (req.paciente.id !== id) {
+        return res.status(403).json({ erro: "Acesso negado: você só pode atualizar seu próprio perfil" });
+    }
+
     const existe = await pacienteRepository.findById(id);
 
     if (!existe) {
         return res.status(404).json({ erro: "Paciente não encontrado" });
+    }
+
+    // Verifica unicidade de email se está sendo alterado
+    if (dados.email && dados.email !== existe.email) {
+        const emailExiste = await pacienteRepository.findByEmail(dados.email);
+        if (emailExiste) {
+            return res.status(409).json({ erro: "E-mail já cadastrado por outro paciente" });
+        }
     }
 
     await pacienteRepository.update(id, dados);
@@ -120,6 +138,11 @@ routes.delete("/:id", verificarToken, asyncHandler(async (req, res) => {
 
     if (isNaN(id)) {
         return res.status(400).json({ erro: "ID inválido" });
+    }
+
+    // Verificação de posse: paciente só pode deletar próprio perfil
+    if (req.paciente.id !== id) {
+        return res.status(403).json({ erro: "Acesso negado: você só pode remover seu próprio perfil" });
     }
 
     const existe = await pacienteRepository.findById(id);
