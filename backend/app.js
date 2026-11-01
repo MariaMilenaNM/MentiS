@@ -6,6 +6,10 @@ import dotenv from "dotenv";
 import { logger } from "./utils/logger.js";
 import crudProfissional from "./crudnode/crudProfissionalRotas.js";
 import crudPaciente from "./crudnode/crudPacienteRotas.js";
+import crudPsicologo from "./crudnode/crudPsicologoRotas.js";
+import crudHorario from "./crudnode/crudHorarioRotas.js";
+import crudAgendamento from "./crudnode/crudAgendamentoRotas.js";
+import crudConversa from "./crudnode/crudConversaRotas.js";
 
 dotenv.config();
 
@@ -30,11 +34,29 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Rate limiting para profissionais
+// Rate limiting para profissionais/psicólogos
 const profissionalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 50, // máximo 50 requisições por IP
   message: { erro: "Muitas requisições, tente novamente mais tarde" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Rate limiting para agendamentos
+const agendamentoLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minuto
+  max: 20, // máximo 20 requisições por minuto
+  message: { erro: "Muitas requisições de agendamento, tente novamente mais tarde" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Rate limiting para chat/conversas
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minuto
+  max: 60, // máximo 60 mensagens por minuto
+  message: { erro: "Muitas mensagens, aguarde um momento" },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -52,14 +74,18 @@ app.use(morgan("combined", {
 app.use(limiter);
 
 // Rotas de autenticação com rate limiting mais restritivo
-// As rotas reais são /pacientes/cadastrar e /pacientes/login (prefixo adicionado pelo app.use('/pacientes', crudPaciente))
-// Aplicamos o limiter nas rotas específicas ANTES do mount do crudPaciente
 app.use("/pacientes/cadastrar", authLimiter);
 app.use("/pacientes/login", authLimiter);
 
-// Rotas de profissionais com rate limiting e proteção futura
+// Rotas existentes (manter compatibilidade)
 app.use("/profissionais", profissionalLimiter, crudProfissional);
 app.use("/pacientes", crudPaciente);
+
+// Novas rotas
+app.use("/psicologos", profissionalLimiter, crudPsicologo);
+app.use("/horarios", crudHorario);
+app.use("/agendamentos", agendamentoLimiter, crudAgendamento);
+app.use("/conversas", chatLimiter, crudConversa);
 
 // Health check
 app.get("/health", (req, res) => {

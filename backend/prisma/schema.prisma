@@ -7,23 +7,167 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-model Profissional {
-  id            Int    @id @default(autoincrement())
-  nome          String
-  crp           Int    @unique
-  modalidade    String
-  link          String
-  numero        String
-  contato       String
+enum UserRole {
+  PACIENTE
+  PSICOLOGO
+  ADMIN
+}
+
+enum Modalidade {
+  ONLINE
+  PRESENCIAL
+  HIBRIDO
+}
+
+enum Abordagem {
+  PSICANALITICA
+  COGNITIVO_COMPORTAMENTAL
+  HUMANISTA
+  SISTEMICA
+  GESTALT
+  JUNGUIANA
+  OUTRA
+}
+
+enum StatusAgendamento {
+  AGENDADO
+  CONFIRMADO
+  CANCELADO_PACIENTE
+  CANCELADO_PSICOLOGO
+  REALIZADO
+  FALTOU
+}
+
+model Usuario {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  senha     String    // bcrypt hash
+  role      UserRole  @default(PACIENTE)
+  ativo     Boolean   @default(true)
+  criadoEm  DateTime  @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  paciente      Paciente?
+  psicologo     Psicologo?
+  mensagensEnviadas Mensagem[] @relation("MensagemRemetente")
+
+  @@index([email])
+  @@index([role])
 }
 
 model Paciente {
-  id       Int    @id @default(autoincrement())
-  nome     String
-  data     String
-  email    String @unique
-  telefone String
-  cidade   String
-  estado   String
-  senha    String
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @unique
+  nome      String
+  dataNasc  DateTime // SQLite usa DateTime para data
+  telefone  String
+  cidade    String
+  estado    String
+  aceiteLGPD Boolean @default(false)
+  criadoEm  DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  usuario     Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  agendamentos Agendamento[]
+  conversas   Conversa[]
+
+  @@index([usuarioId])
+}
+
+model Psicologo {
+  id            Int        @id @default(autoincrement())
+  usuarioId     Int        @unique
+  crp           String     @unique // CRM/CRP como string (pode ter letras/UF)
+  bio           String?
+  especialidades String    // JSON stringificado: ["CBT", "Psicanálise"]
+  abordagem     Abordagem  @default(OUTRA)
+  preco         Float      // preço por sessão
+  modalidade    Modalidade @default(ONLINE)
+  validado      Boolean    @default(false) // CRP validado manualmente
+  fotoUrl       String?
+  criadoEm      DateTime   @default(now())
+  atualizadoEm  DateTime   @updatedAt
+
+  usuario      Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  horarios     HorarioDisponivel[]
+  agendamentos Agendamento[]
+  conversas    Conversa[]
+
+  @@index([usuarioId])
+  @@index([crp])
+  @@index([validado])
+  @@index([modalidade])
+}
+
+model HorarioDisponivel {
+  id          Int      @id @default(autoincrement())
+  psicologoId Int
+  diaSemana   Int      // 0=Domingo ... 6=Sábado
+  horaInicio  String   // formato "HH:mm"
+  horaFim     String   // formato "HH:mm"
+  ativo       Boolean  @default(true)
+  criadoEm    DateTime @default(now())
+
+  psicologo   Psicologo       @relation(fields: [psicologoId], references: [id], onDelete: Cascade)
+  agendamentos Agendamento[]
+
+  @@unique([psicologoId, diaSemana, horaInicio, horaFim])
+  @@index([psicologoId])
+  @@index([diaSemana])
+}
+
+model Agendamento {
+  id            Int             @id @default(autoincrement())
+  pacienteId    Int
+  psicologoId   Int
+  horarioId     Int?
+  dataHora      DateTime
+  duracaoMin    Int             @default(50)
+  status        StatusAgendamento @default(AGENDADO)
+  observacoes   String?
+  criadoEm      DateTime        @default(now())
+  atualizadoEm  DateTime        @updatedAt
+
+  paciente      Paciente        @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  psicologo     Psicologo       @relation(fields: [psicologoId], references: [id], onDelete: Cascade)
+  horario       HorarioDisponivel? @relation(fields: [horarioId], references: [id], onDelete: SetNull)
+
+  @@index([pacienteId])
+  @@index([psicologoId])
+  @@index([dataHora])
+  @@index([status])
+}
+
+model Conversa {
+  id          Int       @id @default(autoincrement())
+  pacienteId  Int
+  psicologoId Int
+  ativa       Boolean   @default(true)
+  criadoEm    DateTime  @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  paciente    Paciente   @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  psicologo   Psicologo  @relation(fields: [psicologoId], references: [id], onDelete: Cascade)
+  mensagens   Mensagem[]
+
+  @@unique([pacienteId, psicologoId]) // uma conversa por par
+  @@index([pacienteId])
+  @@index([psicologoId])
+  @@index([ativa])
+}
+
+model Mensagem {
+  id          Int      @id @default(autoincrement())
+  conversaId  Int
+  remetenteId Int      // usuarioId de quem enviou
+  conteudo    String
+  lida        Boolean  @default(false)
+  criadoEm    DateTime @default(now())
+
+  conversa    Conversa  @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+  remetente   Usuario   @relation("MensagemRemetente", fields: [remetenteId], references: [id], onDelete: Cascade)
+
+  @@index([conversaId])
+  @@index([remetenteId])
+  @@index([criadoEm])
 }
