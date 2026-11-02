@@ -5,7 +5,11 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "node --watch app.js"
+    "dev": "node --watch app.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "keywords": [],
   "author": "",
@@ -26,5 +30,10 @@
     "prisma": "^6.19.3",
     "winston": "^3.19.0",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "eslint": "^9.20.0",
+    "prettier": "^3.4.2",
+    "eslint-config-prettier": "^10.0.1"
   }
 }
