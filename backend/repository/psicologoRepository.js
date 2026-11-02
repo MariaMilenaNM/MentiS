@@ -28,9 +28,9 @@ export const psicologoRepository = {
         where,
         include: {
           usuario: true,
-          horarios: { where: { ativo: true } }
+          horarios: { where: { ativo: true } },
         },
-        orderBy: { criadoEm: 'desc' }
+        orderBy: { criadoEm: 'desc' },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar psicólogos: ${error.message}`);
@@ -43,8 +43,8 @@ export const psicologoRepository = {
         where: { id },
         include: {
           usuario: true,
-          horarios: { where: { ativo: true } }
-        }
+          horarios: { where: { ativo: true } },
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar psicólogo: ${error.message}`);
@@ -57,8 +57,8 @@ export const psicologoRepository = {
         where: { usuarioId },
         include: {
           usuario: true,
-          horarios: { where: { ativo: true } }
-        }
+          horarios: { where: { ativo: true } },
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar psicólogo por usuarioId: ${error.message}`);
@@ -69,7 +69,7 @@ export const psicologoRepository = {
     try {
       return await prisma.psicologo.findUnique({
         where: { crp },
-        include: { usuario: true }
+        include: { usuario: true },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar psicólogo por CRP: ${error.message}`);
@@ -79,7 +79,7 @@ export const psicologoRepository = {
   create: async (usuarioId, data) => {
     try {
       return await prisma.psicologo.create({
-        data: { ...data, usuarioId }
+        data: { ...data, usuarioId },
       });
     } catch (error) {
       throw new Error(`Erro ao criar psicólogo: ${error.message}`);
@@ -108,8 +108,8 @@ export const psicologoRepository = {
         where: { validado: true },
         include: {
           usuario: true,
-          horarios: { where: { ativo: true } }
-        }
+          horarios: { where: { ativo: true } },
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar psicólogos validados: ${error.message}`);
@@ -121,12 +121,12 @@ export const psicologoRepository = {
       return await prisma.psicologo.findMany({
         where: {
           validado: true,
-          especialidades: { contains: especialidade }
+          especialidades: { contains: especialidade },
         },
         include: {
           usuario: true,
-          horarios: { where: { ativo: true } }
-        }
+          horarios: { where: { ativo: true } },
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar psicólogos por especialidade: ${error.message}`);

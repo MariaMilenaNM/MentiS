@@ -21,9 +21,9 @@ export const agendamentoRepository = {
         include: {
           paciente: { include: { usuario: true } },
           psicologo: { include: { usuario: true } },
-          horario: true
+          horario: true,
         },
-        orderBy: { dataHora: 'asc' }
+        orderBy: { dataHora: 'asc' },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar agendamentos: ${error.message}`);
@@ -37,8 +37,8 @@ export const agendamentoRepository = {
         include: {
           paciente: { include: { usuario: true } },
           psicologo: { include: { usuario: true } },
-          horario: true
-        }
+          horario: true,
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar agendamento: ${error.message}`);
@@ -52,8 +52,8 @@ export const agendamentoRepository = {
         where: {
           psicologoId: data.psicologoId,
           dataHora: new Date(data.dataHora),
-          status: { in: ['AGENDADO', 'CONFIRMADO'] }
-        }
+          status: { in: ['AGENDADO', 'CONFIRMADO'] },
+        },
       });
 
       if (agendamentoExistente) {
@@ -79,8 +79,8 @@ export const agendamentoRepository = {
             id: { not: id },
             psicologoId,
             dataHora,
-            status: { in: ['AGENDADO', 'CONFIRMADO'] }
-          }
+            status: { in: ['AGENDADO', 'CONFIRMADO'] },
+          },
         });
 
         if (conflito) {
@@ -98,7 +98,7 @@ export const agendamentoRepository = {
     try {
       return await prisma.agendamento.update({
         where: { id },
-        data: { status }
+        data: { status },
       });
     } catch (error) {
       if (error.code === 'P2025') {
@@ -125,9 +125,9 @@ export const agendamentoRepository = {
         where: { pacienteId },
         include: {
           psicologo: { include: { usuario: true } },
-          horario: true
+          horario: true,
         },
-        orderBy: { dataHora: 'asc' }
+        orderBy: { dataHora: 'asc' },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar agendamentos do paciente: ${error.message}`);
@@ -140,9 +140,9 @@ export const agendamentoRepository = {
         where: { psicologoId },
         include: {
           paciente: { include: { usuario: true } },
-          horario: true
+          horario: true,
         },
-        orderBy: { dataHora: 'asc' }
+        orderBy: { dataHora: 'asc' },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar agendamentos do psicólogo: ${error.message}`);

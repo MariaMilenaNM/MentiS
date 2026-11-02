@@ -16,13 +16,13 @@ Implementar um sistema RAG que **conecta pacientes aos psicólogos mais adequado
 
 ### Casos de Uso Principais
 
-| Cenário | Entrada do Paciente | Saída Esperada |
-|---------|---------------------|----------------|
-| Ansiedade + TCC | "Tenho crises de ansiedade, quero terapia cognitivo-comportamental" | Psicólogos especialistas em TCC/ansiedade, modalidade online/presencial |
-| Depressão + Humanista | "Me sinto vazio, quero me entender melhor, prefiro abordagem humanista" | Psicólogos com formação humanista/centrada na pessoa |
-| Casal + Online | "Problemas no relacionamento, só posso fazer online à noite" | Psicólogos de terapia de casal com horário noturno online |
-| Trauma + EMDR | "Trauma na infância, li que EMDR ajuda" | Psicólogos certificados em EMDR |
-| Primeira vez | "Nunca fiz terapia, não sei por onde começar" | Psicólogos acolhedores para primeira experiência + psicoeducação |
+| Cenário               | Entrada do Paciente                                                     | Saída Esperada                                                          |
+| --------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Ansiedade + TCC       | "Tenho crises de ansiedade, quero terapia cognitivo-comportamental"     | Psicólogos especialistas em TCC/ansiedade, modalidade online/presencial |
+| Depressão + Humanista | "Me sinto vazio, quero me entender melhor, prefiro abordagem humanista" | Psicólogos com formação humanista/centrada na pessoa                    |
+| Casal + Online        | "Problemas no relacionamento, só posso fazer online à noite"            | Psicólogos de terapia de casal com horário noturno online               |
+| Trauma + EMDR         | "Trauma na infância, li que EMDR ajuda"                                 | Psicólogos certificados em EMDR                                         |
+| Primeira vez          | "Nunca fiz terapia, não sei por onde começar"                           | Psicólogos acolhedores para primeira experiência + psicoeducação        |
 
 ---
 
@@ -56,24 +56,24 @@ backend/
 
 ## 🔌 Novas Rotas API Propostas
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| POST | `/triage/start` | Inicia sessão de triagem (cria sessionId) |
-| POST | `/triage/chat` | Envia mensagem do paciente → retorna resposta do assistente + sugestões parciais |
-| POST | `/triage/finalize` | Finaliza triagem → retorna ranking final de psicólogos (top 5) |
-| GET | `/triage/session/:sessionId` | Recupera histórico da sessão |
-| POST | `/triage/index-psychologists` | Reindexa base de psicólogos (admin) |
+| Método | Rota                          | Descrição                                                                        |
+| ------ | ----------------------------- | -------------------------------------------------------------------------------- |
+| POST   | `/triage/start`               | Inicia sessão de triagem (cria sessionId)                                        |
+| POST   | `/triage/chat`                | Envia mensagem do paciente → retorna resposta do assistente + sugestões parciais |
+| POST   | `/triage/finalize`            | Finaliza triagem → retorna ranking final de psicólogos (top 5)                   |
+| GET    | `/triage/session/:sessionId`  | Recupera histórico da sessão                                                     |
+| POST   | `/triage/index-psychologists` | Reindexa base de psicólogos (admin)                                              |
 
 ---
 
 ## 🛠️ Stack Tecnológica Sugerida
 
-| Componente | Opção Local (Privacidade - **Recomendada**) | Opção Cloud |
-|------------|---------------------------------------------|-------------|
-| **Vector DB** | Chroma (SQLite-based, embedded) | Pinecone, Qdrant Cloud |
-| **Embeddings** | `bge-m3` ou `e5-large` via Ollama / `sentence-transformers` (Python sidecar) | OpenAI `text-embedding-3-small`, Cohere |
-| **LLM** | Ollama (Llama 3.1 8B, Nemotron 3 Ultra) | OpenAI GPT-4o-mini, Anthropic Claude Haiku |
-| **Orquestração** | **LangChain.js** (chains, agents, retrievers, callbacks) | LangChain.js, LlamaIndex |
+| Componente       | Opção Local (Privacidade - **Recomendada**)                                  | Opção Cloud                                |
+| ---------------- | ---------------------------------------------------------------------------- | ------------------------------------------ |
+| **Vector DB**    | Chroma (SQLite-based, embedded)                                              | Pinecone, Qdrant Cloud                     |
+| **Embeddings**   | `bge-m3` ou `e5-large` via Ollama / `sentence-transformers` (Python sidecar) | OpenAI `text-embedding-3-small`, Cohere    |
+| **LLM**          | Ollama (Llama 3.1 8B, Nemotron 3 Ultra)                                      | OpenAI GPT-4o-mini, Anthropic Claude Haiku |
+| **Orquestração** | **LangChain.js** (chains, agents, retrievers, callbacks)                     | LangChain.js, LlamaIndex                   |
 
 **Decisão**: **Stack 100% local (Ollama + Chroma + LangChain.js)** obrigatória para dados de saúde (LGPD). Zero dados clínicos saem da infraestrutura.
 
@@ -81,30 +81,30 @@ backend/
 
 ```javascript
 // Exemplo de setup local com LangChain.js
-import { Ollama } from "@langchain/ollama";
-import { Chroma } from "@langchain/community/vectorstores/chroma";
-import { OllamaEmbeddings } from "@langchain/ollama";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { RunnableSequence } from "@langchain/core/runnables";
+import { Ollama } from '@langchain/ollama';
+import { Chroma } from '@langchain/community/vectorstores/chroma';
+import { OllamaEmbeddings } from '@langchain/ollama';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { PromptTemplate } from '@langchain/core/prompts';
+import { RunnableSequence } from '@langchain/core/runnables';
 
 // LLM local via Ollama
 const llm = new Ollama({
-  baseUrl: "http://localhost:11434",
-  model: "llama3.1:8b",
+  baseUrl: 'http://localhost:11434',
+  model: 'llama3.1:8b',
   temperature: 0.3,
 });
 
 // Embeddings local via Ollama
 const embeddings = new OllamaEmbeddings({
-  baseUrl: "http://localhost:11434",
-  model: "bge-m3", // ou "nomic-embed-text"
+  baseUrl: 'http://localhost:11434',
+  model: 'bge-m3', // ou "nomic-embed-text"
 });
 
 // Vector Store Chroma (embedded)
 const vectorStore = await Chroma.fromExistingCollection(embeddings, {
-  collectionName: "psicologos",
-  url: "http://localhost:8000", // Chroma server mode para produção
+  collectionName: 'psicologos',
+  url: 'http://localhost:8000', // Chroma server mode para produção
   // Ou embedded: path: "./chroma_db"
 });
 
@@ -112,7 +112,7 @@ const vectorStore = await Chroma.fromExistingCollection(embeddings, {
 const textSplitter = new RecursiveCharacterTextSplitter({
   chunkSize: 500,
   chunkOverlap: 100,
-  separators: ["\n\n", "\n", ". ", " ", ""],
+  separators: ['\n\n', '\n', '. ', ' ', ''],
 });
 ```
 
@@ -126,7 +126,7 @@ model PsicologoProfile {
   id              String   @id @default(cuid())
   profissionalId  Int      @unique  // FK para model Profissional
   profissional    Profissional @relation(fields: [profissionalId], references: [id], onDelete: Cascade)
-  
+
   // Dados para embedding/busca semântica
   bioCompleta     String   // Texto rico: formação, abordagem, experiência, filosofia
   especialidades  String[] // ["ansiedade", "depressao", "casal", "trauma", "tdah", ...]
@@ -138,7 +138,7 @@ model PsicologoProfile {
   idiomas         String[] // ["pt-BR", "en", "es"]
   certificacoes   String[] // ["EMDR", "DBT", "ACT", "Neurofeedback", ...]
   keywords        String[] // Palavras-chave extraídas para busca híbrida
-  
+
   // Metadados de indexação
   embeddingVersion Int     @default(1)
   lastIndexedAt    DateTime @default(now())
@@ -285,28 +285,28 @@ Retorna: { matches: [...], sessionId, nextSteps: "agendar" }
 
 ```javascript
 // rag/triageAgent.js
-import { AgentExecutor, createToolCallingAgent } from "langchain/agents";
-import { ChatOllama } from "@langchain/ollama";
-import { pull } from "langchain/hub";
-import { searchPsychologistsTool } from "./tools/searchPsychologists.js";
-import { filterByMetadataTool } from "./tools/filterByMetadata.js";
-import { getPsychologistDetailsTool } from "./tools/getPsychologistDetails.js";
+import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
+import { ChatOllama } from '@langchain/ollama';
+import { pull } from 'langchain/hub';
+import { searchPsychologistsTool } from './tools/searchPsychologists.js';
+import { filterByMetadataTool } from './tools/filterByMetadata.js';
+import { getPsychologistDetailsTool } from './tools/getPsychologistDetails.js';
 
 const llm = new ChatOllama({
-  baseUrl: "http://localhost:11434",
-  model: "llama3.1:8b",
+  baseUrl: 'http://localhost:11434',
+  model: 'llama3.1:8b',
   temperature: 0.3,
 });
 
 // Tools disponíveis para o agente
 const tools = [
-  searchPsychologistsTool,     // Busca semântica + híbrida
-  filterByMetadataTool,        // Filtros práticos (modalidade, preço, horário)
-  getPsychologistDetailsTool,  // Detalhes completos do perfil
+  searchPsychologistsTool, // Busca semântica + híbrida
+  filterByMetadataTool, // Filtros práticos (modalidade, preço, horário)
+  getPsychologistDetailsTool, // Detalhes completos do perfil
 ];
 
 // Prompt do agente (system + chat history + agent_scratchpad)
-const prompt = await pull("hwchase17/openai-tools-agent"); // Adaptar para português
+const prompt = await pull('hwchase17/openai-tools-agent'); // Adaptar para português
 
 const agent = createToolCallingAgent({ llm, tools, prompt });
 const agentExecutor = new AgentExecutor({ agent, tools, verbose: true });
@@ -326,27 +326,29 @@ export async function runTriageAgent(sessionId, userMessage, chatHistory) {
 
 ```javascript
 // rag/chains/featureExtractionChain.js
-import { ChatOllama } from "@langchain/ollama";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { JsonOutputParser } from "@langchain/core/output_parsers";
-import { z } from "zod";
+import { ChatOllama } from '@langchain/ollama';
+import { PromptTemplate } from '@langchain/core/prompts';
+import { JsonOutputParser } from '@langchain/core/output_parsers';
+import { z } from 'zod';
 
 const FeatureSchema = z.object({
-  dores: z.array(z.string()).describe("Entidades clínicas: ansiedade, depressao, trauma, etc."),
-  sintomas: z.array(z.string()).describe("Sintomas livres descritos pelo paciente"),
+  dores: z.array(z.string()).describe('Entidades clínicas: ansiedade, depressao, trauma, etc.'),
+  sintomas: z.array(z.string()).describe('Sintomas livres descritos pelo paciente'),
   preferencias: z.object({
-    modalidade: z.enum(["online", "presencial", "hibrido"]).nullable(),
-    abordagem: z.enum(["tcc", "humanista", "psicanalise", "emdr", "act", "dbt", "junguiana", "sistemica"]).nullable(),
-    genero: z.enum(["feminino", "masculino", "indiferente"]).nullable(),
-    faixaEtaria: z.enum(["jovem", "adulto", "idoso"]).nullable(),
+    modalidade: z.enum(['online', 'presencial', 'hibrido']).nullable(),
+    abordagem: z
+      .enum(['tcc', 'humanista', 'psicanalise', 'emdr', 'act', 'dbt', 'junguiana', 'sistemica'])
+      .nullable(),
+    genero: z.enum(['feminino', 'masculino', 'indiferente']).nullable(),
+    faixaEtaria: z.enum(['jovem', 'adulto', 'idoso']).nullable(),
     precoMax: z.number().nullable(),
-    horario: z.enum(["manha", "tarde", "noite", "sabado"]).nullable(),
-    idioma: z.array(z.string()).default(["pt-BR"]),
+    horario: z.enum(['manha', 'tarde', 'noite', 'sabado']).nullable(),
+    idioma: z.array(z.string()).default(['pt-BR']),
   }),
   contexto: z.object({
     primeiraVez: z.boolean(),
-    urgencia: z.enum(["baixa", "media", "alta", "emergencia"]),
-    duracaoPreferida: z.enum(["curta", "media", "longa"]).nullable(),
+    urgencia: z.enum(['baixa', 'media', 'alta', 'emergencia']),
+    duracaoPreferida: z.enum(['curta', 'media', 'longa']).nullable(),
   }),
   exclusoes: z.object({
     abordagens: z.array(z.string()),
@@ -388,9 +390,9 @@ export async function extractFeatures(userMessage, chatHistory) {
 
 ```javascript
 // rag/chains/matchExplanationChain.js
-import { ChatOllama } from "@langchain/ollama";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { StringOutputParser } from "@langchain/core/output_parsers";
+import { ChatOllama } from '@langchain/ollama';
+import { PromptTemplate } from '@langchain/core/prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
 
 const prompt = PromptTemplate.fromTemplate(`
 Você é um assistente de triagem empático. Explique por que cada psicólogo é adequado para o paciente.
@@ -431,9 +433,9 @@ export async function explainMatches(patientFeatures, psychologists) {
 
 ```javascript
 // rag/chains/triageResponseChain.js
-import { ChatOllama } from "@langchain/ollama";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { StringOutputParser } from "@langchain/core/output_parsers";
+import { ChatOllama } from '@langchain/ollama';
+import { PromptTemplate } from '@langchain/core/prompts';
+import { StringOutputParser } from '@langchain/core/output_parsers';
 
 const prompt = PromptTemplate.fromTemplate(`
 Você é um assistente de triagem acolhedor e profissional. Responda ao paciente de forma natural.
@@ -467,9 +469,9 @@ export async function generateTriageResponse(context) {
 
 ```javascript
 // rag/tools/searchPsychologists.js
-import { tool } from "@langchain/core/tools";
-import { z } from "zod";
-import { vectorStore } from "../vectorStore.js";
+import { tool } from '@langchain/core/tools';
+import { z } from 'zod';
+import { vectorStore } from '../vectorStore.js';
 
 export const searchPsychologistsTool = tool(
   async ({ query, k = 10 }) => {
@@ -483,19 +485,20 @@ export const searchPsychologistsTool = tool(
     }));
   },
   {
-    name: "search_psychologists",
-    description: "Busca psicólogos por similaridade semântica. Use query expandida com dores, abordagem, modalidade.",
+    name: 'search_psychologists',
+    description:
+      'Busca psicólogos por similaridade semântica. Use query expandida com dores, abordagem, modalidade.',
     schema: z.object({
-      query: z.string().describe("Query expandida para busca semântica"),
-      k: z.number().default(10).describe("Número de resultados"),
+      query: z.string().describe('Query expandida para busca semântica'),
+      k: z.number().default(10).describe('Número de resultados'),
     }),
   }
 );
 
 // rag/tools/filterByMetadata.js
-import { tool } from "@langchain/core/tools";
-import { z } from "zod";
-import { prisma } from "../../prisma/client.js";
+import { tool } from '@langchain/core/tools';
+import { z } from 'zod';
+import { prisma } from '../../prisma/client.js';
 
 export const filterByMetadataTool = tool(
   async ({ profissionalIds, filters }) => {
@@ -504,13 +507,14 @@ export const filterByMetadataTool = tool(
     if (filters.modalidade) where.modalidades = { has: filters.modalidade };
     if (filters.precoMax) where.faixaPreco = { in: getFaixasAte(filters.precoMax) };
     if (filters.horario) where[`disponibilidade.${filters.horario}`] = true;
-    if (filters.excluirAbordagens?.length) where.abordagens = { not: { hasSome: filters.excluirAbordagens } };
-    
+    if (filters.excluirAbordagens?.length)
+      where.abordagens = { not: { hasSome: filters.excluirAbordagens } };
+
     return await prisma.psicologoProfile.findMany({ where });
   },
   {
-    name: "filter_by_metadata",
-    description: "Filtra psicólogos por critérios práticos: modalidade, preço, horário, exclusões.",
+    name: 'filter_by_metadata',
+    description: 'Filtra psicólogos por critérios práticos: modalidade, preço, horário, exclusões.',
     schema: z.object({
       profissionalIds: z.array(z.number()),
       filters: z.object({
@@ -524,9 +528,9 @@ export const filterByMetadataTool = tool(
 );
 
 // rag/tools/getPsychologistDetails.js
-import { tool } from "@langchain/core/tools";
-import { z } from "zod";
-import { prisma } from "../../prisma/client.js";
+import { tool } from '@langchain/core/tools';
+import { z } from 'zod';
+import { prisma } from '../../prisma/client.js';
 
 export const getPsychologistDetailsTool = tool(
   async ({ profissionalIds }) => {
@@ -536,8 +540,9 @@ export const getPsychologistDetailsTool = tool(
     });
   },
   {
-    name: "get_psychologist_details",
-    description: "Busca detalhes completos dos psicólogos (bio, certificações, disponibilidade, etc.)",
+    name: 'get_psychologist_details',
+    description:
+      'Busca detalhes completos dos psicólogos (bio, certificações, disponibilidade, etc.)',
     schema: z.object({
       profissionalIds: z.array(z.number()),
     }),
@@ -549,20 +554,21 @@ export const getPsychologistDetailsTool = tool(
 
 ## 🔐 Segurança e Privacidade (CRÍTICO - LGPD)
 
-| Camada | Medida |
-|--------|--------|
-| **Dados da triagem** | Nunca saem do servidor; Ollama + Chroma rodam local |
-| **Identificação** | Sessão anônima por default; vincula a pacienteId só se logado + consentimento |
-| **Retenção** | TriageSession: 30 dias auto-expiração; MatchResult: 1 ano (auditoria) |
-| **Acesso** | Paciente vê apenas sua sessão; Profissional vê apenas matches onde ele aparece; Admin vê agregados anonimizados |
-| **Logs** | Audit log: sessionId, timestamp, ação (chat/retrieve/generate), chunks usados |
-| **Consentimento** | Termos claros no início: "Esta conversa ajuda a encontrar psicólogos compatíveis. Dados não são compartilhados." |
+| Camada               | Medida                                                                                                           |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Dados da triagem** | Nunca saem do servidor; Ollama + Chroma rodam local                                                              |
+| **Identificação**    | Sessão anônima por default; vincula a pacienteId só se logado + consentimento                                    |
+| **Retenção**         | TriageSession: 30 dias auto-expiração; MatchResult: 1 ano (auditoria)                                            |
+| **Acesso**           | Paciente vê apenas sua sessão; Profissional vê apenas matches onde ele aparece; Admin vê agregados anonimizados  |
+| **Logs**             | Audit log: sessionId, timestamp, ação (chat/retrieve/generate), chunks usados                                    |
+| **Consentimento**    | Termos claros no início: "Esta conversa ajuda a encontrar psicólogos compatíveis. Dados não são compartilhados." |
 
 ---
 
 ## 📋 Endpoints Detalhados
 
 ### POST `/triage/start`
+
 ```json
 // Request (opcional: pacienteId se logado)
 { "pacienteId": 12 }
@@ -572,6 +578,7 @@ export const getPsychologistDetailsTool = tool(
 ```
 
 ### POST `/triage/chat`
+
 ```json
 // Request
 { "sessionId": "triage_abc123", "message": "Tenho ansiedade e crises de pânico, quero TCC online" }
@@ -589,6 +596,7 @@ export const getPsychologistDetailsTool = tool(
 ```
 
 ### POST `/triage/finalize`
+
 ```json
 // Request
 { "sessionId": "triage_abc123" }
@@ -623,6 +631,7 @@ export const getPsychologistDetailsTool = tool(
 ## 📅 Próximos Passos (Roadmap de Implementação)
 
 ### Fase 1: Fundação (Semana 1-2)
+
 - [ ] Adicionar models Prisma (`PsicologoProfile`, `TriageSession`, `MatchResult`, `ClinicalDocument`)
 - [ ] Criar migration + seed com 20-30 perfis de psicólogos realistas
 - [ ] Configurar Ollama local (Llama 3.1 8B + bge-m3 embeddings)
@@ -630,36 +639,42 @@ export const getPsychologistDetailsTool = tool(
 - [ ] Instalar dependências LangChain: `@langchain/core`, `@langchain/ollama`, `@langchain/community`, `langchain`, `zod`
 
 ### Fase 2: Indexação com LangChain (Semana 2-3)
+
 - [ ] Implementar `vectorStore.js` (Chroma.fromExistingCollection / fromDocuments via LangChain)
 - [ ] Implementar `indexer.js` usando `RecursiveCharacterTextSplitter` + `OllamaEmbeddings`
 - [ ] Script `npm run rag:index-psychologists` para indexar base inicial
 - [ ] Validar qualidade: busca "ansiedade tcc online" → retorna perfis certos
 
 ### Fase 3: Chains Base (Semana 3-4)
+
 - [ ] Implementar `featureExtractionChain.js` (Structured Output com Zod + JsonOutputParser)
 - [ ] Implementar `matchExplanationChain.js` (PromptTemplate + LLM)
 - [ ] Implementar `triageResponseChain.js` (PromptTemplate + LLM)
 - [ ] Implementar `queryExpansionChain.js` (expande query com features)
 
 ### Fase 4: Tools + Agent (Semana 4-5)
+
 - [ ] Implementar tools: `searchPsychologists`, `filterByMetadata`, `getPsychologistDetails`
 - [ ] Implementar `triageAgent.js` (createToolCallingAgent + AgentExecutor)
 - [ ] Implementar `pipeline.js` (orquestra: extract features → agent → response)
 - [ ] Testes unitários das chains e tools isoladamente
 
 ### Fase 5: API + Integração (Semana 5-6)
+
 - [ ] Criar `triageService.js` com endpoints REST (`/triage/start`, `/triage/chat`, `/triage/finalize`)
 - [ ] Middleware de autenticação opcional (paciente logado vs anônimo)
 - [ ] Rate limiting específico para triagem (ex: 30 req/min)
 - [ ] Logs estruturados (Winston) para auditoria + callbacks LangChain para tracing
 
 ### Fase 6: Frontend + Testes (Semana 6-7)
+
 - [ ] Componente de chat no frontend (`TriageChat.jsx`) com streaming de resposta
 - [ ] Integração com API `/triage/*`
 - [ ] Testes de integração: cenários completos de triagem
 - [ ] Avaliação qualitativa: 50 simulações → medir precisão do top-3
 
 ### Fase 7: Observabilidade + Hardening (Semana 7+)
+
 - [ ] Métricas: latência p50/p95, taxa de conversão triagem→agendamento, diversidade top-5
 - [ ] A/B testing: prompt templates, pesos de ranking, num rodadas
 - [ ] LangSmith/LangFuse para tracing e eval (opcional)
@@ -687,13 +702,13 @@ export const getPsychologistDetailsTool = tool(
 
 ## 📝 Notas de Decisão (ADR)
 
-| Decisão | Justificativa |
-|---------|---------------|
-| **LangChain.js** | Ecossistema maduro: chains, agents, tools, structured output, streaming, callbacks; reduz boilerplate; integração nativa Chroma/Ollama |
-| **Chroma embedded/server** | Zero infra extra (embedded) ou escalável (server); SQLite-based; suficiente para <50k psicólogos; LangChain tem integração nativa |
-| **bge-m3 via Ollama** | Melhor qualidade português; roda local; uma instância Ollama serve embeddings + LLM; LangChain suporta nativamente |
-| **1 chunk por psicólogo** | Perfil é documento coeso; chunking fragmentaria contexto; rerank resolve granularidade |
-| **Sessão anônima first** | Baixa barreira de entrada; LGPD by design; vincula depois se quiser agendar |
+| Decisão                                            | Justificativa                                                                                                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **LangChain.js**                                   | Ecossistema maduro: chains, agents, tools, structured output, streaming, callbacks; reduz boilerplate; integração nativa Chroma/Ollama            |
+| **Chroma embedded/server**                         | Zero infra extra (embedded) ou escalável (server); SQLite-based; suficiente para <50k psicólogos; LangChain tem integração nativa                 |
+| **bge-m3 via Ollama**                              | Melhor qualidade português; roda local; uma instância Ollama serve embeddings + LLM; LangChain suporta nativamente                                |
+| **1 chunk por psicólogo**                          | Perfil é documento coeso; chunking fragmentaria contexto; rerank resolve granularidade                                                            |
+| **Sessão anônima first**                           | Baixa barreira de entrada; LGPD by design; vincula depois se quiser agendar                                                                       |
 | **Features extraídas por LLM (Structured Output)** | Mais flexível que formulário rígido; captura nuances ("não gosto de tarefa de casa" → evita TCC clássico); Zod + JsonOutputParser garante tipagem |
-| **Agent + Tools** | Agente decide dinamicamente quais tools usar (buscar, filtrar, detalhar); permite multi-step reasoning; extensível para novas tools |
-| **Chains separadas** | FeatureExtraction, MatchExplanation, TriageResponse são chains independentes; testáveis, versionáveis, reutilizáveis; compõem o agente |
+| **Agent + Tools**                                  | Agente decide dinamicamente quais tools usar (buscar, filtrar, detalhar); permite multi-step reasoning; extensível para novas tools               |
+| **Chains separadas**                               | FeatureExtraction, MatchExplanation, TriageResponse são chains independentes; testáveis, versionáveis, reutilizáveis; compõem o agente            |

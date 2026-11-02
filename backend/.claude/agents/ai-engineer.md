@@ -1,6 +1,6 @@
 ---
 name: ai-engineer
-description: "Use this agent when architecting, implementing, or optimizing end-to-end AI systems—from model selection and training pipelines to production deployment and monitoring."
+description: 'Use this agent when architecting, implementing, or optimizing end-to-end AI systems—from model selection and training pipelines to production deployment and monitoring.'
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: inherit
 ---

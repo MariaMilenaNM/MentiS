@@ -1,6 +1,6 @@
 ---
 name: node-specialist
-description: "Use this agent when you need to build, optimize, or debug Node.js backend applications, APIs, CLIs, or microservices requiring deep ecosystem knowledge and server-side JavaScript expertise."
+description: 'Use this agent when you need to build, optimize, or debug Node.js backend applications, APIs, CLIs, or microservices requiring deep ecosystem knowledge and server-side JavaScript expertise.'
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---

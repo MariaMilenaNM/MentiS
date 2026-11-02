@@ -7,13 +7,13 @@ export const mensagemRepository = {
     try {
       const mensagem = await prisma.mensagem.create({
         data,
-        include: { remetente: true }
+        include: { remetente: true },
       });
 
       // Atualizar updatedAt da conversa
       await prisma.conversa.update({
         where: { id: data.conversaId },
-        data: { atualizadoEm: new Date() }
+        data: { atualizadoEm: new Date() },
       });
 
       return mensagem;
@@ -29,7 +29,7 @@ export const mensagemRepository = {
         include: { remetente: true },
         orderBy: { criadoEm: 'asc' },
         take: limit,
-        skip: offset
+        skip: offset,
       });
     } catch (error) {
       throw new Error(`Erro ao buscar mensagens: ${error.message}`);
@@ -40,7 +40,7 @@ export const mensagemRepository = {
     try {
       return await prisma.mensagem.update({
         where: { id },
-        data: { lida: true }
+        data: { lida: true },
       });
     } catch (error) {
       if (error.code === 'P2025') {
@@ -56,9 +56,9 @@ export const mensagemRepository = {
         where: {
           conversaId,
           remetenteId: { not: remetenteId },
-          lida: false
+          lida: false,
         },
-        data: { lida: true }
+        data: { lida: true },
       });
     } catch (error) {
       throw new Error(`Erro ao marcar mensagens como lidas: ${error.message}`);
@@ -71,8 +71,8 @@ export const mensagemRepository = {
         where: {
           conversaId,
           remetenteId: { not: remetenteId },
-          lida: false
-        }
+          lida: false,
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao contar mensagens não lidas: ${error.message}`);

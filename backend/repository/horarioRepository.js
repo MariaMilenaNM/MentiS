@@ -7,7 +7,7 @@ export const horarioRepository = {
     try {
       return await prisma.horarioDisponivel.findMany({
         where: { psicologoId, ativo: true },
-        orderBy: [{ diaSemana: 'asc' }, { horaInicio: 'asc' }]
+        orderBy: [{ diaSemana: 'asc' }, { horaInicio: 'asc' }],
       });
     } catch (error) {
       throw new Error(`Erro ao buscar horários do psicólogo: ${error.message}`);
@@ -69,8 +69,8 @@ export const horarioRepository = {
           ativo: true,
           diaSemana,
           horaInicio: { lte: hora },
-          horaFim: { gt: hora }
-        }
+          horaFim: { gt: hora },
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar horários disponíveis: ${error.message}`);

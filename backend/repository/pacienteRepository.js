@@ -22,7 +22,7 @@ export const pacienteRepository = {
   create: async (usuarioId, data) => {
     try {
       return await prisma.paciente.create({
-        data: { ...data, usuarioId }
+        data: { ...data, usuarioId },
       });
     } catch (error) {
       throw new Error(`Erro ao criar paciente: ${error.message}`);
@@ -48,7 +48,7 @@ export const pacienteRepository = {
   findAll: async () => {
     try {
       return await prisma.paciente.findMany({
-        include: { usuario: true }
+        include: { usuario: true },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar pacientes: ${error.message}`);
@@ -63,12 +63,12 @@ export const pacienteRepository = {
           agendamentos: {
             include: {
               psicologo: {
-                include: { usuario: true }
+                include: { usuario: true },
               },
-              horario: true
-            }
-          }
-        }
+              horario: true,
+            },
+          },
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar paciente com agendamentos: ${error.message}`);
@@ -83,14 +83,14 @@ export const pacienteRepository = {
           conversas: {
             include: {
               psicologo: {
-                include: { usuario: true }
+                include: { usuario: true },
               },
               mensagens: {
-                orderBy: { criadoEm: 'asc' }
-              }
-            }
-          }
-        }
+                orderBy: { criadoEm: 'asc' },
+              },
+            },
+          },
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar paciente com conversas: ${error.message}`);

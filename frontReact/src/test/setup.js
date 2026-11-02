@@ -10,7 +10,7 @@ const localStorageMock = {
 };
 Object.defineProperty(global, 'localStorage', {
   value: localStorageMock,
-  writable: true
+  writable: true,
 });
 
 // Mock fetch

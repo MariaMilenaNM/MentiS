@@ -1,6 +1,6 @@
 ---
 name: ui-designer
-description: "Use this agent when designing visual interfaces, creating design systems, building component libraries, or refining user-facing aesthetics requiring expert visual design, interaction patterns, and accessibility considerations."
+description: 'Use this agent when designing visual interfaces, creating design systems, building component libraries, or refining user-facing aesthetics requiring expert visual design, interaction patterns, and accessibility considerations.'
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---
@@ -67,11 +67,7 @@ Status updates during work:
   "agent": "ui-designer",
   "update_type": "progress",
   "current_task": "Component design",
-  "completed_items": [
-    "Visual exploration",
-    "Component structure",
-    "State variations"
-  ],
+  "completed_items": ["Visual exploration", "Component structure", "State variations"],
   "next_steps": ["Motion design", "Documentation"]
 }
 ```

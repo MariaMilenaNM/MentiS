@@ -1,9 +1,9 @@
 :root {
-  --dark-blue: #0A0B26;
-  --gray-blue: #41505F;
-  --light-blue: #91C1FF;
-  --green: #90FF78;
-  --pale-blue: #C9DEFF;
+  --dark-blue: #0a0b26;
+  --gray-blue: #41505f;
+  --light-blue: #91c1ff;
+  --green: #90ff78;
+  --pale-blue: #c9deff;
   --white: #f4f4f4;
 }
 
@@ -22,7 +22,7 @@ body {
 
 /* -- CABEÇALHO -- */
 header {
-  background-color: var(--dark-blue); 
+  background-color: var(--dark-blue);
   padding: 20px 80px;
   display: flex;
   justify-content: space-between;
@@ -140,7 +140,7 @@ nav a:hover {
 /* -- CARDS -- */
 .caracteristicas {
   padding: 60px 80px 100px;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .grade {
@@ -157,7 +157,6 @@ nav a:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-
 }
 
 .imgm {
@@ -199,7 +198,7 @@ nav a:hover {
 .profissionais {
   padding: 80px;
   text-align: center;
-  background-color: #FAFAFA;
+  background-color: #fafafa;
 }
 
 .profissionais h2 {
@@ -226,7 +225,7 @@ nav a:hover {
   border-radius: 12px;
   padding: 24px;
   width: 200px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -235,7 +234,7 @@ nav a:hover {
 .foto-placeholder {
   width: 100px;
   height: 100px;
-  background-color: #E0E0E0;
+  background-color: #e0e0e0;
   border-radius: 4px;
   margin-bottom: 16px;
 }
@@ -361,7 +360,7 @@ nav a:hover {
 }
 
 .faq-item {
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid #e5e7eb;
   margin-bottom: 16px;
 }
 
@@ -388,7 +387,7 @@ nav a:hover {
 
 details[open] .seta-icone {
   transform: rotate(180deg);
-  color: var(--light-blue); 
+  color: var(--light-blue);
 }
 
 .faq-a-content {
@@ -398,7 +397,7 @@ details[open] .seta-icone {
 }
 
 details[open] .faq-a-content {
-  max-height: 200px; 
+  max-height: 200px;
 }
 
 .faq-a {
@@ -438,14 +437,15 @@ footer {
   align-items: center;
 }
 
-.footer-links a, .footer-links .sep {
+.footer-links a,
+.footer-links .sep {
   color: var(--white);
   text-decoration: none;
   font-size: 12px;
   font-weight: 300;
 }
 
-.footer-links a:hover{
+.footer-links a:hover {
   color: var(--light-blue);
 }
 

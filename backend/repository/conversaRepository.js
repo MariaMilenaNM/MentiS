@@ -9,17 +9,17 @@ export const conversaRepository = {
         where: {
           pacienteId_psicologoId: {
             pacienteId,
-            psicologoId
-          }
+            psicologoId,
+          },
         },
         include: {
           mensagens: {
             orderBy: { criadoEm: 'asc' },
-            include: { remetente: true }
+            include: { remetente: true },
           },
           paciente: { include: { usuario: true } },
-          psicologo: { include: { usuario: true } }
-        }
+          psicologo: { include: { usuario: true } },
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar conversa: ${error.message}`);
@@ -33,11 +33,11 @@ export const conversaRepository = {
         include: {
           mensagens: {
             orderBy: { criadoEm: 'asc' },
-            include: { remetente: true }
+            include: { remetente: true },
           },
           paciente: { include: { usuario: true } },
-          psicologo: { include: { usuario: true } }
-        }
+          psicologo: { include: { usuario: true } },
+        },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar conversa por ID: ${error.message}`);
@@ -50,8 +50,8 @@ export const conversaRepository = {
         data: { pacienteId, psicologoId },
         include: {
           paciente: { include: { usuario: true } },
-          psicologo: { include: { usuario: true } }
-        }
+          psicologo: { include: { usuario: true } },
+        },
       });
     } catch (error) {
       if (error.code === 'P2002') {
@@ -69,10 +69,10 @@ export const conversaRepository = {
           psicologo: { include: { usuario: true } },
           mensagens: {
             orderBy: { criadoEm: 'desc' },
-            take: 1
-          }
+            take: 1,
+          },
         },
-        orderBy: { atualizadoEm: 'desc' }
+        orderBy: { atualizadoEm: 'desc' },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar conversas do paciente: ${error.message}`);
@@ -87,10 +87,10 @@ export const conversaRepository = {
           paciente: { include: { usuario: true } },
           mensagens: {
             orderBy: { criadoEm: 'desc' },
-            take: 1
-          }
+            take: 1,
+          },
         },
-        orderBy: { atualizadoEm: 'desc' }
+        orderBy: { atualizadoEm: 'desc' },
       });
     } catch (error) {
       throw new Error(`Erro ao buscar conversas do psicólogo: ${error.message}`);
@@ -101,7 +101,7 @@ export const conversaRepository = {
     try {
       return await prisma.conversa.update({
         where: { id },
-        data: { ativa }
+        data: { ativa },
       });
     } catch (error) {
       if (error.code === 'P2025') {

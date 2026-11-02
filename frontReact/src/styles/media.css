@@ -1,9 +1,8 @@
 @media screen and (max-width: 760px) {
-  
   header {
     flex-direction: column;
-    padding: 20px 15px; 
-    gap: 25px; 
+    padding: 20px 15px;
+    gap: 25px;
   }
 
   #marca {
@@ -15,16 +14,16 @@
   }
 
   #textos-marca h1 {
-    font-size: 24px; 
+    font-size: 24px;
   }
 
   nav {
-    width: 100%; 
+    width: 100%;
   }
 
   nav ul {
     flex-direction: column;
-    gap: 10px; 
+    gap: 10px;
     align-items: center;
   }
 
@@ -33,9 +32,9 @@
   }
 
   #inscrevaButton {
-    padding: 10px 24px; 
+    padding: 10px 24px;
     font-size: 12px;
-    margin-top: 10px; 
+    margin-top: 10px;
   }
 
   .hero {
@@ -52,7 +51,7 @@
     line-height: 1.2;
   }
 
-  .hero-texto p{
+  .hero-texto p {
     font-size: 15px;
     margin: 15px 0 25px 0;
   }
@@ -65,11 +64,11 @@
     width: 80%;
   }
 
-  .btn-encontrar{
+  .btn-encontrar {
     width: 270px;
-    padding: 10px 24px; 
+    padding: 10px 24px;
     font-size: 10px;
-    margin-top: 10px; 
+    margin-top: 10px;
   }
 
   .caracteristicas {
@@ -111,7 +110,8 @@
     gap: 40px;
   }
 
-  .faq-left, .faq-right {
+  .faq-left,
+  .faq-right {
     width: 100%;
   }
 

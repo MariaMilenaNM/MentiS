@@ -1,294 +1,295 @@
 /* PROFISSIONAIS */
 .auth-container-page {
-    background-color: #0A0B26;
-    min-height: 100vh;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    position: relative; /* Essencial para o botão de sair não voar pela tela */
-    box-sizing: border-box;
+  background-color: #0a0b26;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  position: relative; /* Essencial para o botão de sair não voar pela tela */
+  box-sizing: border-box;
 }
 
 .card {
-display: flex;
-    flex-direction: column;
-    background-color: #f9f9f9;
-    width: 100%;
-    min-height: auto;
-    max-width: 800px;
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 10px 10px rgba(0,0,0,0.3);
-    color: #0A0B26;
-    box-sizing: border-box;
-    margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9;
+  width: 100%;
+  min-height: auto;
+  max-width: 800px;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.3);
+  color: #0a0b26;
+  box-sizing: border-box;
+  margin: 40px auto;
 }
 
 h2 {
-    text-align: center;
-    margin-top: 0;
+  text-align: center;
+  margin-top: 0;
 }
 
 form {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-    max-width: 1000px;
-    margin: 20px auto;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 20px auto;
 }
 
 input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 button {
-    padding: 12px;
-    background-color: #0A0B26;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
+  padding: 12px;
+  background-color: #0a0b26;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 button:hover {
-    background-color: #1a1c4d;
+  background-color: #1a1c4d;
 }
 
 summary {
-    cursor: pointer;
-    font-weight: bold;
-    text-align: center;
-    font-size: 18px;
-    color: #FFFFFF;
-    padding: 15px;
-    background: #0A0B26;
-    border-radius: 8px;
-    margin-top: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  font-size: 18px;
+  color: #ffffff;
+  padding: 15px;
+  background: #0a0b26;
+  border-radius: 8px;
+  margin-top: 20px;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 30px;
-    background: transparent;
-    table-layout: auto;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 30px;
+  background: transparent;
+  table-layout: auto;
 }
 
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid rgba(219, 219, 219, 0.864);
-    text-align: left;
-    vertical-align: middle;
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(219, 219, 219, 0.864);
+  text-align: left;
+  vertical-align: middle;
 }
 
 .btn-sair {
-    position: absolute;
-    top: 50px;
-    right: 40px;
-    color: white;
-    text-decoration: none;
-    background: #d9534f;
-    padding: 10px 20px;
-    border-radius: 5px;
+  position: absolute;
+  top: 50px;
+  right: 40px;
+  color: white;
+  text-decoration: none;
+  background: #d9534f;
+  padding: 10px 20px;
+  border-radius: 5px;
 }
 
 /* PACIENTE */
 
 #telaAuth {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    color: #0A0B26;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  color: #0a0b26;
 }
 
 .auth-card {
-    background: white;
-    border-radius: 16px;
-    padding: 36px 32px;
-    width: 100%;
-    max-width: 420px;
-    min-width: 400px;
-    box-shadow: 0 8px 8px rgba(0,0,0,0.4);
+  background: white;
+  border-radius: 16px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 420px;
+  min-width: 400px;
+  box-shadow: 0 8px 8px rgba(0, 0, 0, 0.4);
 }
 
 .auth-logo {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: #0A0B26;
-    color: #91C1FF;
-    font-size: 22px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 16px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #0a0b26;
+  color: #91c1ff;
+  font-size: 22px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
 }
 
 .auth-card h1 {
-    text-align: center;
-    font-size: 1.6rem;
-    color: #0A0B26;
-    margin-bottom: 4px;
+  text-align: center;
+  font-size: 1.6rem;
+  color: #0a0b26;
+  margin-bottom: 4px;
 }
 
 .auth-card > p {
-    text-align: center;
-    color: #6b7280;
-    font-size: 0.9rem;
-    margin-bottom: 24px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
 }
 
 .campo {
-    margin-bottom: 14px;
+  margin-bottom: 14px;
 }
 
 .campo label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #6b7280;
-    margin-bottom: 5px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .campo input,
 .campo select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1.5px solid #dde1ea;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    color: #1a1a3e;
-    transition: border-color 0.2s;
-    background: white;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #dde1ea;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #1a1a3e;
+  transition: border-color 0.2s;
+  background: white;
 }
 
 .campo input:focus,
 .campo select:focus {
-    outline: none;
-    border-color: #0A0B26;
+  outline: none;
+  border-color: #0a0b26;
 }
 
 #formLogin button,
 #formCadastro button:first-of-type {
-    width: 100%;
-    padding: 12px;
-    background: #0A0B26;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 6px;
-    transition: background 0.2s;
+  width: 100%;
+  padding: 12px;
+  background: #0a0b26;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background 0.2s;
 }
 
 #formLogin button:hover,
 #formCadastro button:first-of-type:hover {
-    background: #0a0a6e;
+  background: #0a0a6e;
 }
 
 .btn-sair {
-    color: white;
-    background-color: #b71c1c;
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    width: auto;
-    padding: 5px 10px;
-    position: absolute;
-    top: 40px;
-    right: 40px;
+  color: white;
+  background-color: #b71c1c;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  width: auto;
+  padding: 5px 10px;
+  position: absolute;
+  top: 40px;
+  right: 40px;
 }
 
 .btn-sair:hover {
-    color: rgb(143, 0, 0);
+  color: rgb(143, 0, 0);
 }
 
 .auth-link {
-    text-align: center;
-    margin-top: 16px;
-    font-size: 0.9rem;
-    color: #6b7280;
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: #6b7280;
 }
 
 .auth-link span {
-    color: red;
-    font-weight: bold;
-    cursor: pointer;
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .auth-link span:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* Mensagens de erro */
 .erro-mensagem {
-    background-color: #fee2e2;
-    color: #991b1b;
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    font-size: 0.9rem;
-    border: 1px solid #fecaca;
-    text-align: left;
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  border: 1px solid #fecaca;
+  text-align: left;
 }
 
 /* Mensagem de sucesso */
 .sucesso-mensagem {
-    background-color: #dcfce7;
-    color: #166534;
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    font-size: 0.9rem;
-    border: 1px solid #bbf7d0;
-    text-align: left;
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  border: 1px solid #bbf7d0;
+  text-align: left;
 }
 
 .erro-campo {
-    display: block;
-    color: #c6322d;
-    font-size: 0.75rem;
-    margin-top: 4px;
-    font-weight: 500;
+  display: block;
+  color: #c6322d;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  font-weight: 500;
 }
 
-.campo input[aria-invalid="true"],
-.campo select[aria-invalid="true"],
-.campo textarea[aria-invalid="true"] {
-    border-color: #c6322d !important;
+.campo input[aria-invalid='true'],
+.campo select[aria-invalid='true'],
+.campo textarea[aria-invalid='true'] {
+  border-color: #c6322d !important;
 }
 
-.campo input[aria-invalid="true"]:focus,
-.campo select[aria-invalid="true"]:focus {
-    box-shadow: 0 0 0 3px rgba(198, 50, 45, 0.2);
+.campo input[aria-invalid='true']:focus,
+.campo select[aria-invalid='true']:focus {
+  box-shadow: 0 0 0 3px rgba(198, 50, 45, 0.2);
 }
 
 fieldset.campo {
-    border: 1.5px solid #dde1ea;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 14px;
+  border: 1.5px solid #dde1ea;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 14px;
 }
 
 fieldset.campo legend {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #6b7280;
-    padding: 0 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }

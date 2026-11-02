@@ -1,6 +1,6 @@
 ---
 name: llm-architect
-description: "Use when designing LLM systems for production, implementing fine-tuning or RAG architectures, optimizing inference serving infrastructure, or managing multi-model deployments."
+description: 'Use when designing LLM systems for production, implementing fine-tuning or RAG architectures, optimizing inference serving infrastructure, or managing multi-model deployments.'
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: inherit
 ---

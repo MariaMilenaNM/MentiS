@@ -152,15 +152,14 @@ model Paciente {
 
 ```javascript
 // repository/pacienteRepository.js
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 
 export const pacienteRepository = {
-  findByEmail: async (email) =>
-    await prisma.paciente.findUnique({ where: { email } }),
+  findByEmail: async (email) => await prisma.paciente.findUnique({ where: { email } }),
 
   create: async (data) => {
     const hashedSenha = await bcrypt.hash(data.senha, SALT_ROUNDS);

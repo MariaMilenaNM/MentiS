@@ -25,7 +25,7 @@ export const usuarioRepository = {
     try {
       const hashedSenha = await bcrypt.hash(data.senha, SALT_ROUNDS);
       return await prisma.usuario.create({
-        data: { ...data, senha: hashedSenha }
+        data: { ...data, senha: hashedSenha },
       });
     } catch (error) {
       throw new Error(`Erro ao criar usuário: ${error.message}`);
