@@ -138,13 +138,13 @@ model Paciente {
 
 ### Pacientes (`/pacientes`)
 
-| Método | Rota         | Descrição                                                                    |
-| ------ | ------------ | ---------------------------------------------------------------------------- |
-| POST   | `/cadastrar` | Registra paciente (body: nome, data, email, telefone, cidade, estado, senha) |
-| POST   | `/login`     | Login (body: email, senha) → retorna `{ token }`                             |
-| GET    | `/:id`       | Perfil do paciente (🔒 Requer token)                                         |
-| PUT    | `/:id`       | Atualiza perfil (🔒 Requer token)                                            |
-| DELETE | `/:id`       | Remove paciente (🔒 Requer token)                                            |
+| Método | Rota         | Descrição                                                      |
+| ------ | ------------ | -------------------------------------------------------------- |
+| POST   | `/cadastrar` | Registra paciente (body: nome, email, senha, aceiteLGPD: true) |
+| POST   | `/login`     | Login (body: email, senha) → retorna `{ token }`               |
+| GET    | `/:id`       | Perfil do paciente (🔒 Requer token)                           |
+| PUT    | `/:id`       | Atualiza perfil (🔒 Requer token)                              |
+| DELETE | `/:id`       | Remove paciente (🔒 Requer token)                              |
 
 ---
 

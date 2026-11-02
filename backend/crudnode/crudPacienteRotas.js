@@ -46,31 +46,16 @@ routes.post(
   '/cadastrar',
   validate(pacienteCadastroSchema),
   asyncHandler(async (req, res) => {
-    const dados = req.body;
-
-    // Verificar se email já existe no Usuario
-    const usuarioExiste = await usuarioRepository.findByEmail(dados.email);
-    if (usuarioExiste) {
-      return res.status(409).json({ status: 'duplicado', erro: 'E-mail já cadastrado' });
+    try {
+      const usuario = await usuarioRepository.createPaciente(req.body);
+      logger.info('Paciente cadastrado com sucesso', { usuarioId: usuario.id });
+      return res.status(201).json({ status: 'ok', mensagem: 'Paciente cadastrado com sucesso' });
+    } catch (erro) {
+      if (erro.code === 'P2002') {
+        return res.status(409).json({ status: 'duplicado', erro: 'E-mail já cadastrado' });
+      }
+      throw erro;
     }
-
-    // Criar Usuario
-    const usuario = await usuarioRepository.create({
-      email: dados.email,
-      senha: dados.senha,
-      role: 'PACIENTE',
-    });
-
-    // Criar Paciente vinculado ao Usuario
-    const { senha, email, aceiteLGPD, ...pacienteData } = dados;
-    await pacienteRepository.create(usuario.id, {
-      ...pacienteData,
-      dataNasc: new Date(dados.dataNasc),
-      aceiteLGPD: dados.aceiteLGPD,
-    });
-
-    logger.info('Paciente cadastrado com sucesso', { email: dados.email, usuarioId: usuario.id });
-    return res.status(201).json({ status: 'ok', mensagem: 'Paciente cadastrado com sucesso' });
   })
 );
 

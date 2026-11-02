@@ -59,10 +59,11 @@ model Paciente {
   id        Int      @id @default(autoincrement())
   usuarioId Int      @unique
   nome      String
-  dataNasc  DateTime // SQLite usa DateTime para data
-  telefone  String
-  cidade    String
-  estado    String
+  // Opcionais: o cadastro do MVP (RF03) pede só nome, e-mail, senha e aceite LGPD
+  dataNasc  DateTime? // SQLite usa DateTime para data
+  telefone  String?
+  cidade    String?
+  estado    String?
   aceiteLGPD Boolean @default(false)
   criadoEm  DateTime @default(now())
   atualizadoEm DateTime @updatedAt

@@ -12,13 +12,10 @@ export function usePaciente() {
   const [loginErro, setLoginErro] = useState('');
 
   const [cadNome, setCadNome] = useState('');
-  const [cadData, setCadData] = useState('');
   const [cadEmail, setCadEmail] = useState('');
-  const [cadTelefone, setCadTelefone] = useState('');
-  const [cadCidade, setCadCidade] = useState('');
-  const [cadEstado, setCadEstado] = useState('');
   const [cadSenha, setCadSenha] = useState('');
   const [cadSenhaConf, setCadSenhaConf] = useState('');
+  const [cadAceite, setCadAceite] = useState(false);
   const [cadErro, setCadErro] = useState('');
 
   // Toast/success message não-bloqueante
@@ -29,13 +26,9 @@ export function usePaciente() {
     return re.test(email);
   };
 
-  const validarTelefone = (telefone) => {
-    const re = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
-    return re.test(telefone.replace(/\s/g, ''));
-  };
-
   const handleLogin = async () => {
     setLoginErro('');
+    setSucessoMsg('');
 
     if (!loginEmail || !loginSenha) {
       setLoginErro('Preencha e-mail e senha.');
@@ -61,26 +54,13 @@ export function usePaciente() {
     setCadErro('');
     setSucessoMsg('');
 
-    if (
-      !cadNome ||
-      !cadData ||
-      !cadEmail ||
-      !cadTelefone ||
-      !cadCidade ||
-      !cadEstado ||
-      !cadSenha
-    ) {
+    if (!cadNome.trim() || !cadEmail || !cadSenha) {
       setCadErro('Preencha todos os campos!');
       return;
     }
 
     if (!validarEmail(cadEmail)) {
       setCadErro('E-mail inválido.');
-      return;
-    }
-
-    if (!validarTelefone(cadTelefone)) {
-      setCadErro('Telefone inválido. Use formato (XX) XXXXX-XXXX.');
       return;
     }
 
@@ -94,19 +74,20 @@ export function usePaciente() {
       return;
     }
 
-    const resultado = await cadastrarPaciente(
-      cadNome,
-      cadData,
-      cadEmail,
-      cadTelefone,
-      cadCidade,
-      cadEstado,
-      cadSenha
-    );
+    if (!cadAceite) {
+      setCadErro('É necessário aceitar os termos da LGPD para criar a conta.');
+      return;
+    }
+
+    const resultado = await cadastrarPaciente({
+      nome: cadNome,
+      email: cadEmail,
+      senha: cadSenha,
+      aceiteLGPD: cadAceite,
+    });
 
     if (resultado.status === 'duplicado') {
       setCadErro(resultado.erro || 'Já existe uma conta com este e-mail. Faça login.');
-      setTelaAtual('login');
       return;
     }
 
@@ -116,17 +97,14 @@ export function usePaciente() {
     }
 
     // Toast não-bloqueante em vez de alert()
-    setSucessoMsg('Conta criada com sucesso! Redirecionando para login...');
+    setSucessoMsg('Conta criada com sucesso! Faça login para continuar.');
     setTelaAtual('login');
     // Limpar formulário
     setCadNome('');
-    setCadData('');
     setCadEmail('');
-    setCadTelefone('');
-    setCadCidade('');
-    setCadEstado('');
     setCadSenha('');
     setCadSenhaConf('');
+    setCadAceite(false);
   };
 
   const limparSucessoMsg = () => setSucessoMsg('');
@@ -141,20 +119,14 @@ export function usePaciente() {
     loginErro,
     cadNome,
     setCadNome,
-    cadData,
-    setCadData,
     cadEmail,
     setCadEmail,
-    cadTelefone,
-    setCadTelefone,
-    cadCidade,
-    setCadCidade,
-    cadEstado,
-    setCadEstado,
     cadSenha,
     setCadSenha,
     cadSenhaConf,
     setCadSenhaConf,
+    cadAceite,
+    setCadAceite,
     cadErro,
     sucessoMsg,
     limparSucessoMsg,

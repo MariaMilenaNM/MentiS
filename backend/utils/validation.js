@@ -5,12 +5,8 @@ import { z } from 'zod';
 // ============================================
 
 export const pacienteCadastroSchema = z.object({
-  nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100),
-  dataNasc: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data deve estar no formato YYYY-MM-DD'),
+  nome: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100),
   email: z.string().email('E-mail inválido'),
-  telefone: z.string().min(10, 'Telefone inválido').max(15),
-  cidade: z.string().min(2, 'Cidade inválida').max(100),
-  estado: z.string().length(2, 'Estado deve ter 2 letras (ex: SP)'),
   senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres').max(100),
   aceiteLGPD: z
     .boolean()

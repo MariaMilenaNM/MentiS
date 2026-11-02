@@ -1,19 +1,24 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
 const URL_BASE = `${API_URL}/pacientes`;
 
-export async function cadastrarPaciente(nome, data, email, telefone, cidade, estado, senha) {
+export async function cadastrarPaciente({ nome, email, senha, aceiteLGPD }) {
   try {
     const response = await fetch(`${URL_BASE}/cadastrar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, data, email, telefone, cidade, estado, senha }),
+      body: JSON.stringify({ nome, email, senha, aceiteLGPD }),
     });
 
     const responseData = await response.json();
 
     if (response.status === 409)
       return { status: 'duplicado', erro: responseData.erro || 'E-mail já cadastrado' };
-    if (!response.ok) return { status: 'erro', erro: responseData.erro || 'Erro ao cadastrar' };
+    if (!response.ok) {
+      return {
+        status: 'erro',
+        erro: responseData.detalhes?.[0]?.mensagem || responseData.erro || 'Erro ao cadastrar',
+      };
+    }
     return { status: 'ok', data: responseData };
   } catch (error) {
     console.error('Erro ao cadastrar paciente:', error);

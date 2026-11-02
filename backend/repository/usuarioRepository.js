@@ -32,6 +32,26 @@ export const usuarioRepository = {
     }
   },
 
+  // Escrita aninhada: Usuario e Paciente são gravados na mesma transação,
+  // então uma falha no perfil não deixa um usuário órfão.
+  createPaciente: async ({ email, senha, nome, aceiteLGPD }) => {
+    try {
+      const hashedSenha = await bcrypt.hash(senha, SALT_ROUNDS);
+      return await prisma.usuario.create({
+        data: {
+          email,
+          senha: hashedSenha,
+          role: 'PACIENTE',
+          paciente: { create: { nome, aceiteLGPD } },
+        },
+      });
+    } catch (error) {
+      // Mantém o código do Prisma para a rota responder 409 em e-mail duplicado
+      if (error.code === 'P2002') throw error;
+      throw new Error(`Erro ao criar paciente: ${error.message}`);
+    }
+  },
+
   findByEmailAndSenha: async (email, senha) => {
     try {
       const usuario = await prisma.usuario.findUnique({ where: { email } });

@@ -95,7 +95,7 @@ export function usePainel() {
   const formatarData = (data) => {
     if (!data) return '–';
     if (data.includes('/')) return data; // já formatada
-    const partes = data.split('-');
+    const partes = data.split('T')[0].split('-'); // aceita ISO vindo do Prisma
     if (partes.length !== 3) return data;
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
   };

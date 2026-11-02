@@ -1,8 +1,9 @@
+// Precisa ser o primeiro import: as rotas leem process.env.JWT_SECRET ao serem carregadas
+import 'dotenv/config';
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
 import { logger } from './utils/logger.js';
 import crudProfissional from './crudnode/crudProfissionalRotas.js';
 import crudPaciente from './crudnode/crudPacienteRotas.js';
@@ -10,8 +11,6 @@ import crudPsicologo from './crudnode/crudPsicologoRotas.js';
 import crudHorario from './crudnode/crudHorarioRotas.js';
 import crudAgendamento from './crudnode/crudAgendamentoRotas.js';
 import crudConversa from './crudnode/crudConversaRotas.js';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

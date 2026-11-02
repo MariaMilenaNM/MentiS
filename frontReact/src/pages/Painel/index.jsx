@@ -72,20 +72,20 @@ export default function Painel() {
 
           <div className="info-item">
             <span className="info-label">E-MAIL</span>
-            <span className="info-valor">{pacienteLogado.email}</span>
+            <span className="info-valor">{pacienteLogado.usuario?.email || '–'}</span>
           </div>
           <div className="info-item">
             <span className="info-label">TELEFONE</span>
-            <span className="info-valor">{pacienteLogado.telefone}</span>
+            <span className="info-valor">{pacienteLogado.telefone || '–'}</span>
           </div>
           <div className="info-item">
             <span className="info-label">NASCIMENTO</span>
-            <span className="info-valor">{formatarData(pacienteLogado.data)}</span>
+            <span className="info-valor">{formatarData(pacienteLogado.dataNasc)}</span>
           </div>
           <div className="info-item">
             <span className="info-label">CIDADE / ESTADO</span>
             <span className="info-valor">
-              {pacienteLogado.cidade} / {pacienteLogado.estado}
+              {pacienteLogado.cidade ? `${pacienteLogado.cidade} / ${pacienteLogado.estado}` : '–'}
             </span>
           </div>
 

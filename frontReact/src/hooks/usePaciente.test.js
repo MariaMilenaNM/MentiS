@@ -73,6 +73,24 @@ describe('usePaciente', () => {
   });
 
   describe('handleCadastro', () => {
+    const preencher = (result, sobrescrever = {}) => {
+      const v = {
+        nome: 'Teste',
+        email: 'teste@teste.com',
+        senha: 'senha123',
+        conf: 'senha123',
+        aceite: true,
+        ...sobrescrever,
+      };
+      act(() => {
+        result.current.setCadNome(v.nome);
+        result.current.setCadEmail(v.email);
+        result.current.setCadSenha(v.senha);
+        result.current.setCadSenhaConf(v.conf);
+        result.current.setCadAceite(v.aceite);
+      });
+    };
+
     it('deve mostrar erro se campos obrigatórios estiverem vazios', async () => {
       const { result } = renderHook(() => usePaciente());
       await act(async () => {
@@ -83,16 +101,7 @@ describe('usePaciente', () => {
 
     it('deve mostrar erro se email for inválido', async () => {
       const { result } = renderHook(() => usePaciente());
-      act(() => {
-        result.current.setCadNome('Teste');
-        result.current.setCadData('2000-01-01');
-        result.current.setCadEmail('email-invalido');
-        result.current.setCadTelefone('(11) 99999-9999');
-        result.current.setCadCidade('São Paulo');
-        result.current.setCadEstado('SP');
-        result.current.setCadSenha('senha123');
-        result.current.setCadSenhaConf('senha123');
-      });
+      preencher(result, { email: 'email-invalido' });
       await act(async () => {
         result.current.handleCadastro();
       });
@@ -101,16 +110,7 @@ describe('usePaciente', () => {
 
     it('deve mostrar erro se senhas não coincidirem', async () => {
       const { result } = renderHook(() => usePaciente());
-      act(() => {
-        result.current.setCadNome('Teste');
-        result.current.setCadData('2000-01-01');
-        result.current.setCadEmail('teste@teste.com');
-        result.current.setCadTelefone('(11) 99999-9999');
-        result.current.setCadCidade('São Paulo');
-        result.current.setCadEstado('SP');
-        result.current.setCadSenha('senha123');
-        result.current.setCadSenhaConf('senha456');
-      });
+      preencher(result, { conf: 'senha456' });
       await act(async () => {
         result.current.handleCadastro();
       });
@@ -119,71 +119,63 @@ describe('usePaciente', () => {
 
     it('deve mostrar erro se senha for muito curta', async () => {
       const { result } = renderHook(() => usePaciente());
-      act(() => {
-        result.current.setCadNome('Teste');
-        result.current.setCadData('2000-01-01');
-        result.current.setCadEmail('teste@teste.com');
-        result.current.setCadTelefone('(11) 99999-9999');
-        result.current.setCadCidade('São Paulo');
-        result.current.setCadEstado('SP');
-        result.current.setCadSenha('123');
-        result.current.setCadSenhaConf('123');
-      });
+      preencher(result, { senha: '123', conf: '123' });
       await act(async () => {
         result.current.handleCadastro();
       });
       expect(result.current.cadErro).toBe('A senha precisa ter pelo menos 6 caracteres.');
     });
 
-    it('deve cadastrar com sucesso e mudar para tela de login', async () => {
+    it('não deve cadastrar sem o aceite LGPD', async () => {
       const { result } = renderHook(() => usePaciente());
-      cadastrarPaciente.mockResolvedValue({ status: 'ok' });
-      act(() => {
-        result.current.setCadNome('Teste');
-        result.current.setCadData('2000-01-01');
-        result.current.setCadEmail('teste@teste.com');
-        result.current.setCadTelefone('(11) 99999-9999');
-        result.current.setCadCidade('São Paulo');
-        result.current.setCadEstado('SP');
-        result.current.setCadSenha('senha123');
-        result.current.setCadSenhaConf('senha123');
-      });
+      preencher(result, { aceite: false });
       await act(async () => {
         result.current.handleCadastro();
       });
-      expect(cadastrarPaciente).toHaveBeenCalledWith(
-        'Teste',
-        '2000-01-01',
-        'teste@teste.com',
-        '(11) 99999-9999',
-        'São Paulo',
-        'SP',
-        'senha123'
+      expect(result.current.cadErro).toBe(
+        'É necessário aceitar os termos da LGPD para criar a conta.'
       );
-      expect(result.current.telaAtual).toBe('login');
+      expect(cadastrarPaciente).not.toHaveBeenCalled();
     });
 
-    it('deve mostrar erro se email já cadastrado', async () => {
+    it('deve cadastrar com aceite e mudar para tela de login com aviso de sucesso', async () => {
+      const { result } = renderHook(() => usePaciente());
+      cadastrarPaciente.mockResolvedValue({ status: 'ok' });
+      act(() => {
+        result.current.setTelaAtual('cadastro');
+      });
+      preencher(result);
+      await act(async () => {
+        result.current.handleCadastro();
+      });
+      expect(cadastrarPaciente).toHaveBeenCalledWith({
+        nome: 'Teste',
+        email: 'teste@teste.com',
+        senha: 'senha123',
+        aceiteLGPD: true,
+      });
+      expect(result.current.telaAtual).toBe('login');
+      expect(result.current.sucessoMsg).toBe(
+        'Conta criada com sucesso! Faça login para continuar.'
+      );
+      expect(result.current.cadAceite).toBe(false);
+    });
+
+    it('deve manter o erro visível na tela de cadastro se email já cadastrado', async () => {
       const { result } = renderHook(() => usePaciente());
       cadastrarPaciente.mockResolvedValue({
         status: 'duplicado',
         erro: 'Já existe uma conta com este e-mail',
       });
       act(() => {
-        result.current.setCadNome('Teste');
-        result.current.setCadData('2000-01-01');
-        result.current.setCadEmail('teste@teste.com');
-        result.current.setCadTelefone('(11) 99999-9999');
-        result.current.setCadCidade('São Paulo');
-        result.current.setCadEstado('SP');
-        result.current.setCadSenha('senha123');
-        result.current.setCadSenhaConf('senha123');
+        result.current.setTelaAtual('cadastro');
       });
+      preencher(result);
       await act(async () => {
         result.current.handleCadastro();
       });
       expect(result.current.cadErro).toBe('Já existe uma conta com este e-mail');
-      expect(result.current.telaAtual).toBe('login');
+      expect(result.current.telaAtual).toBe('cadastro');
     });
   });
 });

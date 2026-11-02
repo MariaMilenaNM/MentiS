@@ -13,20 +13,14 @@ export default function Paciente() {
     loginErro,
     cadNome,
     setCadNome,
-    cadData,
-    setCadData,
     cadEmail,
     setCadEmail,
-    cadTelefone,
-    setCadTelefone,
-    cadCidade,
-    setCadCidade,
-    cadEstado,
-    setCadEstado,
     cadSenha,
     setCadSenha,
     cadSenhaConf,
     setCadSenhaConf,
+    cadAceite,
+    setCadAceite,
     cadErro,
     sucessoMsg,
     limparSucessoMsg,
@@ -56,6 +50,17 @@ export default function Paciente() {
 
             {telaAtual === 'login' && (
               <div id="formLogin">
+                {sucessoMsg && (
+                  <div
+                    className="sucesso-mensagem"
+                    role="status"
+                    aria-live="polite"
+                    onClick={limparSucessoMsg}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {sucessoMsg}
+                  </div>
+                )}
                 {loginErro && (
                   <div className="erro-mensagem" role="alert" aria-live="polite">
                     {loginErro}
@@ -103,17 +108,6 @@ export default function Paciente() {
 
             {telaAtual === 'cadastro' && (
               <div id="formCadastro">
-                {sucessoMsg && (
-                  <div
-                    className="sucesso-mensagem"
-                    role="status"
-                    aria-live="polite"
-                    onClick={limparSucessoMsg}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {sucessoMsg}
-                  </div>
-                )}
                 {cadErro && (
                   <div className="erro-mensagem" role="alert" aria-live="polite">
                     {cadErro}
@@ -131,16 +125,6 @@ export default function Paciente() {
                   />
                 </div>
                 <div className="campo">
-                  <label htmlFor="cadData">Data de nascimento</label>
-                  <input
-                    type="date"
-                    id="cadData"
-                    value={cadData}
-                    onChange={(e) => setCadData(e.target.value)}
-                    autoComplete="bday"
-                  />
-                </div>
-                <div className="campo">
                   <label htmlFor="cadEmail">E-mail</label>
                   <input
                     type="email"
@@ -150,66 +134,6 @@ export default function Paciente() {
                     onChange={(e) => setCadEmail(e.target.value)}
                     autoComplete="email"
                   />
-                </div>
-                <div className="campo">
-                  <label htmlFor="cadTelefone">Telefone</label>
-                  <input
-                    type="tel"
-                    id="cadTelefone"
-                    placeholder="(81) 99999-9999"
-                    value={cadTelefone}
-                    onChange={(e) => setCadTelefone(e.target.value)}
-                    autoComplete="tel"
-                  />
-                </div>
-                <div className="campo">
-                  <label htmlFor="cadCidade">Cidade</label>
-                  <input
-                    type="text"
-                    id="cadCidade"
-                    placeholder="Ex: Caruaru"
-                    value={cadCidade}
-                    onChange={(e) => setCadCidade(e.target.value)}
-                    autoComplete="address-level2"
-                  />
-                </div>
-                <div className="campo">
-                  <label htmlFor="cadEstado">Estado</label>
-                  <select
-                    id="cadEstado"
-                    value={cadEstado}
-                    onChange={(e) => setCadEstado(e.target.value)}
-                    autoComplete="address-level1"
-                  >
-                    <option value="">Selecione...</option>
-                    <option value="AC">AC</option>
-                    <option value="AL">AL</option>
-                    <option value="AP">AP</option>
-                    <option value="AM">AM</option>
-                    <option value="BA">BA</option>
-                    <option value="CE">CE</option>
-                    <option value="DF">DF</option>
-                    <option value="ES">ES</option>
-                    <option value="GO">GO</option>
-                    <option value="MA">MA</option>
-                    <option value="MT">MT</option>
-                    <option value="MS">MS</option>
-                    <option value="MG">MG</option>
-                    <option value="PA">PA</option>
-                    <option value="PB">PB</option>
-                    <option value="PR">PR</option>
-                    <option value="PE">PE</option>
-                    <option value="PI">PI</option>
-                    <option value="RJ">RJ</option>
-                    <option value="RN">RN</option>
-                    <option value="RS">RS</option>
-                    <option value="RO">RO</option>
-                    <option value="RR">RR</option>
-                    <option value="SC">SC</option>
-                    <option value="SP">SP</option>
-                    <option value="SE">SE</option>
-                    <option value="TO">TO</option>
-                  </select>
                 </div>
                 <div className="campo">
                   <label htmlFor="cadSenha">Senha</label>
@@ -232,6 +156,27 @@ export default function Paciente() {
                     onChange={(e) => setCadSenhaConf(e.target.value)}
                     autoComplete="new-password"
                   />
+                </div>
+                <div className="lgpd-aceite">
+                  <p id="cadTermos">
+                    Usamos seu nome, e-mail e senha (guardada de forma protegida) para criar sua
+                    conta e permitir o agendamento com psicólogos. O assistente de triagem é uma
+                    inteligência artificial: o que você escrever na conversa é processado por ela,
+                    mas seu nome e e-mail não são enviados.
+                  </p>
+                  <label htmlFor="cadAceite">
+                    <input
+                      type="checkbox"
+                      id="cadAceite"
+                      checked={cadAceite}
+                      onChange={(e) => setCadAceite(e.target.checked)}
+                      aria-describedby="cadTermos"
+                      required
+                    />
+                    <span>
+                      Li e aceito o tratamento dos meus dados, conforme a LGPD (Lei nº 13.709/2018).
+                    </span>
+                  </label>
                 </div>
                 <button onClick={handleCadastro} type="button">
                   Criar conta
