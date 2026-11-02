@@ -1,0 +1,48 @@
+# GitHub Project Configuration Reference
+# Create a new Project (Projects v2) in GitHub and configure as follows:
+
+## Project Name: MentiS - MVP Development
+
+## Views:
+1. **Board (Kanban)** - Main view for sprint tracking
+   - Columns: Backlog → Ready → In Progress → In Review → Done
+   - Group by: Milestone (Sprint)
+   - Sort by: Priority (High → Low), then Created Date
+
+2. **Table (Backlog)** - For grooming and prioritization
+   - Fields: Title, Type, Area, Priority, Milestone, Assignee, Status, Story Points
+   - Filter: Status != Done
+
+3. **Roadmap** - Timeline view
+   - Group by: Milestone
+   - Show: Start/End dates, Progress bar
+
+## Custom Fields:
+| Field Name | Type | Options |
+|------------|------|---------|
+| Type | Single Select | Feature, Fix, Refactor, Chore, Test |
+| Area | Single Select | Backend, Frontend, Database, CI/CD, Docs |
+| Priority | Single Select | High, Medium, Low |
+| Story Points | Number | 1, 2, 3, 5, 8, 13 |
+| Sprint | Iteration | Sprint 1, Sprint 2, Sprint 3, Sprint 4, Sprint 5 |
+
+## Automation Rules:
+- When issue moved to "In Progress" → Set Status to "In Progress"
+- When PR linked → Set Status to "In Review"
+- When PR merged → Set Status to "Done", move to "Done" column
+- When issue closed without PR → Set Status to "Done"
+
+## Labels Sync:
+- Sync with .github/labels.yml labels
+- Auto-add labels based on Type/Area fields
+
+## Insights:
+- Burnup chart per sprint
+- Velocity chart (story points per sprint)
+- Cycle time (In Progress → Done)
+- Bug ratio (type:fix / total)
+
+## Integration:
+- Link to repository: MentiS
+- Auto-add issues/PRs from this repo
+- Enable "Auto-add to project" for new issues

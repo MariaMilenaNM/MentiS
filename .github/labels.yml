@@ -1,0 +1,91 @@
+# GitHub Labels Configuration
+# Use with: gh label create --repo owner/repo --label-file .github/labels.yml
+# Or apply manually in GitHub repository settings
+
+- name: "bug"
+  color: "d73a4a"
+  description: "Something isn't working"
+
+- name: "enhancement"
+  color: "a2eeef"
+  description: "New feature or request"
+
+- name: "documentation"
+  color: "0075ca"
+  description: "Improvements or additions to documentation"
+
+- name: "good first issue"
+  color: "7057ff"
+  description: "Good for newcomers"
+
+- name: "help wanted"
+  color: "008672"
+  description: "Extra attention is needed"
+
+- name: "priority: high"
+  color: "b60205"
+  description: "High priority - needs immediate attention"
+
+- name: "priority: medium"
+  color: "d93f0b"
+  description: "Medium priority - should be addressed soon"
+
+- name: "priority: low"
+  color: "fbca04"
+  description: "Low priority - can be deferred"
+
+- name: "status: blocked"
+  color: "e4e669"
+  description: "Work is blocked by external dependency"
+
+- name: "status: in progress"
+  color: "1d76db"
+  description: "Work is actively being done"
+
+- name: "status: in review"
+  color: "5319e7"
+  description: "Waiting for code review"
+
+- name: "status: done"
+  color: "0e8a16"
+  description: "Work completed and merged"
+
+- name: "area: backend"
+  color: "c2e0c6"
+  description: "Backend related (API, database, server)"
+
+- name: "area: frontend"
+  color: "bfd4f2"
+  description: "Frontend related (React, UI, components)"
+
+- name: "area: database"
+  color: "fef2c0"
+  description: "Database related (Prisma, migrations, queries)"
+
+- name: "area: ci/cd"
+  color: "f9d0c4"
+  description: "CI/CD pipeline related"
+
+- name: "type: feature"
+  color: "1d76db"
+  description: "New feature implementation"
+
+- name: "type: fix"
+  color: "d73a4a"
+  description: "Bug fix"
+
+- name: "type: refactor"
+  color: "6f42c1"
+  description: "Code refactoring (no functional changes)"
+
+- name: "type: chore"
+  color: "ededed"
+  description: "Maintenance tasks (deps, config, tooling)"
+
+- name: "type: test"
+  color: "0052cc"
+  description: "Adding or updating tests"
+
+- name: "wontfix"
+  color: "ffffff"
+  description: "This will not be worked on"

@@ -1,0 +1,88 @@
+# GitHub Milestones Configuration
+# Create these milestones in GitHub repository settings > Milestones
+# Based on README.md sprint plan
+
+- title: "Sprint 1 - Fundação & Auth"
+  description: |
+    **Objetivo:** Base sólida do projeto com autenticação funcionando
+
+    **Entregáveis:**
+    - [x] Setup do repositório (branches, CI/CD, linting)
+    - [x] Schema Prisma (Profissional, Paciente)
+    - [x] API REST (Express + rotas CRUD)
+    - [x] Auth JWT (registro, login, middleware)
+    - [x] Frontend: LandingPage, Login/Cadastro
+    - [x] Testes básicos (Vitest + React Testing Library)
+  due_on: "2026-11-15"
+  state: "open"
+
+- title: "Sprint 2 - Painel do Paciente & Busca"
+  description: |
+    **Objetivo:** Dashboard do paciente com listagem de psicólogos
+
+    **Entregáveis:**
+    - [ ] Painel do paciente (perfil, edição)
+    - [ ] Lista de psicólogos com paginação
+    - [ ] Filtros (abordagem, modalidade, preço, cidade)
+    - [ ] Busca por texto (nome, CRP, especialidade)
+    - [ ] Responsividade mobile-first
+    - [ ] Testes de integração (hooks + services)
+  due_on: "2026-11-29"
+  state: "open"
+
+- title: "Sprint 3 - Admin & CRUD Profissionais"
+  description: |
+    **Objetivo:** Interface administrativa para gerenciar psicólogos
+
+    **Entregáveis:**
+    - [ ] Página Profissional (CRUD completo)
+    - [ ] Validação CRP (formato + flag manual)
+    - [ ] Modal de confirmação para delete
+    - [ ] Toast notifications
+    - [ ] Loading states e error boundaries
+    - [ ] Testes E2E (Playwright - opcional)
+  due_on: "2026-12-13"
+  state: "open"
+
+- title: "Sprint 4 - RAG & Matching Inteligente"
+  description: |
+    **Objetivo:** Assistente de triagem com RAG (LangChain.js)
+
+    **Entregáveis:**
+    - [ ] Vector DB setup (ChromaDB ou pgvector)
+    - [ ] Embeddings de perfis de psicólogos
+    - [ ] Chain de triagem (LangChain.js)
+    - [ ] API endpoint /triagem
+    - [ ] Frontend: Chat de triagem
+    - [ ] Avaliação de qualidade (precision/recall)
+  due_on: "2026-12-27"
+  state: "open"
+
+- title: "Sprint 5 - Polish & Deploy"
+  description: |
+    **Objetivo:** Preparação para produção
+
+    **Entregáveis:**
+    - [ ] TypeScript migration (backend + frontend)
+    - [ ] JWT refresh token mechanism
+    - [ ] CI/CD pipeline (GitHub Actions)
+    - [ ] Deploy backend (Railway/Render)
+    - [ ] Deploy frontend (Vercel/Netlify)
+    - [ ] Documentação final (README, API docs)
+    - [ ] Smoke tests pós-deploy
+  due_on: "2026-01-10"
+  state: "open"
+
+- title: "v1.0.0 - MVP Release"
+  description: |
+    **Release do MVP completo**
+
+    Inclui todas as funcionalidades das Sprints 1-5:
+    - Autenticação JWT completa
+    - CRUD de pacientes e profissionais
+    - Painel do paciente com busca/filtros
+    - Admin de profissionais
+    - Triagem inteligente (RAG)
+    - Deploy em produção
+  due_on: "2026-01-10"
+  state: "open"
