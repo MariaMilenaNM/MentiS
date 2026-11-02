@@ -3,6 +3,7 @@ import morgan from "morgan";
 import cors from "cors";
 import crudProfissional from "./crudnode/crudProfissionalRotas.js";
 import crudPaciente from "./crudnode/crudPacienteRotas.js";
+import agentRotas from "./agent/agentRotas.js";
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use("/profissionais", crudProfissional);
 app.use("/pacientes", crudPaciente);
+app.use("/api/agent", agentRotas);
 
 app.listen(5000, () => {
     console.log("O servidor está rodando na porta 5000");
