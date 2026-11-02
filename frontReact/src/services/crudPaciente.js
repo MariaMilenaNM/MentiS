@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
 const URL_BASE = `${API_URL}/pacientes`;
+const AUTH_URL = `${API_URL}/auth`;
 
 export async function cadastrarPaciente({ nome, email, senha, aceiteLGPD }) {
   try {
@@ -28,7 +29,7 @@ export async function cadastrarPaciente({ nome, email, senha, aceiteLGPD }) {
 
 export async function buscarPaciente(email, senha) {
   try {
-    const response = await fetch(`${URL_BASE}/login`, {
+    const response = await fetch(`${AUTH_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, senha }),
@@ -40,15 +41,26 @@ export async function buscarPaciente(email, senha) {
       return { status: 'erro', erro: data.erro || 'Credenciais inválidas' };
     }
 
-    const { token, paciente } = data;
+    const { token, usuario, perfil } = data;
     localStorage.setItem('token', token);
-    localStorage.setItem('pacienteLogado', JSON.stringify(paciente));
+    localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+    localStorage.setItem('perfilLogado', JSON.stringify(perfil));
 
-    return { status: 'ok', paciente, token };
+    return { status: 'ok', usuario, perfil, token };
   } catch (error) {
     console.error('Erro ao fazer login:', error);
     return { status: 'erro', erro: 'Erro de conexão com o servidor' };
   }
+}
+
+export function getUsuarioLogado() {
+  const usuario = localStorage.getItem('usuarioLogado');
+  return usuario ? JSON.parse(usuario) : null;
+}
+
+export function getPerfilLogado() {
+  const perfil = localStorage.getItem('perfilLogado');
+  return perfil ? JSON.parse(perfil) : null;
 }
 
 export function getToken() {
@@ -56,12 +68,19 @@ export function getToken() {
 }
 
 export function getPacienteLogado() {
+  // Novo formato: perfilLogado (compatível com uso anterior)
+  const perfil = localStorage.getItem('perfilLogado');
+  if (perfil) return JSON.parse(perfil);
+  // Fallback para formato antigo
   const paciente = localStorage.getItem('pacienteLogado');
   return paciente ? JSON.parse(paciente) : null;
 }
 
 export function logout() {
   localStorage.removeItem('token');
+  localStorage.removeItem('usuarioLogado');
+  localStorage.removeItem('perfilLogado');
+  // Limpar formato antigo também
   localStorage.removeItem('pacienteLogado');
 }
 

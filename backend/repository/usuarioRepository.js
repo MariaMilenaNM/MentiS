@@ -34,15 +34,28 @@ export const usuarioRepository = {
 
   // Escrita aninhada: Usuario e Paciente são gravados na mesma transação,
   // então uma falha no perfil não deixa um usuário órfão.
-  createPaciente: async ({ email, senha, nome, aceiteLGPD }) => {
+  createPaciente: async ({ email, senha, nome, aceiteLGPD, dataNasc, data, telefone, cidade, estado }) => {
     try {
       const hashedSenha = await bcrypt.hash(senha, SALT_ROUNDS);
+      // Aceita tanto dataNasc (novo schema) quanto data (formato antigo do frontend)
+      const dataNascimento = dataNasc || data;
+      // Default para data atual se não fornecida (campo obrigatório no Prisma)
+      const dataNascDate = dataNascimento ? new Date(dataNascimento) : new Date();
       return await prisma.usuario.create({
         data: {
           email,
           senha: hashedSenha,
           role: 'PACIENTE',
-          paciente: { create: { nome, aceiteLGPD } },
+          paciente: {
+            create: {
+              nome,
+              aceiteLGPD,
+              dataNasc: dataNascDate,
+              telefone: telefone || '',
+              cidade: cidade || '',
+              estado: estado || ''
+            }
+          },
         },
       });
     } catch (error) {

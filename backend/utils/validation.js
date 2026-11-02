@@ -14,6 +14,12 @@ export const pacienteCadastroSchema = z.object({
     .refine((val) => val === true, {
       message: "É necessário aceitar os termos da LGPD",
     }),
+  // Campos opcionais para compatibilidade com frontend antigo
+  dataNasc: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data deve estar no formato YYYY-MM-DD").optional(),
+  data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data deve estar no formato YYYY-MM-DD").optional(),
+  telefone: z.string().min(10, "Telefone inválido").max(15).optional(),
+  cidade: z.string().min(2, "Cidade inválida").max(100).optional(),
+  estado: z.string().length(2, "Estado deve ter 2 letras (ex: SP)").optional(),
 });
 
 export const pacienteLoginSchema = z.object({

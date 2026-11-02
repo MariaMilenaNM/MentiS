@@ -11,6 +11,7 @@ import crudPsicologo from './crudnode/crudPsicologoRotas.js';
 import crudHorario from './crudnode/crudHorarioRotas.js';
 import crudAgendamento from './crudnode/crudAgendamentoRotas.js';
 import crudConversa from './crudnode/crudConversaRotas.js';
+import authRoutes from './crudnode/authRotas.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -75,12 +76,14 @@ app.use(
 app.use(limiter);
 
 // Rotas de autenticação com rate limiting mais restritivo
+app.use('/auth/login', authLimiter);
 app.use('/pacientes/cadastrar', authLimiter);
-app.use('/pacientes/login', authLimiter);
+app.use('/pacientes/login', authLimiter); // manter compatibilidade
 
 // Rotas existentes (manter compatibilidade)
 app.use('/profissionais', profissionalLimiter, crudProfissional);
 app.use('/pacientes', crudPaciente);
+app.use('/auth', authRoutes);
 
 // Novas rotas
 app.use('/psicologos', profissionalLimiter, crudPsicologo);
