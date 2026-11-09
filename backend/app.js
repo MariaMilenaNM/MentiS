@@ -7,7 +7,6 @@ import rateLimit from 'express-rate-limit';
 import { logger } from './utils/logger.js';
 import crudProfissional from './crudnode/crudProfissionalRotas.js';
 import crudPaciente from './crudnode/crudPacienteRotas.js';
-import crudPsicologo from './crudnode/crudPsicologoRotas.js';
 import crudHorario from './crudnode/crudHorarioRotas.js';
 import crudAgendamento from './crudnode/crudAgendamentoRotas.js';
 import crudConversa from './crudnode/crudConversaRotas.js';
@@ -86,7 +85,6 @@ app.use('/pacientes', crudPaciente);
 app.use('/auth', authRoutes);
 
 // Novas rotas
-app.use('/psicologos', profissionalLimiter, crudPsicologo);
 app.use('/horarios', crudHorario);
 app.use('/agendamentos', agendamentoLimiter, crudAgendamento);
 app.use('/conversas', chatLimiter, crudConversa);
