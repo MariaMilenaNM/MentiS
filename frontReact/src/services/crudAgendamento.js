@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
 const URL_AGENDAMENTOS = `${API_URL}/agendamentos`;
+const URL_HORARIOS = `${API_URL}/horarios`;
 
 function getToken() {
   return localStorage.getItem('token');
@@ -19,6 +20,18 @@ async function authenticatedFetch(url, options = {}) {
     headers,
   });
   return response;
+}
+
+export async function getHorariosDisponiveis(psicologoId) {
+  try {
+    const res = await authenticatedFetch(`${URL_HORARIOS}/profissional/${psicologoId}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.erro || 'Erro ao buscar horários disponíveis');
+    return data;
+  } catch (error) {
+    console.error('Erro ao buscar horários disponíveis:', error);
+    throw error;
+  }
 }
 
 export async function criarAgendamento(dados) {
