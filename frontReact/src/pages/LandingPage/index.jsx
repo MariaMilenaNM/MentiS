@@ -38,11 +38,11 @@ export default function LandingPage() {
           </h2>
           <p>
             Encontrar o profissional certo não precisa ser um desafio. Nossa plataforma une você a
-            psicólogos verificados de forma simples e segura. Navegue pelos perfis e cuide da sua
+            profissionais verificados de forma simples e segura. Navegue pelos perfis e cuide da sua
             saúde mental no seu ritmo.
           </p>
           <Link to="/profissional" className="btn-encontrar">
-            REGISTRE-SE COMO PSICÓLOGO
+            REGISTRE-SE COMO PROFISSIONAL
           </Link>
         </div>
         <div className="imagem-direita">
@@ -59,7 +59,7 @@ export default function LandingPage() {
             <div className="corpo">
               <h3>Profissional Certo</h3>
               <p>
-                Encontre o psicólogo ideal para o seu momento de vida, navegando por perfis focados
+                Encontre o profissional ideal para o seu momento de vida, navegando por perfis focados
                 no que você realmente busca.
               </p>
             </div>
@@ -141,7 +141,7 @@ export default function LandingPage() {
           <div className="faq-right">
             <details className="faq-item" name="faq">
               <summary className="faq-q">
-                <span>Como escolho o psicólogo ideal?</span>
+                <span>Como escolho o profissional ideal?</span>
                 <span className="material-icons seta-icone">expand_more</span>
               </summary>
               <div className="faq-a-content">

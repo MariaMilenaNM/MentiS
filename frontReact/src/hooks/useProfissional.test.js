@@ -29,8 +29,8 @@ describe('useProfissional', () => {
   describe('carregarTabela', () => {
     it('deve carregar profissionais na inicialização', async () => {
       const mockProfissionais = [
-        { id: 1, nome: 'Psicólogo 1', crp: 12345, modalidade: 'Presencial' },
-        { id: 2, nome: 'Psicólogo 2', crp: 54321, modalidade: 'Remota' },
+        { id: 1, nome: 'Psicólogo 1', crp: '12345', modalidade: 'Presencial' },
+        { id: 2, nome: 'Psicólogo 2', crp: '54321', modalidade: 'Remota' },
       ];
       getProfissionais.mockResolvedValue(mockProfissionais);
 
@@ -68,14 +68,14 @@ describe('useProfissional', () => {
       expect(result.current.formErros).toHaveProperty('contato');
     });
 
-    it('deve validar CRP como número positivo', async () => {
+    it('deve validar formato inválido de CRP', async () => {
       getProfissionais.mockResolvedValue([]);
       const { result } = renderHook(() => useProfissional());
 
       act(() => {
         result.current.setForm({
           nome: 'Teste',
-          crp: '-1',
+          crp: 'abc', // CRP inválido - apenas letras
           modPresencial: true,
           modRemota: false,
           link: '',
@@ -88,7 +88,7 @@ describe('useProfissional', () => {
         result.current.handleCreate();
       });
 
-      expect(result.current.formErros.crp).toBe('CRP deve ser um número positivo');
+      expect(result.current.formErros.crp).toBe('CRP inválido. Use formato: 06/123456 ou 06123456');
     });
 
     it('deve validar formato de telefone', async () => {
@@ -189,7 +189,7 @@ describe('useProfissional', () => {
       expect(criarProfissional).toHaveBeenCalledWith(
         expect.objectContaining({
           nome: 'Novo Psicólogo',
-          crp: 67890,
+          crp: '67890',
           modalidade: 'Presencial',
           numero: '(11) 88888-8888',
           contato: 'novo@teste.com',
@@ -248,7 +248,7 @@ describe('useProfissional', () => {
       const mockProfissional = {
         id: 1,
         nome: 'Teste',
-        crp: 12345,
+        crp: '12345',
         modalidade: 'Presencial',
         link: 'https://instagram.com/teste',
         numero: '(11) 99999-9999',
@@ -276,7 +276,7 @@ describe('useProfissional', () => {
       const mockProfissional = {
         id: 2,
         nome: 'Teste 2',
-        crp: 54321,
+        crp: '54321',
         modalidade: 'Presencial e Remota',
         link: '',
         numero: '(11) 99999-9999',
@@ -302,7 +302,7 @@ describe('useProfissional', () => {
       const mockProfissional = {
         id: 3,
         nome: 'Teste 3',
-        crp: 98765,
+        crp: '98765',
         modalidade: 'Remota',
         link: '',
         numero: '(11) 99999-9999',
@@ -330,7 +330,7 @@ describe('useProfissional', () => {
       const mockProfissional = {
         id: 1,
         nome: 'Teste',
-        crp: 12345,
+        crp: '12345',
         modalidade: 'Presencial',
         link: '',
         numero: '(11) 99999-9999',
@@ -365,7 +365,7 @@ describe('useProfissional', () => {
       const mockProfissional = {
         id: 1,
         nome: 'Teste',
-        crp: 12345,
+        crp: '12345',
         modalidade: 'Presencial',
         link: '',
         numero: '(11) 99999-9999',
@@ -407,7 +407,7 @@ describe('useProfissional', () => {
       const mockProfissional = {
         id: 1,
         nome: 'Teste',
-        crp: 12345,
+        crp: '12345',
         modalidade: 'Presencial',
         link: '',
         numero: '(11) 99999-9999',

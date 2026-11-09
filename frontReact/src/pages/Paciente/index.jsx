@@ -160,7 +160,7 @@ export default function Paciente() {
                 <div className="lgpd-aceite">
                   <p id="cadTermos">
                     Usamos seu nome, e-mail e senha (guardada de forma protegida) para criar sua
-                    conta e permitir o agendamento com psicólogos. O assistente de triagem é uma
+                    conta e permitir o agendamento com profissionais. O assistente de triagem é uma
                     inteligência artificial: o que você escrever na conversa é processado por ela,
                     mas seu nome e e-mail não são enviados.
                   </p>

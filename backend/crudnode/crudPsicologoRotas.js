@@ -35,7 +35,7 @@ const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-// GET /psicologos - Lista todos os psicólogos (público, apenas validados)
+// GET /psicologos - Lista todos os profissionais (público, apenas validados)
 routes.get(
   '/',
   asyncHandler(async (req, res) => {
@@ -54,16 +54,16 @@ routes.get(
         filters.validado = true;
       }
 
-      const psicologos = await psicologoRepository.findAll(filters);
-      return res.status(200).json(psicologos);
+      const profissionais = await psicologoRepository.findAll(filters);
+      return res.status(200).json(profissionais);
     } catch (error) {
-      logger.error('Erro ao buscar psicólogos', { error: error.message });
-      return res.status(500).json({ erro: 'Erro ao buscar psicólogos' });
+      logger.error('Erro ao buscar profissionais', { error: error.message });
+      return res.status(500).json({ erro: 'Erro ao buscar profissionais' });
     }
   })
 );
 
-// GET /psicologos/:id - Busca psicólogo por ID
+// GET /psicologos/:id - Busca profissional por ID
 routes.get(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -74,25 +74,25 @@ routes.get(
     }
 
     try {
-      const psicologo = await psicologoRepository.findById(id);
+      const profissional = await psicologoRepository.findById(id);
 
-      if (!psicologo) {
-        return res.status(404).json({ erro: 'Psicólogo não encontrado' });
+      if (!profissional) {
+        return res.status(404).json({ erro: 'Profissional não encontrado' });
       }
 
       // Não retornar senha do usuário
-      const { senha: _, ...usuarioSeguro } = psicologo.usuario || {};
-      const psicologoSeguro = { ...psicologo, usuario: usuarioSeguro };
+      const { senha: _, ...usuarioSeguro } = profissional.usuario || {};
+      const profissionalSeguro = { ...profissional, usuario: usuarioSeguro };
 
-      return res.status(200).json(psicologoSeguro);
+      return res.status(200).json(profissionalSeguro);
     } catch (error) {
-      logger.error('Erro ao buscar psicólogo', { id, error: error.message });
-      return res.status(500).json({ erro: 'Erro ao buscar psicólogo' });
+      logger.error('Erro ao buscar profissional', { id, error: error.message });
+      return res.status(500).json({ erro: 'Erro ao buscar profissional' });
     }
   })
 );
 
-// POST /psicologos - Cadastra psicólogo (requer token de admin ou auto-cadastro)
+// POST /psicologos - Cadastra profissional (requer token de admin ou auto-cadastro)
 routes.post(
   '/',
   verifyAuthOrAdmin,
@@ -109,13 +109,13 @@ routes.post(
 
       // Criar Usuario
       const usuario = await usuarioRepository.create({
-        email: `${dados.crp}@psicologo.mentis`, // Email temporário baseado no CRP
+        email: `${dados.crp}@profissional.mentis`, // Email temporário baseado no CRP
         senha: 'temp_password_' + Date.now(), // Senha temporária
         role: 'PSICOLOGO',
       });
 
-      // Criar Psicologo
-      const psicologo = await psicologoRepository.create(usuario.id, {
+      // Criar Profissional (model Psicologo no banco)
+      const profissional = await psicologoRepository.create(usuario.id, {
         crp: dados.crp,
         bio: dados.bio,
         especialidades: JSON.stringify(dados.especialidades),
@@ -126,23 +126,23 @@ routes.post(
         fotoUrl: dados.fotoUrl,
       });
 
-      logger.info('Psicólogo cadastrado', {
-        id: psicologo.id,
-        crp: psicologo.crp,
+      logger.info('Profissional cadastrado', {
+        id: profissional.id,
+        crp: profissional.crp,
         usuarioId: usuario.id,
       });
-      return res.status(201).json(psicologo);
+      return res.status(201).json(profissional);
     } catch (error) {
-      logger.error('Erro ao criar psicólogo', { error: error.message, crp: dados.crp });
+      logger.error('Erro ao criar profissional', { error: error.message, crp: dados.crp });
       if (error.message.includes('CRP já cadastrado')) {
         return res.status(409).json({ erro: 'CRP já cadastrado' });
       }
-      return res.status(500).json({ erro: 'Erro ao criar psicólogo' });
+      return res.status(500).json({ erro: 'Erro ao criar profissional' });
     }
   })
 );
 
-// PUT /psicologos/:id - Atualiza psicólogo (requer token, próprio ou admin)
+// PUT /psicologos/:id - Atualiza profissional (requer token, próprio ou admin)
 routes.put(
   '/:id',
   verificarToken,
@@ -156,14 +156,14 @@ routes.put(
     }
 
     try {
-      const psicologo = await psicologoRepository.findById(id);
+      const profissional = await psicologoRepository.findById(id);
 
-      if (!psicologo) {
-        return res.status(404).json({ erro: 'Psicólogo não encontrado' });
+      if (!profissional) {
+        return res.status(404).json({ erro: 'Profissional não encontrado' });
       }
 
-      // Verificação de posse: psicólogo só pode atualizar próprio perfil (ou admin)
-      if (req.usuario.role !== 'ADMIN' && psicologo.usuarioId !== req.usuario.id) {
+      // Verificação de posse: profissional só pode atualizar próprio perfil (ou admin)
+      if (req.usuario.role !== 'ADMIN' && profissional.usuarioId !== req.usuario.id) {
         return res
           .status(403)
           .json({ erro: 'Acesso negado: você só pode atualizar seu próprio perfil' });
@@ -175,10 +175,10 @@ routes.put(
       }
 
       // Verificar unicidade de CRP se está sendo alterado
-      if (dados.crp && dados.crp !== psicologo.crp) {
+      if (dados.crp && dados.crp !== profissional.crp) {
         const crpExiste = await psicologoRepository.findByCRP(dados.crp);
         if (crpExiste) {
-          return res.status(409).json({ erro: 'CRP já cadastrado por outro psicólogo' });
+          return res.status(409).json({ erro: 'CRP já cadastrado por outro profissional' });
         }
       }
 
@@ -187,23 +187,23 @@ routes.put(
         dados.especialidades = JSON.stringify(dados.especialidades);
       }
 
-      const psicologoAtualizado = await psicologoRepository.update(id, dados);
-      logger.info('Psicólogo atualizado', { id });
-      return res.status(200).json(psicologoAtualizado);
+      const profissionalAtualizado = await psicologoRepository.update(id, dados);
+      logger.info('Profissional atualizado', { id });
+      return res.status(200).json(profissionalAtualizado);
     } catch (error) {
-      logger.error('Erro ao atualizar psicólogo', { id, error: error.message });
+      logger.error('Erro ao atualizar profissional', { id, error: error.message });
       if (error.message.includes('CRP já cadastrado')) {
         return res.status(409).json({ erro: 'CRP já cadastrado' });
       }
       if (error.message.includes('P2025')) {
-        return res.status(404).json({ erro: 'Psicólogo não encontrado' });
+        return res.status(404).json({ erro: 'Profissional não encontrado' });
       }
-      return res.status(500).json({ erro: 'Erro ao atualizar psicólogo' });
+      return res.status(500).json({ erro: 'Erro ao atualizar profissional' });
     }
   })
 );
 
-// DELETE /psicologos/:id - Remove psicólogo (requer token admin)
+// DELETE /psicologos/:id - Remove profissional (requer token admin)
 routes.delete(
   '/:id',
   verificarToken,
@@ -217,32 +217,32 @@ routes.delete(
     if (req.usuario.role !== 'ADMIN') {
       return res
         .status(403)
-        .json({ erro: 'Acesso negado: apenas administradores podem remover psicólogos' });
+        .json({ erro: 'Acesso negado: apenas administradores podem remover profissionais' });
     }
 
     try {
-      const psicologo = await psicologoRepository.findById(id);
+      const profissional = await psicologoRepository.findById(id);
 
-      if (!psicologo) {
-        return res.status(404).json({ erro: 'Psicólogo não encontrado' });
+      if (!profissional) {
+        return res.status(404).json({ erro: 'Profissional não encontrado' });
       }
 
       await psicologoRepository.delete(id);
-      logger.info('Psicólogo removido', { id });
+      logger.info('Profissional removido', { id });
       return res
         .status(200)
-        .json({ status: 'removido', mensagem: 'Psicólogo removido com sucesso' });
+        .json({ status: 'removido', mensagem: 'Profissional removido com sucesso' });
     } catch (error) {
-      logger.error('Erro ao deletar psicólogo', { id, error: error.message });
+      logger.error('Erro ao deletar profissional', { id, error: error.message });
       if (error.message.includes('P2025')) {
-        return res.status(404).json({ erro: 'Psicólogo não encontrado' });
+        return res.status(404).json({ erro: 'Profissional não encontrado' });
       }
-      return res.status(500).json({ erro: 'Erro ao deletar psicólogo' });
+      return res.status(500).json({ erro: 'Erro ao deletar profissional' });
     }
   })
 );
 
-// Middleware para permitir acesso com token válido (paciente, psicólogo ou admin)
+// Middleware para permitir acesso com token válido (paciente, profissional ou admin)
 function verifyAuthOrAdmin(req, res, next) {
   const authHeader = req.headers.authorization;
 
@@ -264,7 +264,7 @@ function verifyAuthOrAdmin(req, res, next) {
 
 // Middleware de erro global
 routes.use((err, req, res, next) => {
-  logger.error('Erro não tratado na rota de psicólogos', {
+  logger.error('Erro não tratado na rota de profissionais', {
     error: err.message,
     stack: err.stack,
     path: req.path,

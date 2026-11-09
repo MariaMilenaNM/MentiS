@@ -8,7 +8,7 @@ export function usePainel() {
   const navigate = useNavigate();
 
   const [pacienteLogado, setPacienteLogado] = useState(null);
-  const [todosPsicologos, setTodosPsicologos] = useState([]);
+  const [todosProfissionais, setTodosProfissionais] = useState([]);
 
   const [sidebarAberta, setSidebarAberta] = useState(true);
   const [modoEdicao, setModoEdicao] = useState(false);
@@ -77,8 +77,8 @@ export function usePainel() {
         return;
       }
 
-      const psicologos = await getProfissionais();
-      setTodosPsicologos(psicologos || []);
+      const profissionais = await getProfissionais();
+      setTodosProfissionais(profissionais || []);
     } catch (error) {
       console.error('Erro ao carregar dados do painel:', error);
       logout();
@@ -170,14 +170,14 @@ export function usePainel() {
   };
 
   const indexInicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
-  const psicologosPagina = todosPsicologos.slice(indexInicio, indexInicio + ITENS_POR_PAGINA);
-  const totalPaginas = Math.ceil(todosPsicologos.length / ITENS_POR_PAGINA);
+  const profissionaisPagina = todosProfissionais.slice(indexInicio, indexInicio + ITENS_POR_PAGINA);
+  const totalPaginas = Math.ceil(todosProfissionais.length / ITENS_POR_PAGINA);
 
   const limparSucessoMsg = () => setSucessoMsg('');
 
   return {
     pacienteLogado,
-    todosPsicologos,
+    todosProfissionais,
     sidebarAberta,
     modoEdicao,
     paginaAtual,
@@ -192,7 +192,7 @@ export function usePainel() {
     toggleEdicao,
     salvarEdicao,
     sair,
-    psicologosPagina,
+    profissionaisPagina,
     totalPaginas,
   };
 }

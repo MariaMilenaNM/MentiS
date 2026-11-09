@@ -18,7 +18,7 @@ const asyncHandler = (fn) => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-// POST /auth/login - Login unificado (paciente ou psicólogo)
+// POST /auth/login - Login unificado (paciente ou profissional)
 routes.post("/login", validate(pacienteLoginSchema), asyncHandler(async (req, res) => {
     const { email, senha } = req.body;
 
@@ -45,20 +45,20 @@ routes.post("/login", validate(pacienteLoginSchema), asyncHandler(async (req, re
             estado: paciente.estado
         };
     } else if (usuario.role === "PSICOLOGO") {
-        const psicologo = await psicologoRepository.findByUsuarioId(usuario.id);
-        if (!psicologo) {
-            return res.status(404).json({ erro: "Perfil de psicólogo não encontrado" });
+        const profissional = await psicologoRepository.findByUsuarioId(usuario.id);
+        if (!profissional) {
+            return res.status(404).json({ erro: "Perfil de profissional não encontrado" });
         }
         perfil = {
-            id: psicologo.id,
-            nome: psicologo.nome || psicologo.usuario?.email || 'Psicólogo',
+            id: profissional.id,
+            nome: profissional.nome || profissional.usuario?.email || 'Profissional',
             email: usuario.email,
-            crp: psicologo.crp,
-            especialidades: psicologo.especialidades ? JSON.parse(psicologo.especialidades) : [],
-            abordagem: psicologo.abordagem,
-            preco: psicologo.preco,
-            modalidade: psicologo.modalidade,
-            fotoUrl: psicologo.fotoUrl
+            crp: profissional.crp,
+            especialidades: profissional.especialidades ? JSON.parse(profissional.especialidades) : [],
+            abordagem: profissional.abordagem,
+            preco: profissional.preco,
+            modalidade: profissional.modalidade,
+            fotoUrl: profissional.fotoUrl
         };
     } else {
         return res.status(401).json({ erro: "Tipo de usuário não autorizado" });

@@ -108,9 +108,9 @@ export const profissionalCompatCadastroSchema = z.object({
   link: z.string().url("URL inválida").optional().or(z.literal("")),
   numero: z.string().min(10, "Telefone inválido").max(15),
   contato: z.string().email("E-mail de contato inválido"),
-  // Campos opcionais - serão preenchidos com defaults no handler
-  bio: z.string().max(2000).optional(),
-  especialidades: z.array(z.string()).optional(),
+  // Campos com defaults no schema (não apenas no handler) - necessários para validação Zod passar
+  bio: z.string().max(2000).optional().default(""),
+  especialidades: z.array(z.string()).optional().default(["Geral"]),
   abordagem: z.enum([
     "PSICANALITICA",
     "COGNITIVO_COMPORTAMENTAL",
@@ -119,9 +119,9 @@ export const profissionalCompatCadastroSchema = z.object({
     "GESTALT",
     "JUNGUIANA",
     "OUTRA"
-  ]).optional(),
-  preco: z.number().positive("Preço deve ser positivo").optional(),
-  fotoUrl: z.string().url("URL inválida").optional().or(z.literal(""))
+  ]).optional().default("OUTRA"),
+  preco: z.number().positive("Preço deve ser positivo").optional().default(150),
+  fotoUrl: z.string().url("URL inválida").optional().or(z.literal("")).default(""),
 });
 
 // ============================================

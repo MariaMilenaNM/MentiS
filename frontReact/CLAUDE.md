@@ -38,13 +38,13 @@ frontReact/
 │   │   ├── LandingPage/          # Página pública (index.jsx)
 │   │   ├── Paciente/             # Login/Cadastro (index.jsx)
 │   │   ├── Painel/               # Dashboard do paciente (index.jsx)
-│   │   └── Profissional/         # CRUD de psicólogos (index.jsx)
+│   │   └── Profissional/         # CRUD de profissionais (index.jsx)
 │   ├── hooks/                    # Hooks customizados (lógica de negócio + estado)
 │   │   ├── usePaciente.js        # Auth: login, cadastro, localStorage
 │   │   ├── usePaciente.test.js   # Testes usePaciente
-│   │   ├── usePainel.js          # Dashboard: perfil, psicólogos, paginação, edição
+│   │   ├── usePainel.js          # Dashboard: perfil, profissionais, paginação, edição
 │   │   ├── usePainel.test.js     # Testes usePainel
-│   │   ├── useProfissional.js    # CRUD psicólogos: create, read, update, delete
+│   │   ├── useProfissional.js    # CRUD profissionais: create, read, update, delete
 │   │   └── useProfissional.test.js # Testes useProfissional
 │   ├── test/                     # Configuração de testes
 │   │   └── setup.js              # Setup global Vitest
@@ -133,7 +133,7 @@ services/crudPaciente.js → POST /pacientes/login
 localStorage.setItem('token', token)
 localStorage.setItem('pacienteLogado', JSON.stringify(dados))
     ↓ navigate('/painel')
-Painel/index.jsx → usePainel.js → carrega perfil + psicólogos
+Painel/index.jsx → usePainel.js → carrega perfil + profissionais
 ```
 
 ---
@@ -144,8 +144,8 @@ Painel/index.jsx → usePainel.js → carrega perfil + psicólogos
 | -------------- | --------------- | ----------------- | -------------------------------- | ------------------------------------------------------ |
 | `LandingPage`  | `/`             | —                 | —                                | Pública, marketing, navegação                          |
 | `Paciente`     | `/paciente`     | `usePaciente`     | `crudPaciente`                   | Login / Cadastro                                       |
-| `Painel`       | `/painel`       | `usePainel`       | `crudPainel`, `crudProfissional` | Dashboard logado: perfil + lista psicólogos (paginada) |
-| `Profissional` | `/profissional` | `useProfissional` | `crudProfissional`               | Admin: CRUD completo de psicólogos                     |
+| `Painel`       | `/painel`       | `usePainel`       | `crudPainel`, `crudProfissional` | Dashboard logado: perfil + lista profissionais (paginada) |
+| `Profissional` | `/profissional` | `useProfissional` | `crudProfissional`               | Admin: CRUD completo de profissionais                  |
 
 ---
 

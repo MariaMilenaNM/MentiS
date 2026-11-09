@@ -34,7 +34,7 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Rate limiting para profissionais/psicólogos
+// Rate limiting para profissionais
 const profissionalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 50, // máximo 50 requisições por IP

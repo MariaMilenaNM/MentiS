@@ -18,9 +18,9 @@ export default function Painel() {
     toggleEdicao,
     salvarEdicao,
     sair,
-    psicologosPagina,
+    profissionaisPagina,
     totalPaginas,
-    todosPsicologos,
+    todosProfissionais,
   } = usePainel();
 
   if (!pacienteLogado)
@@ -195,18 +195,18 @@ export default function Painel() {
       <main className="painel-main" role="main">
         <div className="painel-header">
           <h1>Profissionais Disponíveis</h1>
-          <p>Encontre o psicólogo ideal para o seu atendimento em nossa rede de parceiros.</p>
+          <p>Encontre o profissional ideal para o seu atendimento em nossa rede de parceiros.</p>
         </div>
 
         <div className="cards-grid" role="list" aria-label="Lista de profissionais">
-          {todosPsicologos.length === 0 ? (
+          {todosProfissionais.length === 0 ? (
             <p className="sem-dados">Nenhum profissional cadastrado ainda.</p>
           ) : (
-            psicologosPagina.map((p) => {
-              const letra = p.nome ? p.nome.charAt(0).toUpperCase() : '?';
+            profissionaisPagina.map((profissional) => {
+              const letra = profissional.nome ? profissional.nome.charAt(0).toUpperCase() : '?';
               // Validação segura do link do Instagram: apenas username alfanumérico + underscore/pontos
-              const instagramUsername = p.link
-                ? p.link
+              const instagramUsername = profissional.link
+                ? profissional.link
                     .replace(/^https?:\/\/(www\.)?instagram\.com\//, '')
                     .replace('@', '')
                     .split('/')[0]
@@ -214,22 +214,22 @@ export default function Painel() {
               const instagramValido =
                 instagramUsername && /^[a-zA-Z0-9_.]+$/.test(instagramUsername);
               const classeTag =
-                p.modalidade === 'Presencial e Remota' ? 'ambas' : p.modalidade?.toLowerCase();
+                profissional.modalidade === 'Presencial e Remota' ? 'ambas' : profissional.modalidade?.toLowerCase();
 
               return (
-                <div className="psi-card" key={p.id} role="listitem">
+                <div className="psi-card" key={profissional.id} role="listitem">
                   <div className="psi-avatar" aria-hidden="true">
                     {letra}
                   </div>
                   <div className="psi-info">
-                    <h3 className="psi-nome">{p.nome}</h3>
-                    <span className="psi-crp">CRP: {p.crp}</span>
-                    <span className={`psi-modalidade tag-${classeTag}`}>{p.modalidade}</span>
+                    <h3 className="psi-nome">{profissional.nome}</h3>
+                    <span className="psi-crp">CRP: {profissional.crp}</span>
+                    <span className={`psi-modalidade tag-${classeTag}`}>{profissional.modalidade}</span>
                     <p className="psi-contato">
-                      <strong>E-mail:</strong> {p.contato}
+                      <strong>E-mail:</strong> {profissional.contato}
                     </p>
                     <p className="psi-contato">
-                      <strong>Telefone:</strong> {p.numero}
+                      <strong>Telefone:</strong> {profissional.numero}
                     </p>
                   </div>
                   {instagramValido && (
@@ -238,7 +238,7 @@ export default function Painel() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="psi-btn-insta"
-                      aria-label={`Ver Instagram de ${p.nome}`}
+                      aria-label={`Ver Instagram de ${profissional.nome}`}
                     >
                       Ver Instagram
                     </a>

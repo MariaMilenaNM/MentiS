@@ -24,13 +24,28 @@ export function useProfissional() {
   const [carregando, setCarregando] = useState(false);
 
   const validarEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Validação mais robusta (similar ao Zod .email())
+    const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
     return re.test(email);
   };
 
   const validarTelefone = (telefone) => {
-    const re = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
-    return re.test(telefone.replace(/\s/g, ''));
+    // Aceita formatos: (XX) XXXXX-XXXX, (XX) XXXX-XXXX, XX XXXXX-XXXX, XXXXXXXXXX
+    // Remove tudo que não é dígito e verifica se tem 10 ou 11 dígitos
+    const digits = telefone.replace(/\D/g, '');
+    return digits.length === 10 || digits.length === 11;
+  };
+
+  const validarCrp = (crp) => {
+    // CRP pode ser: "06/123456", "06123456", "123456", etc.
+    // Deve ter pelo menos 4 caracteres e conter apenas dígitos e opcionalmente uma barra
+    if (!crp || typeof crp !== 'string') return false;
+    const clean = crp.trim();
+    if (clean.length < 4) return false;
+    // Permite dígitos e no máximo uma barra
+    const apenasDigitosEBarras = /^[\d\/]+$/.test(clean);
+    const noMaximoUmaBarra = (clean.match(/\//g) || []).length <= 1;
+    return apenasDigitosEBarras && noMaximoUmaBarra;
   };
 
   const validarUrl = (url) => {
@@ -50,8 +65,8 @@ export function useProfissional() {
       erros.nome = 'Nome deve ter pelo menos 2 caracteres';
     }
 
-    if (!dados.crp || isNaN(dados.crp) || Number(dados.crp) <= 0) {
-      erros.crp = 'CRP deve ser um número positivo';
+    if (!validarCrp(dados.crp)) {
+      erros.crp = 'CRP inválido. Use formato: 06/123456 ou 06123456';
     }
 
     const modalidade = getModalidade(dados);
@@ -101,7 +116,7 @@ export function useProfissional() {
     const modalidade = getModalidade(form);
     const dadosSubmit = {
       nome: form.nome,
-      crp: Number(form.crp),
+      crp: form.crp.trim(), // Enviar como string, não converter para Number
       modalidade,
       link: form.link || '',
       numero: form.numero,
@@ -146,9 +161,11 @@ export function useProfissional() {
       const resultado = await buscarProfissionalPorId(id);
       if (resultado) {
         // Normalizar modalidade (string da API) para checkboxes (booleanos do form)
+        // CRP vem como number do backend, converter para string
         const modalidade = resultado.modalidade || '';
         const editFormNormalizado = {
           ...resultado,
+          crp: String(resultado.crp), // Converter CRP para string
           modPresencial: modalidade.includes('Presencial'),
           modRemota: modalidade.includes('Remota'),
         };

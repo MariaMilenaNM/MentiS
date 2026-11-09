@@ -12,7 +12,7 @@ const asyncHandler = (fn) => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-// GET /profissionais - Lista todos os psicólogos validados (compatibilidade)
+// GET /profissionais - Lista todos os profissionais validados (compatibilidade)
 routes.get("/", asyncHandler(async (req, res) => {
     try {
         const psicologos = await psicologoRepository.findValidados();
@@ -20,8 +20,8 @@ routes.get("/", asyncHandler(async (req, res) => {
         // Transformar para formato antigo esperado pelo frontend
         const profissionais = psicologos.map(p => ({
             id: p.id,
-            nome: p.nome || p.usuario?.email || 'Psicólogo',
-            crp: parseInt(p.crp) || p.id,
+            nome: p.nome || p.usuario?.email || 'Profissional',
+            crp: p.crp, // CRP mantido como string (pode conter letras/barra)
             modalidade: p.modalidade === 'ONLINE' ? 'Remota' :
                        p.modalidade === 'PRESENCIAL' ? 'Presencial' : 'Presencial e Remota',
             link: p.fotoUrl || '',
@@ -36,7 +36,7 @@ routes.get("/", asyncHandler(async (req, res) => {
     }
 }));
 
-// POST /profissionais - Cria novo psicólogo (compatibilidade - apenas admin)
+// POST /profissionais - Cria novo profissional (compatibilidade - apenas admin)
 routes.post("/", validate(profissionalCompatCadastroSchema), asyncHandler(async (req, res) => {
     const dados = req.body;
 
@@ -56,21 +56,24 @@ routes.post("/", validate(profissionalCompatCadastroSchema), asyncHandler(async 
 
         // Criar Usuario
         const usuario = await usuarioRepository.create({
-            email: `${dados.crp}@psicologo.mentis`,
+            email: `${dados.crp}@profissional.mentis`,
             senha: "temp_password_" + Date.now(),
             role: "PSICOLOGO"
         });
 
-        // Criar Psicologo
+        // Preparar dados para Psicologo (remover campos que não existem no modelo)
+        const { nome, numero, contato, link, ...dadosPsicologo } = dados;
+
+        // Criar Psicologo (defaults agora vêm do schema Zod)
         const psicologo = await psicologoRepository.create(usuario.id, {
-            crp: dados.crp,
-            bio: dados.bio,
-            especialidades: JSON.stringify(dados.especialidades || ["Geral"]),
-            abordagem: dados.abordagem || "OUTRA",
-            preco: dados.preco || 150.0,
-            modalidade: modalidadeMap[dados.modalidade] || "ONLINE",
+            crp: dadosPsicologo.crp,
+            bio: dadosPsicologo.bio,
+            especialidades: JSON.stringify(dadosPsicologo.especialidades),
+            abordagem: dadosPsicologo.abordagem,
+            preco: dadosPsicologo.preco,
+            modalidade: modalidadeMap[dadosPsicologo.modalidade],
             validado: false,
-            fotoUrl: dados.fotoUrl || dados.link
+            fotoUrl: dadosPsicologo.fotoUrl || dadosPsicologo.link
         });
 
         logger.info("Profissional criado (compat)", { id: psicologo.id, crp: psicologo.crp });
@@ -78,8 +81,8 @@ routes.post("/", validate(profissionalCompatCadastroSchema), asyncHandler(async 
         // Retornar formato antigo
         const profissional = {
             id: psicologo.id,
-            nome: dados.nome || psicologo.usuario?.email || 'Psicólogo',
-            crp: parseInt(psicologo.crp) || psicologo.id,
+            nome: dados.nome || psicologo.usuario?.email || 'Profissional',
+            crp: psicologo.crp, // CRP mantido como string
             modalidade: psicologo.modalidade === 'ONLINE' ? 'Remota' :
                        psicologo.modalidade === 'PRESENCIAL' ? 'Presencial' : 'Presencial e Remota',
             link: psicologo.fotoUrl || '',
@@ -115,8 +118,8 @@ routes.get("/:id", asyncHandler(async (req, res) => {
         // Retornar formato antigo
         const profissional = {
             id: psicologo.id,
-            nome: psicologo.nome || psicologo.usuario?.email || 'Psicólogo',
-            crp: parseInt(psicologo.crp) || psicologo.id,
+            nome: psicologo.nome || psicologo.usuario?.email || 'Profissional',
+            crp: psicologo.crp, // CRP mantido como string
             modalidade: psicologo.modalidade === 'ONLINE' ? 'Remota' :
                        psicologo.modalidade === 'PRESENCIAL' ? 'Presencial' : 'Presencial e Remota',
             link: psicologo.fotoUrl || '',
@@ -155,8 +158,8 @@ routes.put("/:id", validate(profissionalAtualizacaoSchema), asyncHandler(async (
         logger.info("Profissional atualizado (compat)", { id });
         return res.status(200).json({
             id: psicologoAtualizado.id,
-            nome: psicologoAtualizado.nome || psicologoAtualizado.usuario?.email || 'Psicólogo',
-            crp: parseInt(psicologoAtualizado.crp) || psicologoAtualizado.id,
+            nome: psicologoAtualizado.nome || psicologoAtualizado.usuario?.email || 'Profissional',
+            crp: psicologoAtualizado.crp, // CRP mantido como string
             modalidade: psicologoAtualizado.modalidade === 'ONLINE' ? 'Remota' :
                        psicologoAtualizado.modalidade === 'PRESENCIAL' ? 'Presencial' : 'Presencial e Remota',
             link: psicologoAtualizado.fotoUrl || '',

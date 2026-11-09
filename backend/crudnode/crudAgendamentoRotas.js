@@ -130,17 +130,17 @@ routes.post(
       // Verificar se o psicólogo existe e está validado
       const psicologo = await psicologoRepository.findById(dados.psicologoId);
       if (!psicologo) {
-        return res.status(404).json({ erro: 'Psicólogo não encontrado' });
+        return res.status(404).json({ erro: 'Profissional não encontrado' });
       }
       if (!psicologo.validado) {
-        return res.status(400).json({ erro: 'Psicólogo não validado' });
+        return res.status(400).json({ erro: 'Profissional não validado' });
       }
 
       // Se horarioId fornecido, verificar se pertence ao psicólogo
       if (dados.horarioId) {
         const horario = await horarioRepository.findById(dados.horarioId);
         if (!horario || horario.psicologoId !== dados.psicologoId) {
-          return res.status(400).json({ erro: 'Horário inválido para este psicólogo' });
+          return res.status(400).json({ erro: 'Horário inválido para este profissional' });
         }
         if (!horario.ativo) {
           return res.status(400).json({ erro: 'Horário não está mais disponível' });
@@ -163,7 +163,7 @@ routes.post(
     } catch (error) {
       logger.error('Erro ao criar agendamento', { error: error.message });
       if (error.message.includes('Horário já agendado')) {
-        return res.status(409).json({ erro: 'Horário já agendado para este psicólogo' });
+        return res.status(409).json({ erro: 'Horário já agendado para este profissional' });
       }
       return res.status(500).json({ erro: 'Erro ao criar agendamento' });
     }
@@ -219,9 +219,9 @@ routes.put(
           });
         }
 
-        // Apenas psicólogo pode confirmar
+        // Apenas profissional pode confirmar
         if (dados.status === 'CONFIRMADO' && !isPsicologo && !isAdmin) {
-          return res.status(403).json({ erro: 'Apenas o psicólogo pode confirmar o agendamento' });
+          return res.status(403).json({ erro: 'Apenas o profissional pode confirmar o agendamento' });
         }
 
         // Apenas paciente pode cancelar como paciente
@@ -229,9 +229,9 @@ routes.put(
           return res.status(403).json({ erro: 'Apenas o paciente pode cancelar como paciente' });
         }
 
-        // Apenas psicólogo pode cancelar como psicólogo
+        // Apenas profissional pode cancelar como profissional
         if (dados.status === 'CANCELADO_PSICOLOGO' && !isPsicologo && !isAdmin) {
-          return res.status(403).json({ erro: 'Apenas o psicólogo pode cancelar como psicólogo' });
+          return res.status(403).json({ erro: 'Apenas o profissional pode cancelar como profissional' });
         }
       }
 
@@ -245,7 +245,7 @@ routes.put(
     } catch (error) {
       logger.error('Erro ao atualizar agendamento', { id, error: error.message });
       if (error.message.includes('Horário já agendado')) {
-        return res.status(409).json({ erro: 'Horário já agendado para este psicólogo' });
+        return res.status(409).json({ erro: 'Horário já agendado para este profissional' });
       }
       if (error.message.includes('não encontrado')) {
         return res.status(404).json({ erro: error.message });

@@ -100,26 +100,52 @@ backend/
 ## 🗄️ Models (Prisma Schema)
 
 ```prisma
-model Profissional {
-  id         Int    @id @default(autoincrement())
-  nome       String
-  crp        Int    @unique
-  modalidade String
-  link       String
-  numero     String
-  contato    String
+model Psicologo {
+  id            Int        @id @default(autoincrement())
+  usuarioId     Int        @unique
+  crp           String     @unique // CRP como string (pode ter letras/UF)
+  bio           String?
+  especialidades String    // JSON stringificado: ["CBT", "Psicanálise"]
+  abordagem     Abordagem  @default(OUTRA)
+  preco         Float      // preço por sessão
+  modalidade    Modalidade @default(ONLINE)
+  validado      Boolean    @default(false) // CRP validado manualmente
+  fotoUrl       String?
+  criadoEm      DateTime   @default(now())
+  atualizadoEm  DateTime   @updatedAt
+
+  usuario      Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  horarios     HorarioDisponivel[]
+  agendamentos Agendamento[]
+  conversas    Conversa[]
+
+  @@index([usuarioId])
+  @@index([crp])
+  @@index([validado])
+  @@index([modalidade])
 }
 
 model Paciente {
-  id       Int    @id @default(autoincrement())
-  nome     String
-  data     String
-  email    String @unique
-  telefone String
-  cidade   String
-  estado   String
-  senha    String  // ✅ Hashed with bcrypt (SALT_ROUNDS=10)
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @unique
+  nome      String
+  dataNasc  DateTime?
+  telefone  String?
+  cidade    String?
+  estado    String?
+  aceiteLGPD Boolean @default(false)
+  criadoEm  DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  usuario     Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  agendamentos Agendamento[]
+  conversas   Conversa[]
+
+  @@index([usuarioId])
 }
+```
+
+> **Nota**: A rota `/profissionais` (compatibilidade) transforma o modelo `Psicologo` para o formato legado esperado pelo frontend: `{ id, nome, crp, modalidade, link, numero, contato }`.
 ```
 
 ---

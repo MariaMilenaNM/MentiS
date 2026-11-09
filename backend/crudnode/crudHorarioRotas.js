@@ -38,7 +38,7 @@ routes.get(
     const psicologoId = parseInt(req.params.psicologoId);
 
     if (isNaN(psicologoId)) {
-      return res.status(400).json({ erro: 'ID do psicólogo inválido' });
+      return res.status(400).json({ erro: 'ID do profissional inválido' });
     }
 
     try {
@@ -88,7 +88,7 @@ routes.post(
       // Verificar se o psicólogo existe
       const psicologo = await psicologoRepository.findById(dados.psicologoId);
       if (!psicologo) {
-        return res.status(404).json({ erro: 'Psicólogo não encontrado' });
+        return res.status(404).json({ erro: 'Profissional não encontrado' });
       }
 
       // Verificação de posse: psicólogo só pode cadastrar seus próprios horários (ou admin)
@@ -104,7 +104,7 @@ routes.post(
     } catch (error) {
       logger.error('Erro ao criar horário', { error: error.message });
       if (error.message.includes('Horário já cadastrado')) {
-        return res.status(409).json({ erro: 'Horário já cadastrado para este psicólogo' });
+        return res.status(409).json({ erro: 'Horário já cadastrado para este profissional' });
       }
       return res.status(500).json({ erro: 'Erro ao criar horário' });
     }
@@ -146,7 +146,7 @@ routes.put(
     } catch (error) {
       logger.error('Erro ao atualizar horário', { id, error: error.message });
       if (error.message.includes('Horário já cadastrado')) {
-        return res.status(409).json({ erro: 'Horário já cadastrado para este psicólogo' });
+        return res.status(409).json({ erro: 'Horário já cadastrado para este profissional' });
       }
       if (error.message.includes('não encontrado')) {
         return res.status(404).json({ erro: error.message });

@@ -59,7 +59,7 @@ export default function Profissional() {
         </Link>
         <div className="card">
           <section id="telaR" style={{ width: '100%' }}>
-            <h2 style={{ marginBottom: '30px' }}>Registre-se como psicólogo na nossa clínica</h2>
+            <h2 style={{ marginBottom: '30px' }}>Registre-se como profissional na nossa clínica</h2>
             <div
               style={{
                 display: 'flex',
@@ -92,10 +92,10 @@ export default function Profissional() {
               <div className="campo">
                 <label htmlFor="profCrp">CRP</label>
                 <input
-                  type="number"
+                  type="text"
                   id="profCrp"
                   name="crp"
-                  placeholder="CRP (ex: 0612345)"
+                  placeholder="CRP (ex: 06/123456 ou 06123456)"
                   value={form.crp}
                   onChange={handleChange}
                   aria-invalid={!!formErros.crp}
@@ -291,10 +291,10 @@ export default function Profissional() {
                 <div className="campo">
                   <label htmlFor="editCrp">CRP</label>
                   <input
-                    type="number"
+                    type="text"
                     id="editCrp"
                     name="crp"
-                    placeholder="CRP"
+                    placeholder="CRP (ex: 06/123456)"
                     value={editForm.crp || ''}
                     onChange={handleEditChange}
                     aria-invalid={!!editErros.crp}
