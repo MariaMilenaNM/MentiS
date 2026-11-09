@@ -17,6 +17,8 @@ export function useProfissional() {
     link: '',
     numero: '',
     contato: '',
+    preco: '',
+    especialidades: [],
   });
   const [formErros, setFormErros] = useState({});
   const [editForm, setEditForm] = useState(null);
@@ -87,6 +89,16 @@ export function useProfissional() {
       erros.contato = 'E-mail de contato inválido';
     }
 
+    // Validar preço
+    if (!dados.preco || isNaN(Number(dados.preco)) || Number(dados.preco) <= 0) {
+      erros.preco = 'Preço da consulta deve ser um número positivo';
+    }
+
+    // Validar especialidades
+    if (!dados.especialidades || dados.especialidades.length === 0) {
+      erros.especialidades = 'Selecione pelo menos uma especialidade';
+    }
+
     return erros;
   };
 
@@ -122,6 +134,8 @@ export function useProfissional() {
       link: form.link || '',
       numero: form.numero,
       contato: form.contato,
+      preco: Number(form.preco),
+      especialidades: form.especialidades,
     };
 
     // Validar usando o form original (que tem modPresencial/modRemota)
@@ -145,6 +159,8 @@ export function useProfissional() {
         link: '',
         numero: '',
         contato: '',
+        preco: '',
+        especialidades: [],
       });
     } catch (error) {
       if (error.message.includes('CRP já cadastrado') || error.message.includes('P2002')) {
@@ -164,11 +180,22 @@ export function useProfissional() {
         // Normalizar modalidade (string da API) para checkboxes (booleanos do form)
         // CRP vem como number do backend, converter para string
         const modalidade = resultado.modalidade || '';
+        // Parse especialidades from JSON string
+        let especialidades = [];
+        if (resultado.especialidades) {
+          try {
+            especialidades = JSON.parse(resultado.especialidades);
+          } catch {
+            especialidades = [resultado.especialidades];
+          }
+        }
         const editFormNormalizado = {
           ...resultado,
           crp: String(resultado.crp), // Converter CRP para string
           modPresencial: modalidade.includes('Presencial'),
           modRemota: modalidade.includes('Remota'),
+          preco: resultado.preco ? String(resultado.preco) : '',
+          especialidades: especialidades,
         };
         setEditForm(editFormNormalizado);
         setEditErros({});
@@ -191,7 +218,12 @@ export function useProfissional() {
     setCarregando(true);
 
     try {
-      await atualizarProfissionalBd(editForm.id, editForm);
+      const dadosAtualizacao = {
+        ...editForm,
+        preco: Number(editForm.preco),
+        especialidades: editForm.especialidades,
+      };
+      await atualizarProfissionalBd(editForm.id, dadosAtualizacao);
       await carregarTabela();
       setEditForm(null);
     } catch (error) {

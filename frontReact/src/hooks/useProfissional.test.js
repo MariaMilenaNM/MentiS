@@ -66,6 +66,8 @@ describe('useProfissional', () => {
       expect(result.current.formErros).toHaveProperty('modalidade');
       expect(result.current.formErros).toHaveProperty('numero');
       expect(result.current.formErros).toHaveProperty('contato');
+      expect(result.current.formErros).toHaveProperty('preco');
+      expect(result.current.formErros).toHaveProperty('especialidades');
     });
 
     it('deve validar formato inválido de CRP', async () => {
@@ -81,6 +83,8 @@ describe('useProfissional', () => {
           link: '',
           numero: '(11) 99999-9999',
           contato: 'teste@teste.com',
+          preco: '150',
+          especialidades: ['Ansiedade'],
         });
       });
 
@@ -104,6 +108,8 @@ describe('useProfissional', () => {
           link: '',
           numero: 'telefone-invalido',
           contato: 'teste@teste.com',
+          preco: '150',
+          especialidades: ['Ansiedade'],
         });
       });
 
@@ -129,6 +135,8 @@ describe('useProfissional', () => {
           link: '',
           numero: '(11) 99999-9999',
           contato: 'email-invalido',
+          preco: '150',
+          especialidades: ['Ansiedade'],
         });
       });
 
@@ -158,6 +166,8 @@ describe('useProfissional', () => {
           link: 'https://instagram.com/novo',
           numero: '(11) 88888-8888',
           contato: 'novo@teste.com',
+          preco: '150',
+          especialidades: ['Ansiedade'],
         });
       });
 
@@ -193,6 +203,8 @@ describe('useProfissional', () => {
           modalidade: 'Presencial',
           numero: '(11) 88888-8888',
           contato: 'novo@teste.com',
+          preco: 150,
+          especialidades: ['Ansiedade'],
         })
       );
     });
@@ -216,6 +228,8 @@ describe('useProfissional', () => {
           link: '',
           numero: '(11) 99999-9999',
           contato: 'teste@teste.com',
+          preco: '150',
+          especialidades: ['Ansiedade'],
         });
       });
 
@@ -253,6 +267,8 @@ describe('useProfissional', () => {
         link: 'https://instagram.com/teste',
         numero: '(11) 99999-9999',
         contato: 'teste@teste.com',
+        preco: 150,
+        especialidades: JSON.stringify(['Ansiedade']),
       };
       buscarProfissionalPorId.mockResolvedValue(mockProfissional);
 
@@ -268,6 +284,8 @@ describe('useProfissional', () => {
         ...mockProfissional,
         modPresencial: true,
         modRemota: false,
+        preco: '150',
+        especialidades: ['Ansiedade'],
       });
     });
 
@@ -281,6 +299,8 @@ describe('useProfissional', () => {
         link: '',
         numero: '(11) 99999-9999',
         contato: 'teste2@teste.com',
+        preco: 200,
+        especialidades: JSON.stringify(['Depressão']),
       };
       buscarProfissionalPorId.mockResolvedValue(mockProfissional);
 
@@ -294,6 +314,8 @@ describe('useProfissional', () => {
         ...mockProfissional,
         modPresencial: true,
         modRemota: true,
+        preco: '200',
+        especialidades: ['Depressão'],
       });
     });
 
@@ -307,6 +329,8 @@ describe('useProfissional', () => {
         link: '',
         numero: '(11) 99999-9999',
         contato: 'teste3@teste.com',
+        preco: 180,
+        especialidades: JSON.stringify(['TDAH']),
       };
       buscarProfissionalPorId.mockResolvedValue(mockProfissional);
 
@@ -320,6 +344,8 @@ describe('useProfissional', () => {
         ...mockProfissional,
         modPresencial: false,
         modRemota: true,
+        preco: '180',
+        especialidades: ['TDAH'],
       });
     });
   });
@@ -335,6 +361,8 @@ describe('useProfissional', () => {
         link: '',
         numero: '(11) 99999-9999',
         contato: 'teste@teste.com',
+        preco: 150,
+        especialidades: JSON.stringify(['Ansiedade']),
       };
       buscarProfissionalPorId.mockResolvedValue(mockProfissional);
 
@@ -349,6 +377,8 @@ describe('useProfissional', () => {
           ...mockProfissional,
           modPresencial: true,
           modRemota: false,
+          preco: '150',
+          especialidades: ['Ansiedade'],
           nome: '',
         });
       });
@@ -370,6 +400,8 @@ describe('useProfissional', () => {
         link: '',
         numero: '(11) 99999-9999',
         contato: 'teste@teste.com',
+        preco: 150,
+        especialidades: JSON.stringify(['Ansiedade']),
       };
       buscarProfissionalPorId.mockResolvedValue(mockProfissional);
       atualizarProfissionalBd.mockResolvedValue({ ...mockProfissional, nome: 'Teste Atualizado' });
@@ -385,6 +417,8 @@ describe('useProfissional', () => {
           ...mockProfissional,
           modPresencial: true,
           modRemota: false,
+          preco: '150',
+          especialidades: ['Ansiedade'],
           nome: 'Teste Atualizado',
         });
       });
@@ -396,7 +430,7 @@ describe('useProfissional', () => {
       await waitFor(() => {
         expect(atualizarProfissionalBd).toHaveBeenCalledWith(
           1,
-          expect.objectContaining({ nome: 'Teste Atualizado' })
+          expect.objectContaining({ nome: 'Teste Atualizado', preco: 150, especialidades: ['Ansiedade'] })
         );
         expect(result.current.editForm).toBeNull();
       });
@@ -412,6 +446,8 @@ describe('useProfissional', () => {
         link: '',
         numero: '(11) 99999-9999',
         contato: 'teste@teste.com',
+        preco: 150,
+        especialidades: JSON.stringify(['Ansiedade']),
       };
       buscarProfissionalPorId.mockResolvedValue(mockProfissional);
       atualizarProfissionalBd.mockRejectedValue(new Error('Erro ao atualizar'));
@@ -427,6 +463,8 @@ describe('useProfissional', () => {
           ...mockProfissional,
           modPresencial: true,
           modRemota: false,
+          preco: '150',
+          especialidades: ['Ansiedade'],
           nome: 'Teste Atualizado',
         });
       });

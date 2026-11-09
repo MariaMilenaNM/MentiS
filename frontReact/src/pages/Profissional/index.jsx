@@ -2,6 +2,30 @@ import { Link } from 'react-router-dom';
 import { useProfissional } from '../../hooks/useProfissional';
 import '../../styles/login.css';
 
+// Opções de especialidades disponíveis
+const ESPECIALIDADES_OPCOES = [
+  'Ansiedade',
+  'Depressão',
+  'TDAH',
+  'Terapia de Casal',
+  'Terapia Familiar',
+  'Transtornos Alimentares',
+  'TOC',
+  'Trauma e PTSD',
+  'Luto',
+  'Autoconhecimento',
+  'Orientação Vocacional',
+  'Neuropsicologia',
+  'Psicologia Infantil',
+  'Psicologia do Esporte',
+  'Psicologia Organizacional',
+  'Dependência Química',
+  'Fobias',
+  'Pânico',
+  'Estresse',
+  'Outras',
+];
+
 export default function Profissional() {
   const {
     profissionais,
@@ -198,6 +222,84 @@ export default function Profissional() {
                 )}
               </div>
 
+              <div className="campo">
+                <label htmlFor="profPreco">Preço da Consulta (R$)</label>
+                <input
+                  type="number"
+                  id="profPreco"
+                  name="preco"
+                  placeholder="Ex: 150.00"
+                  step="0.01"
+                  min="0.01"
+                  value={form.preco}
+                  onChange={handleChange}
+                  aria-invalid={!!formErros.preco}
+                  aria-describedby={formErros.preco ? 'erroPreco' : undefined}
+                />
+                {formErros.preco && (
+                  <span id="erroPreco" className="erro-campo" role="alert">
+                    {formErros.preco}
+                  </span>
+                )}
+              </div>
+
+              <fieldset className="campo">
+                <legend>Especialidades</legend>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {ESPECIALIDADES_OPCOES.map((esp) => (
+                    <label
+                      key={esp}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: 'pointer',
+                        padding: '6px 12px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '20px',
+                        background: form.especialidades.includes(esp) ? '#0a0b26' : 'white',
+                        color: form.especialidades.includes(esp) ? 'white' : '#374151',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        name="especialidades"
+                        value={esp}
+                        checked={form.especialidades.includes(esp)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setForm((prev) => ({
+                              ...prev,
+                              especialidades: [...prev.especialidades, esp],
+                            }));
+                          } else {
+                            setForm((prev) => ({
+                              ...prev,
+                              especialidades: prev.especialidades.filter((e) => e !== esp),
+                            }));
+                          }
+                          // Limpar erro
+                          if (formErros.especialidades) {
+                            setFormErros((prev) => {
+                              const next = { ...prev };
+                              delete next.especialidades;
+                              return next;
+                            });
+                          }
+                        }}
+                      />
+                      <span>{esp}</span>
+                    </label>
+                  ))}
+                </div>
+                {formErros.especialidades && (
+                  <span className="erro-campo" role="alert">
+                    {formErros.especialidades}
+                  </span>
+                )}
+              </fieldset>
+
               {formErros.submit && (
                 <div className="erro-mensagem" role="alert">
                   {formErros.submit}
@@ -360,6 +462,85 @@ export default function Profissional() {
                     </span>
                   )}
                 </div>
+
+                <div className="campo">
+                  <label htmlFor="editPreco">Preço da Consulta (R$)</label>
+                  <input
+                    type="number"
+                    id="editPreco"
+                    name="preco"
+                    placeholder="Ex: 150.00"
+                    step="0.01"
+                    min="0.01"
+                    value={editForm.preco || ''}
+                    onChange={handleEditChange}
+                    aria-invalid={!!editErros.preco}
+                    aria-describedby={editErros.preco ? 'erroEditPreco' : undefined}
+                  />
+                  {editErros.preco && (
+                    <span id="erroEditPreco" className="erro-campo" role="alert">
+                      {editErros.preco}
+                    </span>
+                  )}
+                </div>
+
+                <fieldset className="campo">
+                  <legend>Especialidades</legend>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {ESPECIALIDADES_OPCOES.map((esp) => (
+                      <label
+                        key={esp}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          cursor: 'pointer',
+                          padding: '6px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '20px',
+                          background: editForm.especialidades?.includes(esp) ? '#0a0b26' : 'white',
+                          color: editForm.especialidades?.includes(esp) ? 'white' : '#374151',
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          name="especialidades"
+                          value={esp}
+                          checked={editForm.especialidades?.includes(esp)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEditForm((prev) => ({
+                                ...prev,
+                                especialidades: [...(prev.especialidades || []), esp],
+                              }));
+                            } else {
+                              setEditForm((prev) => ({
+                                ...prev,
+                                especialidades: (prev.especialidades || []).filter((e) => e !== esp),
+                              }));
+                            }
+                            // Limpar erro
+                            if (editErros.especialidades) {
+                              setEditErros((prev) => {
+                                const next = { ...prev };
+                                delete next.especialidades;
+                                return next;
+                              });
+                            }
+                          }}
+                        />
+                        <span>{esp}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {editErros.especialidades && (
+                    <span className="erro-campo" role="alert">
+                      {editErros.especialidades}
+                    </span>
+                  )}
+                </fieldset>
+
                 {editErros.submit && (
                   <div className="erro-mensagem" role="alert">
                     {editErros.submit}
