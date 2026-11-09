@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { buscarPacientePorId, atualizarPacienteBd } from '../services/crudPainel.js';
 import { getProfissionais } from '../services/crudProfissional.js';
-import { criarAgendamento } from '../services/crudAgendamento.js';
+import { criarAgendamento, getHorariosDisponiveis } from '../services/crudAgendamento.js';
 import { getToken, isTokenExpired, logout, getPacienteLogado } from '../services/crudPaciente.js';
 
 export function usePainel() {
@@ -10,6 +10,13 @@ export function usePainel() {
 
   const [pacienteLogado, setPacienteLogado] = useState(null);
   const [todosProfissionais, setTodosProfissionais] = useState([]);
+
+  // Estado para filtros
+  const [filtros, setFiltros] = useState({
+    especialidade: '',
+    precoMax: '',
+    modalidade: '',
+  });
 
   const [sidebarAberta, setSidebarAberta] = useState(true);
   const [modoEdicao, setModoEdicao] = useState(false);
@@ -68,6 +75,16 @@ export function usePainel() {
     navigateRef.current = navigate;
   }, [navigate]);
 
+  const carregarProfissionais = useCallback(async () => {
+    try {
+      const profissionais = await getProfissionais(filtros);
+      setTodosProfissionais(profissionais || []);
+      setPaginaAtual(1); // Reset para primeira página ao filtrar
+    } catch (error) {
+      console.error('Erro ao carregar profissionais:', error);
+    }
+  }, [filtros]);
+
   const carregarDados = useCallback(async () => {
     const storage = getPacienteLogado();
     if (!storage) {
@@ -85,19 +102,25 @@ export function usePainel() {
         return;
       }
 
-      const profissionais = await getProfissionais();
-      setTodosProfissionais(profissionais || []);
+      await carregarProfissionais();
     } catch (error) {
       console.error('Erro ao carregar dados do painel:', error);
       logout();
       navigateRef.current('/paciente');
     }
-  }, []); // navigate removido das deps - usa ref estável
+  }, [carregarProfissionais]);
 
   // dependência com useCallback
   useEffect(() => {
     carregarDados();
   }, [carregarDados]);
+
+  // Recarregar profissionais quando filtros mudarem
+  useEffect(() => {
+    if (pacienteLogado) {
+      carregarProfissionais();
+    }
+  }, [carregarProfissionais, pacienteLogado]);
 
   // (YYYY-MM-DD ou DD/MM/YYYY)
   const formatarData = (data) => {
@@ -178,8 +201,16 @@ export function usePainel() {
     setAgendamentoErro('');
     setAgendamentoSucesso('');
     setHorariosDisponiveis([]);
-    // TODO: buscar horários disponíveis do profissional via API
-    // Por enquanto, o modal permitirá digitar data/hora manualmente
+    setAgendamentoCarregando(true);
+
+    try {
+      const horarios = await getHorariosDisponiveis(profissionalId);
+      setHorariosDisponiveis(horarios || []);
+    } catch {
+      setAgendamentoErro('Erro ao carregar horários disponíveis. Tente novamente.');
+    } finally {
+      setAgendamentoCarregando(false);
+    }
   };
 
   const fecharAgendamento = () => {
@@ -203,7 +234,9 @@ export function usePainel() {
         duracaoMin: 50,
         observacoes,
       });
-      setAgendamentoSucesso('Agendamento realizado com sucesso! Aguarde a confirmação do profissional.');
+      setAgendamentoSucesso(
+        'Agendamento realizado com sucesso! Aguarde a confirmação do profissional.'
+      );
       // Fechar modal após 3 segundos
       setTimeout(() => {
         fecharAgendamento();
@@ -232,6 +265,42 @@ export function usePainel() {
 
   const limparSucessoMsg = () => setSucessoMsg('');
 
+  // Funções para manipular filtros
+  const setFiltroEspecialidade = useCallback((especialidade) => {
+    setFiltros(prev => ({ ...prev, especialidade }));
+  }, []);
+
+  const setFiltroPrecoMax = useCallback((precoMax) => {
+    setFiltros(prev => ({ ...prev, precoMax }));
+  }, []);
+
+  const setFiltroModalidade = useCallback((modalidade) => {
+    setFiltros(prev => ({ ...prev, modalidade }));
+  }, []);
+
+  const limparFiltros = useCallback(() => {
+    setFiltros({ especialidade: '', precoMax: '', modalidade: '' });
+  }, []);
+
+  // Extrair especialidades únicas dos profissionais para o dropdown
+  const especialidadesDisponiveis = useMemo(() => {
+    const especialidades = new Set();
+    todosProfissionais.forEach(p => {
+      if (p.especialidades) {
+        try {
+          const espArray = JSON.parse(p.especialidades);
+          if (Array.isArray(espArray)) {
+            espArray.forEach(e => especialidades.add(e));
+          }
+        } catch (e) {
+          // Se não for JSON válido, tratar como string simples
+          especialidades.add(p.especialidades);
+        }
+      }
+    });
+    return Array.from(especialidades).sort();
+  }, [todosProfissionais]);
+
   return {
     pacienteLogado,
     todosProfissionais,
@@ -251,6 +320,13 @@ export function usePainel() {
     sair,
     profissionaisPagina,
     totalPaginas,
+    // Filtros
+    filtros,
+    setFiltroEspecialidade,
+    setFiltroPrecoMax,
+    setFiltroModalidade,
+    limparFiltros,
+    especialidadesDisponiveis,
     // Agendamento
     agendandoProfissionalId,
     horariosDisponiveis,
