@@ -88,7 +88,7 @@ model Psicologo {
   abordagem     Abordagem  @default(OUTRA)
   preco         Float      // preço por sessão
   modalidade    Modalidade @default(ONLINE)
-  validado      Boolean    @default(false) // CRP validado manualmente
+  validado      Boolean    @default(true) // CRP validado manualmente (default true para permitir agendamento imediato)
   fotoUrl       String?
   criadoEm      DateTime   @default(now())
   atualizadoEm  DateTime   @updatedAt

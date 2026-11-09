@@ -87,7 +87,11 @@ function toLegacyFormat(psicologo) {
         link: psicologo.link || psicologo.fotoUrl || "",
         numero: psicologo.telefone || psicologo.usuario?.email || "",
         contato: psicologo.contato || psicologo.usuario?.email || "",
-        validado: psicologo.validado
+        validado: psicologo.validado,
+        // Novos campos para filtros e exibição no frontend
+        especialidades: psicologo.especialidades || "[]",
+        preco: psicologo.preco || 0,
+        abordagem: psicologo.abordagem || "OUTRA"
     };
 }
 

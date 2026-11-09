@@ -127,13 +127,10 @@ routes.post(
         return res.status(404).json({ erro: 'Perfil de paciente não encontrado' });
       }
 
-      // Verificar se o psicólogo existe e está validado
+      // Verificar se o psicólogo existe
       const psicologo = await psicologoRepository.findById(dados.psicologoId);
       if (!psicologo) {
         return res.status(404).json({ erro: 'Profissional não encontrado' });
-      }
-      if (!psicologo.validado) {
-        return res.status(400).json({ erro: 'Profissional não validado' });
       }
 
       // Se horarioId fornecido, verificar se pertence ao psicólogo
