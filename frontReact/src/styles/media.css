@@ -157,4 +157,61 @@
     margin-top: 20px;
   }
     */
+
+  /* Painel - Mobile */
+  .painel-wrapper {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar:not(.sidebar-fechada) {
+    transform: translateX(0);
+  }
+
+  .sidebar-fechada {
+    width: 280px;
+    min-width: 280px;
+  }
+
+  .painel-main {
+    padding: 20px 16px;
+    margin-top: 0;
+  }
+
+  .filtros-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+  }
+
+  .filtros-grupo {
+    min-width: 100%;
+  }
+
+  .filtro-limpar {
+    justify-content: center;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .psi-card {
+    padding: 18px 14px;
+  }
+
+  .modal-container {
+    margin: 10px;
+    max-height: calc(100vh - 20px);
+  }
+
+  .horarios-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
 }
