@@ -348,6 +348,201 @@
   background: #0a0a6e;
 }
 
+/* Botão Agendar */
+.psi-btn-agendar {
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: #0a0b26;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.psi-btn-agendar:hover:not(:disabled) {
+  background: #1a1a3e;
+  transform: translateY(-1px);
+}
+
+.psi-btn-agendar:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Modal de Agendamento */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-container {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #0a0b26;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.modal-close:hover {
+  background: #f3f4f6;
+  color: #0a0b26;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-info {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.modal-info p {
+  margin: 6px 0;
+  color: #374151;
+}
+
+.campo-modal {
+  margin-bottom: 16px;
+}
+
+.campo-modal label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.campo-modal input,
+.campo-modal textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.campo-modal input:focus,
+.campo-modal textarea:focus {
+  outline: none;
+  border-color: #0a0b26;
+  box-shadow: 0 0 0 3px rgba(10, 11, 38, 0.15);
+}
+
+.campo-modal input:disabled,
+.campo-modal textarea:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.btn-cancelar-modal,
+.btn-confirmar-modal {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none.
+}
+
+.btn-cancelar-modal {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-cancelar-modal:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.btn-confirmar-modal {
+  background: #0a0b26;
+  color: white.
+}
+
+.btn-confirmar-modal:hover:not(:disabled) {
+  background: #1a1a3e;
+}
+
+.btn-cancelar-modal:disabled,
+.btn-confirmar-modal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .sem-dados {
   color: #6b7280;
   font-size: 0.95rem;

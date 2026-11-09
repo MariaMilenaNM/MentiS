@@ -1,4 +1,5 @@
 import { usePainel } from '../../hooks/usePainel';
+import { useState } from 'react';
 import '../../styles/painel.css';
 
 export default function Painel() {
@@ -21,7 +22,20 @@ export default function Painel() {
     profissionaisPagina,
     totalPaginas,
     todosProfissionais,
+    // Agendamento
+    agendandoProfissionalId,
+    agendamentoCarregando,
+    agendamentoErro,
+    agendamentoSucesso,
+    abrirAgendamento,
+    fecharAgendamento,
+    confirmarAgendamento,
   } = usePainel();
+
+  // Estado local para o modal de agendamento
+  const [agendamentoData, setAgendamentoData] = useState('');
+  const [agendamentoHora, setAgendamentoHora] = useState('');
+  const [agendamentoObservacoes, setAgendamentoObservacoes] = useState('');
 
   if (!pacienteLogado)
     return (
@@ -38,6 +52,20 @@ export default function Painel() {
         Carregando...
       </div>
     );
+
+  // Buscar profissional selecionado para agendamento
+  const profissionalAgendando = agendandoProfissionalId
+    ? todosProfissionais.find((p) => p.id === agendandoProfissionalId)
+    : null;
+
+  const handleAgendamentoSubmit = (e) => {
+    e.preventDefault();
+    if (!agendamentoData || !agendamentoHora) return;
+
+    // Combinar data e hora em ISO string
+    const dataHora = `${agendamentoData}T${agendamentoHora}:00`;
+    confirmarAgendamento(dataHora, agendamentoObservacoes);
+  };
 
   return (
     <div className="painel-wrapper">
@@ -166,7 +194,6 @@ export default function Painel() {
                   <option value="PR">PR</option>
                   <option value="PE">PE</option>
                   <option value="PI">PI</option>
-                  <option value="RJ">RJ</option>
                   <option value="RN">RN</option>
                   <option value="RS">RS</option>
                   <option value="RO">RO</option>
@@ -257,6 +284,14 @@ export default function Painel() {
                       Ver Instagram
                     </a>
                   )}
+                  <button
+                    className="psi-btn-agendar"
+                    onClick={() => abrirAgendamento(profissional.id)}
+                    disabled={profissional.validado === false || agendamentoCarregando}
+                    aria-label={profissional.validado === false ? 'Profissional não validado - agendamento indisponível' : `Agendar com ${profissional.nome}`}
+                  >
+                    {profissional.validado === false ? 'Indisponível' : 'Agendar'}
+                  </button>
                 </div>
               );
             })
@@ -280,6 +315,108 @@ export default function Painel() {
               </button>
             ))}
           </nav>
+        )}
+
+        {/* Modal de Agendamento */}
+        {agendandoProfissionalId && profissionalAgendando && (
+          <div
+            className="modal-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-agendamento-titulo"
+          >
+            <div className="modal-container">
+              <div className="modal-header">
+                <h2 id="modal-agendamento-titulo">Agendar com {profissionalAgendando.nome}</h2>
+                <button
+                  className="modal-close"
+                  onClick={fecharAgendamento}
+                  aria-label="Fechar modal de agendamento"
+                >
+                  ×
+                </button>
+              </div>
+              <form onSubmit={handleAgendamentoSubmit} className="modal-body">
+                {agendamentoSucesso && (
+                  <div className="sucesso-mensagem" role="status" aria-live="polite">
+                    {agendamentoSucesso}
+                  </div>
+                )}
+                {agendamentoErro && (
+                  <div className="erro-mensagem" role="alert" aria-live="polite">
+                    {agendamentoErro}
+                  </div>
+                )}
+
+                <div className="modal-info">
+                  <p><strong>Profissional:</strong> {profissionalAgendando.nome}</p>
+                  <p><strong>CRP:</strong> {profissionalAgendando.crp}</p>
+                  <p><strong>Modalidade:</strong> {profissionalAgendando.modalidade}</p>
+                  <p><strong>Duração:</strong> 50 minutos</p>
+                </div>
+
+                <div className="campo-modal">
+                  <label htmlFor="agendamentoData">Data</label>
+                  <input
+                    type="date"
+                    id="agendamentoData"
+                    name="data"
+                    value={agendamentoData}
+                    onChange={(e) => setAgendamentoData(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    required
+                    disabled={agendamentoCarregando}
+                  />
+                </div>
+
+                <div className="campo-modal">
+                  <label htmlFor="agendamentoHora">Hora</label>
+                  <input
+                    type="time"
+                    id="agendamentoHora"
+                    name="hora"
+                    value={agendamentoHora}
+                    onChange={(e) => setAgendamentoHora(e.target.value)}
+                    min="07:00"
+                    max="22:00"
+                    required
+                    disabled={agendamentoCarregando}
+                  />
+                </div>
+
+                <div className="campo-modal">
+                  <label htmlFor="agendamentoObservacoes">Observações (opcional)</label>
+                  <textarea
+                    id="agendamentoObservacoes"
+                    name="observacoes"
+                    value={agendamentoObservacoes}
+                    onChange={(e) => setAgendamentoObservacoes(e.target.value)}
+                    rows={3}
+                    placeholder="Motivo da consulta, preferências, etc."
+                    disabled={agendamentoCarregando}
+                  />
+                </div>
+
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="btn-cancelar-modal"
+                    onClick={fecharAgendamento}
+                    disabled={agendamentoCarregando}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-confirmar-modal"
+                    disabled={agendamentoCarregando || !agendamentoData || !agendamentoHora}
+                  >
+                    {agendamentoCarregando ? 'Agendando...' : 'Confirmar Agendamento'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
       </main>
     </div>

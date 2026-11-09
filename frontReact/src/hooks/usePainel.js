@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { buscarPacientePorId, atualizarPacienteBd } from '../services/crudPainel.js';
 import { getProfissionais } from '../services/crudProfissional.js';
+import { criarAgendamento } from '../services/crudAgendamento.js';
 import { getToken, isTokenExpired, logout, getPacienteLogado } from '../services/crudPaciente.js';
 
 export function usePainel() {
@@ -19,6 +20,13 @@ export function usePainel() {
   const [editForm, setEditForm] = useState({ nome: '', telefone: '', cidade: '', estado: '' });
   const [editErro, setEditErro] = useState('');
   const [sucessoMsg, setSucessoMsg] = useState('');
+
+  // Estado para agendamento
+  const [agendandoProfissionalId, setAgendandoProfissionalId] = useState(null);
+  const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
+  const [agendamentoCarregando, setAgendamentoCarregando] = useState(false);
+  const [agendamentoErro, setAgendamentoErro] = useState('');
+  const [agendamentoSucesso, setAgendamentoSucesso] = useState('');
 
   // Verificar token no carregamento E quando a janela ganha foco/aba volta ativa
   useEffect(() => {
@@ -164,6 +172,55 @@ export function usePainel() {
     }
   };
 
+  // Agendamento - abrir modal para selecionar horário
+  const abrirAgendamento = async (profissionalId) => {
+    setAgendandoProfissionalId(profissionalId);
+    setAgendamentoErro('');
+    setAgendamentoSucesso('');
+    setHorariosDisponiveis([]);
+    // TODO: buscar horários disponíveis do profissional via API
+    // Por enquanto, o modal permitirá digitar data/hora manualmente
+  };
+
+  const fecharAgendamento = () => {
+    setAgendandoProfissionalId(null);
+    setHorariosDisponiveis([]);
+    setAgendamentoErro('');
+    setAgendamentoSucesso('');
+  };
+
+  const confirmarAgendamento = async (dataHora, observacoes = '') => {
+    if (!agendandoProfissionalId) return;
+
+    setAgendamentoCarregando(true);
+    setAgendamentoErro('');
+    setAgendamentoSucesso('');
+
+    try {
+      await criarAgendamento({
+        psicologoId: agendandoProfissionalId,
+        dataHora: new Date(dataHora).toISOString(),
+        duracaoMin: 50,
+        observacoes,
+      });
+      setAgendamentoSucesso('Agendamento realizado com sucesso! Aguarde a confirmação do profissional.');
+      // Fechar modal após 3 segundos
+      setTimeout(() => {
+        fecharAgendamento();
+      }, 3000);
+    } catch (error) {
+      if (error.message.includes('Horário já agendado')) {
+        setAgendamentoErro('Este horário já foi agendado. Escolha outro horário.');
+      } else if (error.message.includes('Profissional não validado')) {
+        setAgendamentoErro('Este profissional ainda não foi validado.');
+      } else {
+        setAgendamentoErro('Erro ao agendar. Tente novamente.');
+      }
+    } finally {
+      setAgendamentoCarregando(false);
+    }
+  };
+
   const sair = () => {
     logout();
     navigate('/');
@@ -194,5 +251,14 @@ export function usePainel() {
     sair,
     profissionaisPagina,
     totalPaginas,
+    // Agendamento
+    agendandoProfissionalId,
+    horariosDisponiveis,
+    agendamentoCarregando,
+    agendamentoErro,
+    agendamentoSucesso,
+    abrirAgendamento,
+    fecharAgendamento,
+    confirmarAgendamento,
   };
 }
