@@ -74,7 +74,14 @@ export default function Horarios() {
         </Link>
         <div className="card">
           <section id="telaR" style={{ width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '20px',
+              }}
+            >
               <h2 style={{ margin: 0 }}>Meus Horários Disponíveis</h2>
               <button
                 onClick={recarregar}
@@ -185,7 +192,9 @@ export default function Horarios() {
               {horarios.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
                   <p>Nenhum horário cadastrado ainda.</p>
-                  <p style={{ fontSize: '14px' }}>Use o formulário acima para adicionar seus horários disponíveis.</p>
+                  <p style={{ fontSize: '14px' }}>
+                    Use o formulário acima para adicionar seus horários disponíveis.
+                  </p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -230,7 +239,8 @@ export default function Horarios() {
                                 }}
                               >
                                 <span style={{ fontWeight: 500, minWidth: '100px' }}>
-                                  {formatarHora(horario.horaInicio)} - {formatarHora(horario.horaFim)}
+                                  {formatarHora(horario.horaInicio)} -{' '}
+                                  {formatarHora(horario.horaFim)}
                                 </span>
                                 <span
                                   style={{
@@ -300,7 +310,9 @@ export default function Horarios() {
                 }}
               >
                 <h3 style={{ marginTop: 0 }}>Editar Horário</h3>
-                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginBottom: '15px' }}>
+                <div
+                  style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginBottom: '15px' }}
+                >
                   <div className="campo" style={{ flex: 1, minWidth: '140px' }}>
                     <label htmlFor="editDia">Dia da Semana</label>
                     <select
@@ -317,7 +329,9 @@ export default function Horarios() {
                       ))}
                     </select>
                     {editErros.diaSemana && (
-                      <span className="erro-campo" role="alert">{editErros.diaSemana}</span>
+                      <span className="erro-campo" role="alert">
+                        {editErros.diaSemana}
+                      </span>
                     )}
                   </div>
 
@@ -332,7 +346,9 @@ export default function Horarios() {
                       aria-invalid={!!editErros.horaInicio}
                     />
                     {editErros.horaInicio && (
-                      <span className="erro-campo" role="alert">{editErros.horaInicio}</span>
+                      <span className="erro-campo" role="alert">
+                        {editErros.horaInicio}
+                      </span>
                     )}
                   </div>
 
@@ -347,12 +363,26 @@ export default function Horarios() {
                       aria-invalid={!!editErros.horaFim}
                     />
                     {editErros.horaFim && (
-                      <span className="erro-campo" role="alert">{editErros.horaFim}</span>
+                      <span className="erro-campo" role="alert">
+                        {editErros.horaFim}
+                      </span>
                     )}
                   </div>
 
-                  <div className="campo" style={{ flex: 1, minWidth: '120px', display: 'flex', alignItems: 'flex-end' }}>
-                    <label htmlFor="editAtivo" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', width: '100%' }}>
+                  <div
+                    className="campo"
+                    style={{ flex: 1, minWidth: '120px', display: 'flex', alignItems: 'flex-end' }}
+                  >
+                    <label
+                      htmlFor="editAtivo"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                        width: '100%',
+                      }}
+                    >
                       <input
                         type="checkbox"
                         id="editAtivo"
@@ -375,7 +405,12 @@ export default function Horarios() {
                   <button
                     onClick={handleUpdate}
                     disabled={carregando}
-                    style={{ padding: '10px', cursor: 'pointer', flex: 1, backgroundColor: '#28a745' }}
+                    style={{
+                      padding: '10px',
+                      cursor: 'pointer',
+                      flex: 1,
+                      backgroundColor: '#28a745',
+                    }}
                   >
                     {carregando ? 'Salvando...' : 'Confirmar Edição'}
                   </button>

@@ -180,12 +180,12 @@ export function useHorarios() {
 
   // Helpers para UI
   const getDiaLabel = (valor) => {
-    const dia = DIAS_SEMANA.find(d => d.valor === valor);
+    const dia = DIAS_SEMANA.find((d) => d.valor === valor);
     return dia ? dia.label : 'Desconhecido';
   };
 
   const getDiaCurto = (valor) => {
-    const dia = DIAS_SEMANA.find(d => d.valor === valor);
+    const dia = DIAS_SEMANA.find((d) => d.valor === valor);
     return dia ? dia.curto : '?';
   };
 
