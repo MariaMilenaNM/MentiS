@@ -214,7 +214,9 @@ export default function Painel() {
               const instagramValido =
                 instagramUsername && /^[a-zA-Z0-9_.]+$/.test(instagramUsername);
               const classeTag =
-                profissional.modalidade === 'Presencial e Remota' ? 'ambas' : profissional.modalidade?.toLowerCase();
+                profissional.modalidade === 'Presencial e Remota'
+                  ? 'ambas'
+                  : profissional.modalidade?.toLowerCase();
 
               return (
                 <div className="psi-card" key={profissional.id} role="listitem">
@@ -222,9 +224,21 @@ export default function Painel() {
                     {letra}
                   </div>
                   <div className="psi-info">
-                    <h3 className="psi-nome">{profissional.nome}</h3>
+                    <div className="psi-header">
+                      <h3 className="psi-nome">{profissional.nome}</h3>
+                      {profissional.validado === false && (
+                        <span
+                          className="psi-badge-nao-validado"
+                          aria-label="Profissional não validado"
+                        >
+                          Não validado
+                        </span>
+                      )}
+                    </div>
                     <span className="psi-crp">CRP: {profissional.crp}</span>
-                    <span className={`psi-modalidade tag-${classeTag}`}>{profissional.modalidade}</span>
+                    <span className={`psi-modalidade tag-${classeTag}`}>
+                      {profissional.modalidade}
+                    </span>
                     <p className="psi-contato">
                       <strong>E-mail:</strong> {profissional.contato}
                     </p>

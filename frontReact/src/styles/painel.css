@@ -269,11 +269,29 @@
   width: 100%;
 }
 
+.psi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
 .psi-nome {
   font-size: 1.05rem;
   font-weight: 700;
   color: #0a0b26;
-  margin-bottom: 4px;
+  margin-bottom: 0;
+}
+
+.psi-badge-nao-validado {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid #fcd34d;
 }
 
 .psi-crp {

@@ -59,8 +59,8 @@ export default function LandingPage() {
             <div className="corpo">
               <h3>Profissional Certo</h3>
               <p>
-                Encontre o profissional ideal para o seu momento de vida, navegando por perfis focados
-                no que você realmente busca.
+                Encontre o profissional ideal para o seu momento de vida, navegando por perfis
+                focados no que você realmente busca.
               </p>
             </div>
           </div>

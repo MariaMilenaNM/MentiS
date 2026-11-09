@@ -25,7 +25,8 @@ export function useProfissional() {
 
   const validarEmail = (email) => {
     // Validação mais robusta (similar ao Zod .email())
-    const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+    const re =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
     return re.test(email);
   };
 
@@ -43,7 +44,7 @@ export function useProfissional() {
     const clean = crp.trim();
     if (clean.length < 4) return false;
     // Permite dígitos e no máximo uma barra
-    const apenasDigitosEBarras = /^[\d\/]+$/.test(clean);
+    const apenasDigitosEBarras = /^[\d/]+$/.test(clean);
     const noMaximoUmaBarra = (clean.match(/\//g) || []).length <= 1;
     return apenasDigitosEBarras && noMaximoUmaBarra;
   };
