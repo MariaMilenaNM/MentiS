@@ -84,9 +84,9 @@ function toLegacyFormat(psicologo) {
         nome: psicologo.nome || psicologo.usuario?.email || "Profissional",
         crp: psicologo.crp, // CRP mantido como string
         modalidade: modalidadeModernToLegacy(psicologo.modalidade),
-        link: psicologo.fotoUrl || "",
-        numero: psicologo.usuario?.email || "",
-        contato: psicologo.usuario?.email || "",
+        link: psicologo.link || psicologo.fotoUrl || "",
+        numero: psicologo.telefone || psicologo.usuario?.email || "",
+        contato: psicologo.contato || psicologo.usuario?.email || "",
         validado: psicologo.validado
     };
 }
@@ -170,8 +170,8 @@ routes.post("/", verifyAuthOrAdmin, validate(profissionalCompatCadastroSchema), 
             role: "PSICOLOGO"
         });
 
-        // Preparar dados para Psicologo (remover campos que não existem no modelo)
-        const { nome, numero, contato, link, ...dadosPsicologo } = dados;
+        // Preparar dados para Psicologo (incluir novos campos nome, telefone, contato, link)
+        const { nome, numero, contato, link, fotoUrl, ...dadosPsicologo } = dados;
 
         // Criar Psicologo
         const psicologo = await psicologoRepository.create(usuario.id, {
@@ -182,7 +182,11 @@ routes.post("/", verifyAuthOrAdmin, validate(profissionalCompatCadastroSchema), 
             preco: dadosPsicologo.preco,
             modalidade: modalidadeModern,
             validado: false,
-            fotoUrl: dadosPsicologo.fotoUrl || dadosPsicologo.link
+            fotoUrl: fotoUrl || link,
+            nome: nome,
+            telefone: numero,
+            contato: contato,
+            link: link
         });
 
         logger.info("Profissional criado", { id: psicologo.id, crp: psicologo.crp });
@@ -224,16 +228,19 @@ routes.put("/:id", verificarToken, validate(profissionalAtualizacaoSchema), asyn
             delete dadosNovos.validado;
         }
 
-        // Converter formato antigo para novo
+        // Converter formato antigo para novo (incluindo novos campos)
         const dadosAtualizados = {};
-        if (dadosNovos.nome) {
-            // 'nome' não existe no modelo Psicologo (vem de Usuario), ignorar por enquanto
-        }
+        if (dadosNovos.nome) dadosAtualizados.nome = dadosNovos.nome;
         if (dadosNovos.crp) dadosAtualizados.crp = String(dadosNovos.crp);
         if (dadosNovos.modalidade) {
             dadosAtualizados.modalidade = modalidadeLegacyToModern[dadosNovos.modalidade] || "HIBRIDO";
         }
-        if (dadosNovos.link) dadosAtualizados.fotoUrl = dadosNovos.link;
+        if (dadosNovos.link) {
+            dadosAtualizados.fotoUrl = dadosNovos.link;
+            dadosAtualizados.link = dadosNovos.link;
+        }
+        if (dadosNovos.numero) dadosAtualizados.telefone = dadosNovos.numero;
+        if (dadosNovos.contato) dadosAtualizados.contato = dadosNovos.contato;
         if (dadosNovos.especialidades) dadosAtualizados.especialidades = JSON.stringify(dadosNovos.especialidades);
         if (dadosNovos.abordagem) dadosAtualizados.abordagem = dadosNovos.abordagem;
         if (dadosNovos.preco !== undefined) dadosAtualizados.preco = dadosNovos.preco;

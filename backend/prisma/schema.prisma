@@ -79,6 +79,10 @@ model Psicologo {
   id            Int        @id @default(autoincrement())
   usuarioId     Int        @unique
   crp           String     @unique // CRM/CRP como string (pode ter letras/UF)
+  nome          String?    // Nome do profissional (para exibição pública)
+  telefone      String?    // Telefone de contato
+  contato       String?    // Email de contato
+  link          String?    // Instagram / Site
   bio           String?
   especialidades String    // JSON stringificado: ["CBT", "Psicanálise"]
   abordagem     Abordagem  @default(OUTRA)
