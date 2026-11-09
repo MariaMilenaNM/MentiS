@@ -1,5 +1,5 @@
 import { usePainel } from '../../hooks/usePainel';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import '../../styles/painel.css';
 
 export default function Painel() {
@@ -22,8 +22,16 @@ export default function Painel() {
     profissionaisPagina,
     totalPaginas,
     todosProfissionais,
+    // Filtros
+    filtros,
+    setFiltroEspecialidade,
+    setFiltroPrecoMax,
+    setFiltroModalidade,
+    limparFiltros,
+    especialidadesDisponiveis,
     // Agendamento
     agendandoProfissionalId,
+    horariosDisponiveis,
     agendamentoCarregando,
     agendamentoErro,
     agendamentoSucesso,
@@ -36,6 +44,35 @@ export default function Painel() {
   const [agendamentoData, setAgendamentoData] = useState('');
   const [agendamentoHora, setAgendamentoHora] = useState('');
   const [agendamentoObservacoes, setAgendamentoObservacoes] = useState('');
+  const [slotSelecionado, setSlotSelecionado] = useState(null);
+
+  // Extrair datas únicas dos horários disponíveis
+  const datasDisponiveis = useMemo(() => {
+    if (!horariosDisponiveis || horariosDisponiveis.length === 0) return [];
+    const datas = [...new Set(horariosDisponiveis.map((h) => h.data))];
+    return datas.sort();
+  }, [horariosDisponiveis]);
+
+  // Filtrar horários para a data selecionada
+  const horariosDoDia = useMemo(() => {
+    if (!agendamentoData || !horariosDisponiveis) return [];
+    return horariosDisponiveis
+      .filter((h) => h.data === agendamentoData)
+      .sort((a, b) => a.hora.localeCompare(b.hora));
+  }, [agendamentoData, horariosDisponiveis]);
+
+  const handleAgendamentoSubmit = (e) => {
+    e.preventDefault();
+    if (!slotSelecionado) return;
+
+    confirmarAgendamento(slotSelecionado.dataHora, agendamentoObservacoes);
+  };
+
+  const handleSlotClick = (slot) => {
+    setSlotSelecionado(slot);
+    setAgendamentoData(slot.data);
+    setAgendamentoHora(slot.hora);
+  };
 
   if (!pacienteLogado)
     return (
@@ -57,15 +94,6 @@ export default function Painel() {
   const profissionalAgendando = agendandoProfissionalId
     ? todosProfissionais.find((p) => p.id === agendandoProfissionalId)
     : null;
-
-  const handleAgendamentoSubmit = (e) => {
-    e.preventDefault();
-    if (!agendamentoData || !agendamentoHora) return;
-
-    // Combinar data e hora em ISO string
-    const dataHora = `${agendamentoData}T${agendamentoHora}:00`;
-    confirmarAgendamento(dataHora, agendamentoObservacoes);
-  };
 
   return (
     <div className="painel-wrapper">
@@ -225,6 +253,69 @@ export default function Painel() {
           <p>Encontre o profissional ideal para o seu atendimento em nossa rede de parceiros.</p>
         </div>
 
+        {/* Barra de Filtros */}
+        <div className="filtros-bar" role="search" aria-label="Filtros de profissionais">
+          <div className="filtros-grupo">
+            <label htmlFor="filtro-especialidade" className="filtro-label">Especialidade</label>
+            <select
+              id="filtro-especialidade"
+              className="filtro-select"
+              value={filtros.especialidade}
+              onChange={(e) => setFiltroEspecialidade(e.target.value)}
+              aria-label="Filtrar por especialidade"
+            >
+              <option value="">Todas as especialidades</option>
+              {especialidadesDisponiveis.map((esp) => (
+                <option key={esp} value={esp}>{esp}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="filtros-grupo">
+            <label htmlFor="filtro-preco" className="filtro-label">Preço máximo (R$)</label>
+            <input
+              type="number"
+              id="filtro-preco"
+              className="filtro-input"
+              placeholder="Ex: 200"
+              value={filtros.precoMax}
+              onChange={(e) => setFiltroPrecoMax(e.target.value)}
+              min="0"
+              step="0.01"
+              aria-label="Filtrar por preço máximo da consulta"
+            />
+          </div>
+
+          <div className="filtros-grupo">
+            <label htmlFor="filtro-modalidade" className="filtro-label">Modalidade</label>
+            <select
+              id="filtro-modalidade"
+              className="filtro-select"
+              value={filtros.modalidade}
+              onChange={(e) => setFiltroModalidade(e.target.value)}
+              aria-label="Filtrar por modalidade de atendimento"
+            >
+              <option value="">Todas as modalidades</option>
+              <option value="Remota">Online</option>
+              <option value="Presencial">Presencial</option>
+              <option value="Presencial e Remota">Presencial e Online</option>
+            </select>
+          </div>
+
+          {Object.values(filtros).some(v => v) && (
+            <div className="filtros-grupo filtro-limpar">
+              <button
+                type="button"
+                className="btn-limpar-filtros"
+                onClick={limparFiltros}
+                aria-label="Limpar todos os filtros"
+              >
+                Limpar filtros
+              </button>
+            </div>
+          )}
+        </div>
+
         <div className="cards-grid" role="list" aria-label="Lista de profissionais">
           {todosProfissionais.length === 0 ? (
             <p className="sem-dados">Nenhum profissional cadastrado ainda.</p>
@@ -237,6 +328,7 @@ export default function Painel() {
                     .replace(/^https?:\/\/(www\.)?instagram\.com\//, '')
                     .replace('@', '')
                     .split('/')[0]
+                    .split('?')[0] // Remover query parameters
                 : '';
               const instagramValido =
                 instagramUsername && /^[a-zA-Z0-9_.]+$/.test(instagramUsername);
@@ -244,6 +336,19 @@ export default function Painel() {
                 profissional.modalidade === 'Presencial e Remota'
                   ? 'ambas'
                   : profissional.modalidade?.toLowerCase();
+
+              // Formatar especialidades para exibição
+              const formatarEspecialidades = (especialidadesStr) => {
+                if (!especialidadesStr) return [];
+                try {
+                  const espArray = JSON.parse(especialidadesStr);
+                  return Array.isArray(espArray) ? espArray : [especialidadesStr];
+                } catch {
+                  return [especialidadesStr];
+                }
+              };
+
+              const especialidades = formatarEspecialidades(profissional.especialidades);
 
               return (
                 <div className="psi-card" key={profissional.id} role="listitem">
@@ -253,19 +358,28 @@ export default function Painel() {
                   <div className="psi-info">
                     <div className="psi-header">
                       <h3 className="psi-nome">{profissional.nome}</h3>
-                      {profissional.validado === false && (
-                        <span
-                          className="psi-badge-nao-validado"
-                          aria-label="Profissional não validado"
-                        >
-                          Não validado
-                        </span>
-                      )}
                     </div>
                     <span className="psi-crp">CRP: {profissional.crp}</span>
                     <span className={`psi-modalidade tag-${classeTag}`}>
                       {profissional.modalidade}
                     </span>
+
+                    {especialidades.length > 0 && (
+                      <div className="psi-especialidades" aria-label="Especialidades">
+                        {especialidades.map((esp, idx) => (
+                          <span key={idx} className="psi-especialidade-tag">
+                            {esp}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {profissional.preco && (
+                      <div className="psi-preco" aria-label={`Preço da consulta: R$ ${profissional.preco.toFixed(2)}`}>
+                        <strong>Consulta:</strong> R$ {profissional.preco.toFixed(2)}
+                      </div>
+                    )}
+
                     <p className="psi-contato">
                       <strong>E-mail:</strong> {profissional.contato}
                     </p>
@@ -287,10 +401,10 @@ export default function Painel() {
                   <button
                     className="psi-btn-agendar"
                     onClick={() => abrirAgendamento(profissional.id)}
-                    disabled={profissional.validado === false || agendamentoCarregando}
-                    aria-label={profissional.validado === false ? 'Profissional não validado - agendamento indisponível' : `Agendar com ${profissional.nome}`}
+                    disabled={agendamentoCarregando}
+                    aria-label={`Agendar com ${profissional.nome}`}
                   >
-                    {profissional.validado === false ? 'Indisponível' : 'Agendar'}
+                    Agendar
                   </button>
                 </div>
               );
@@ -349,40 +463,113 @@ export default function Painel() {
                 )}
 
                 <div className="modal-info">
-                  <p><strong>Profissional:</strong> {profissionalAgendando.nome}</p>
-                  <p><strong>CRP:</strong> {profissionalAgendando.crp}</p>
-                  <p><strong>Modalidade:</strong> {profissionalAgendando.modalidade}</p>
-                  <p><strong>Duração:</strong> 50 minutos</p>
+                  <p>
+                    <strong>Profissional:</strong> {profissionalAgendando.nome}
+                  </p>
+                  <p>
+                    <strong>CRP:</strong> {profissionalAgendando.crp}
+                  </p>
+                  <p>
+                    <strong>Modalidade:</strong> {profissionalAgendando.modalidade}
+                  </p>
+                  <p>
+                    <strong>Duração:</strong> 50 minutos
+                  </p>
                 </div>
 
-                <div className="campo-modal">
-                  <label htmlFor="agendamentoData">Data</label>
-                  <input
-                    type="date"
-                    id="agendamentoData"
-                    name="data"
-                    value={agendamentoData}
-                    onChange={(e) => setAgendamentoData(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                    required
-                    disabled={agendamentoCarregando}
-                  />
-                </div>
+                {agendamentoCarregando ? (
+                  <div className="campo-modal">
+                    <p style={{ textAlign: 'center', color: '#6b7280', padding: '20px' }}>
+                      Carregando horários disponíveis...
+                    </p>
+                  </div>
+                ) : horariosDisponiveis.length === 0 ? (
+                  <div className="campo-modal">
+                    <p style={{ textAlign: 'center', color: '#c6322d', padding: '20px' }}>
+                      Nenhum horário disponível para este profissional nos próximos 30 dias.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="campo-modal">
+                      <label htmlFor="agendamentoData">Selecione a Data</label>
+                      <select
+                        id="agendamentoData"
+                        name="data"
+                        value={agendamentoData}
+                        onChange={(e) => {
+                          const novaData = e.target.value;
+                          setAgendamentoData(novaData);
+                          setAgendamentoHora('');
+                          setSlotSelecionado(null);
+                        }}
+                        disabled={agendamentoCarregando}
+                        required
+                      >
+                        <option value="">-- Escolha uma data --</option>
+                        {datasDisponiveis.map((data) => (
+                          <option key={data} value={data}>
+                            {formatarData(data)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                <div className="campo-modal">
-                  <label htmlFor="agendamentoHora">Hora</label>
-                  <input
-                    type="time"
-                    id="agendamentoHora"
-                    name="hora"
-                    value={agendamentoHora}
-                    onChange={(e) => setAgendamentoHora(e.target.value)}
-                    min="07:00"
-                    max="22:00"
-                    required
-                    disabled={agendamentoCarregando}
-                  />
-                </div>
+                    {agendamentoData && horariosDoDia.length > 0 && (
+                      <div className="campo-modal">
+                        <label>Selecione o Horário</label>
+                        <div
+                          className="horarios-grid"
+                          role="listbox"
+                          aria-label="Horários disponíveis"
+                        >
+                          {horariosDoDia.map((slot) => (
+                            <button
+                              key={slot.dataHora}
+                              type="button"
+                              role="option"
+                              aria-selected={slotSelecionado?.dataHora === slot.dataHora}
+                              className={`horario-slot ${slotSelecionado?.dataHora === slot.dataHora ? 'selecionado' : ''}`}
+                              onClick={() => handleSlotClick(slot)}
+                              disabled={agendamentoCarregando}
+                            >
+                              {slot.hora}
+                            </button>
+                          ))}
+                        </div>
+                        {horariosDoDia.length === 0 && (
+                          <p
+                            style={{
+                              color: '#6b7280',
+                              fontSize: '0.9rem',
+                              textAlign: 'center',
+                              marginTop: '8px',
+                            }}
+                          >
+                            Nenhum horário disponível para esta data
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {agendamentoData &&
+                      horariosDoDia.length === 0 &&
+                      datasDisponiveis.length > 0 && (
+                        <div className="campo-modal">
+                          <p
+                            style={{
+                              color: '#6b7280',
+                              fontSize: '0.9rem',
+                              textAlign: 'center',
+                              padding: '10px',
+                            }}
+                          >
+                            Selecione outra data para ver horários disponíveis
+                          </p>
+                        </div>
+                      )}
+                  </>
+                )}
 
                 <div className="campo-modal">
                   <label htmlFor="agendamentoObservacoes">Observações (opcional)</label>
