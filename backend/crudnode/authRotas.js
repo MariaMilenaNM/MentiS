@@ -1,96 +1,104 @@
-import express from "express";
-import jwt from "jsonwebtoken";
-import { usuarioRepository } from "../repository/usuarioRepository.js";
-import { pacienteRepository } from "../repository/pacienteRepository.js";
-import { psicologoRepository } from "../repository/psicologoRepository.js";
-import { validate, pacienteLoginSchema } from "../utils/validation.js";
-import { logger } from "../utils/logger.js";
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import { usuarioRepository } from '../repository/usuarioRepository.js';
+import { pacienteRepository } from '../repository/pacienteRepository.js';
+import { psicologoRepository } from '../repository/psicologoRepository.js';
+import { validate, pacienteLoginSchema } from '../utils/validation.js';
+import { logger } from '../utils/logger.js';
 
 const routes = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-  logger.error("JWT_SECRET não configurado nas variáveis de ambiente");
+  logger.error('JWT_SECRET não configurado nas variáveis de ambiente');
   process.exit(1);
 }
 
 const asyncHandler = (fn) => (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+  Promise.resolve(fn(req, res, next)).catch(next);
 };
 
 // POST /auth/login - Login unificado (paciente ou psicólogo)
-routes.post("/login", validate(pacienteLoginSchema), asyncHandler(async (req, res) => {
+routes.post(
+  '/login',
+  validate(pacienteLoginSchema),
+  asyncHandler(async (req, res) => {
     const { email, senha } = req.body;
 
     const usuario = await usuarioRepository.findByEmailAndSenha(email, senha);
 
     if (!usuario || !usuario.ativo) {
-        logger.warn("Tentativa de login falhou", { email });
-        return res.status(401).json({ erro: "Credenciais inválidas" });
+      logger.warn('Tentativa de login falhou', { email });
+      return res.status(401).json({ erro: 'Credenciais inválidas' });
     }
 
     let perfil = null;
 
-    if (usuario.role === "PACIENTE") {
-        const paciente = await pacienteRepository.findByUsuarioId(usuario.id);
-        if (!paciente) {
-            return res.status(404).json({ erro: "Perfil de paciente não encontrado" });
-        }
-        perfil = {
-            id: paciente.id,
-            nome: paciente.nome,
-            email: usuario.email,
-            telefone: paciente.telefone,
-            cidade: paciente.cidade,
-            estado: paciente.estado
-        };
-    } else if (usuario.role === "PSICOLOGO") {
-        const psicologo = await psicologoRepository.findByUsuarioId(usuario.id);
-        if (!psicologo) {
-            return res.status(404).json({ erro: "Perfil de psicólogo não encontrado" });
-        }
-        perfil = {
-            id: psicologo.id,
-            nome: psicologo.nome || psicologo.usuario?.email || 'Psicólogo',
-            email: usuario.email,
-            crp: psicologo.crp,
-            especialidades: psicologo.especialidades ? JSON.parse(psicologo.especialidades) : [],
-            abordagem: psicologo.abordagem,
-            preco: psicologo.preco,
-            modalidade: psicologo.modalidade,
-            fotoUrl: psicologo.fotoUrl
-        };
+    if (usuario.role === 'PACIENTE') {
+      const paciente = await pacienteRepository.findByUsuarioId(usuario.id);
+      if (!paciente) {
+        return res.status(404).json({ erro: 'Perfil de paciente não encontrado' });
+      }
+      perfil = {
+        id: paciente.id,
+        nome: paciente.nome,
+        email: usuario.email,
+        telefone: paciente.telefone,
+        cidade: paciente.cidade,
+        estado: paciente.estado,
+      };
+    } else if (usuario.role === 'PSICOLOGO') {
+      const psicologo = await psicologoRepository.findByUsuarioId(usuario.id);
+      if (!psicologo) {
+        return res.status(404).json({ erro: 'Perfil de psicólogo não encontrado' });
+      }
+      perfil = {
+        id: psicologo.id,
+        nome: psicologo.nome || psicologo.usuario?.email || 'Psicólogo',
+        email: usuario.email,
+        crp: psicologo.crp,
+        especialidades: psicologo.especialidades ? JSON.parse(psicologo.especialidades) : [],
+        abordagem: psicologo.abordagem,
+        preco: psicologo.preco,
+        modalidade: psicologo.modalidade,
+        fotoUrl: psicologo.fotoUrl,
+      };
     } else {
-        return res.status(401).json({ erro: "Tipo de usuário não autorizado" });
+      return res.status(401).json({ erro: 'Tipo de usuário não autorizado' });
     }
 
     const token = jwt.sign(
-        { id: usuario.id, email: usuario.email, role: usuario.role },
-        JWT_SECRET,
-        { expiresIn: "1h" }
+      { id: usuario.id, email: usuario.email, role: usuario.role },
+      JWT_SECRET,
+      { expiresIn: '1h' }
     );
 
-    logger.info("Login realizado com sucesso", { email, usuarioId: usuario.id, role: usuario.role });
-    return res.status(200).json({
-        token,
-        usuario: {
-            id: usuario.id,
-            email: usuario.email,
-            role: usuario.role
-        },
-        perfil
+    logger.info('Login realizado com sucesso', {
+      email,
+      usuarioId: usuario.id,
+      role: usuario.role,
     });
-}));
+    return res.status(200).json({
+      token,
+      usuario: {
+        id: usuario.id,
+        email: usuario.email,
+        role: usuario.role,
+      },
+      perfil,
+    });
+  })
+);
 
 // Middleware de erro global
 routes.use((err, req, res, next) => {
-    logger.error("Erro não tratado na rota de auth", {
-        error: err.message,
-        stack: err.stack,
-        path: req.path,
-        method: req.method
-    });
-    return res.status(500).json({ erro: "Erro interno do servidor" });
+  logger.error('Erro não tratado na rota de auth', {
+    error: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method,
+  });
+  return res.status(500).json({ erro: 'Erro interno do servidor' });
 });
 
 export default routes;
