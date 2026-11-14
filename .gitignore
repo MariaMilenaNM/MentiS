@@ -36,6 +36,9 @@ env/
 *.db
 *.sqlite3
 
+# RAG Vector Store
+rag-store/
+
 # Arquivos compilados do Python
 __pycache__/
 *.pyc

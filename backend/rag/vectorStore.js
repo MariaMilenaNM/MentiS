@@ -59,11 +59,15 @@ export async function initializeVectorStore() {
       vectorStoreInstance = await HNSWLib.load(STORE_PATH, embeddings);
     } else {
       logger.info('Criando novo VectorStore (HNSWLib)...');
+      // HNSWLib.fromTexts com arrays vazios não define dimensão corretamente
+      // Criar com um documento dummy e depois remover, ou usar fromDocuments
       vectorStoreInstance = await HNSWLib.fromTexts(
-        [], // textos vazios inicialmente
-        [], // metadados vazios
+        ['inicialização do vector store'], // documento dummy para definir dimensão
+        [{ _dummy: true, psicologoId: -1 }], // metadados dummy
         embeddings
       );
+      // Remover documento dummy
+      // Nota: HNSWLib não suporta deleção fácil, mas o dummy tem ID -1 que não conflita
     }
 
     isInitialized = true;
@@ -126,7 +130,7 @@ export async function addDocuments(documents) {
  * Busca por similaridade no vector store
  * @param {string} query - Texto da busca
  * @param {number} k - Número de resultados (padrão: 5)
- * @param {Object} filter - Filtro de metadados (opcional - HNSWLib tem suporte limitado)
+ * @param {Object} filter - Filtro de metadados (aplicado em JS pós-busca, HNSWLib filter crasha)
  * @returns {Promise<Array<{pageContent: string, metadata: Object, score: number}>>}
  */
 export async function similaritySearch(query, k = 5, filter = {}) {
@@ -136,12 +140,34 @@ export async function similaritySearch(query, k = 5, filter = {}) {
   }
 
   try {
-    const results = await vectorStoreInstance.similaritySearchWithScore(query, k, filter);
-    return results.map(([doc, score]) => ({
-      pageContent: doc.pageContent,
-      metadata: doc.metadata,
-      score: 1 - score, // Converter distância para similaridade (0-1)
-    }));
+    // HNSWLib falha se k > número de elementos no índice
+    // Obter contagem real de documentos válidos
+    const stats = getStats();
+    const validCount = stats.documentCount;
+    const safeK = Math.min(k, Math.max(1, validCount));
+
+    if (validCount === 0) {
+      return [];
+    }
+
+    // IMPORTANTE: Não passar filter para HNSWLib (causa crash no CustomFilterFunctor)
+    // Filtrar em JavaScript após a busca
+    const results = await vectorStoreInstance.similaritySearchWithScore(query, safeK);
+    // Filtrar documento dummy (psicologoId: -1) e aplicar filtros manuais
+    return results
+      .filter(([doc]) => doc.metadata?.psicologoId !== -1)
+      .filter(([doc]) => {
+        // Aplicar filtros manuais
+        for (const [key, value] of Object.entries(filter)) {
+          if (doc.metadata[key] !== value) return false;
+        }
+        return true;
+      })
+      .map(([doc, score]) => ({
+        pageContent: doc.pageContent,
+        metadata: doc.metadata,
+        score: 1 - score, // Converter distância para similaridade (0-1)
+      }));
   } catch (error) {
     logger.error('Erro na busca por similaridade', { error: error.message, query });
     throw error;
@@ -152,14 +178,40 @@ export async function similaritySearch(query, k = 5, filter = {}) {
  * Busca por similaridade com score bruto
  * @param {string} query
  * @param {number} k
- * @param {Object} filter
+ * @param {Object} filter - Filtro de metadados (aplicado em JS pós-busca, HNSWLib filter crasha)
  * @returns {Promise<Array<{doc: Document, score: number}>>}
  */
 export async function similaritySearchWithScore(query, k = 5, filter = {}) {
   if (!isVectorStoreReady()) {
     return [];
   }
-  return await vectorStoreInstance.similaritySearchWithScore(query, k, filter);
+  try {
+    // HNSWLib falha se k > número de elementos no índice
+    const stats = getStats();
+    const validCount = stats.documentCount;
+    const safeK = Math.min(k, Math.max(1, validCount));
+
+    if (validCount === 0) {
+      return [];
+    }
+
+    // IMPORTANTE: Não passar filter para HNSWLib (causa crash no CustomFilterFunctor)
+    // Filtrar em JavaScript após a busca
+    const results = await vectorStoreInstance.similaritySearchWithScore(query, safeK);
+    // Filtrar documento dummy (psicologoId: -1) e aplicar filtros manuais
+    return results
+      .filter(([doc]) => doc.metadata?.psicologoId !== -1)
+      .filter(([doc]) => {
+        // Aplicar filtros manuais
+        for (const [key, value] of Object.entries(filter)) {
+          if (doc.metadata[key] !== value) return false;
+        }
+        return true;
+      });
+  } catch (error) {
+    logger.error('Erro na busca por similaridade com score', { error: error.message, query });
+    throw error;
+  }
 }
 
 /**
@@ -171,9 +223,42 @@ export function getStats() {
     return { initialized: false, documentCount: 0 };
   }
 
+  // HNSWLib usa SynchronousInMemoryDocstore com propriedade _docs (Map)
+  let totalCount = 0;
+  let dummyCount = 0;
+
+  const docstore = vectorStoreInstance.docstore;
+  let docsMap = null;
+
+  if (docstore) {
+    if (docstore._docs && typeof docstore._docs.size === 'number') {
+      // SynchronousInMemoryDocstore com Map interno
+      docsMap = docstore._docs;
+    } else if (typeof docstore.size === 'number') {
+      // Map direto
+      docsMap = docstore;
+    } else if (Array.isArray(docstore)) {
+      // Array
+      totalCount = docstore.length;
+      dummyCount = docstore.filter(d => d.metadata?.psicologoId === -1).length;
+    } else if (typeof docstore === 'object') {
+      // Objeto genérico
+      const entries = Object.entries(docstore);
+      totalCount = entries.length;
+      dummyCount = entries.filter(([, doc]) => doc.metadata?.psicologoId === -1).length;
+    }
+  }
+
+  if (docsMap) {
+    totalCount = docsMap.size;
+    for (const [, doc] of docsMap) {
+      if (doc.metadata?.psicologoId === -1) dummyCount++;
+    }
+  }
+
   return {
     initialized: isInitialized,
-    documentCount: vectorStoreInstance.docstore?.length || 0,
+    documentCount: Math.max(0, totalCount - dummyCount),
   };
 }
 
