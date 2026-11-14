@@ -11,6 +11,7 @@ import {
   searchByEspecialidade,
   searchByLocation,
   searchByPrice,
+  getStats,
 } from '../rag/index.js';
 import { logger } from '../utils/logger.js';
 import { verificarToken, requerAdmin } from './authMiddleware.js';
@@ -213,7 +214,6 @@ routes.get(
   verificarToken,
   asyncHandler(async (req, res) => {
     try {
-      const { getStats } = await import('../rag/index.js');
       const stats = getStats();
       res.status(200).json(stats);
     } catch (error) {

@@ -10,17 +10,39 @@ import { logger } from '../utils/logger.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-// Instância singleton do vector store
+// Chave única para armazenar a instância no globalThis (evita problemas de cache de módulo)
+const VECTOR_STORE_KEY = Symbol.for('mentis.vectorStore.instance');
+const VECTOR_STORE_INIT_KEY = Symbol.for('mentis.vectorStore.initialized');
+
+// Instância singleton do vector store (fallback para module-level)
 let vectorStoreInstance = null;
 let isInitialized = false;
 const STORE_PATH = path.join(process.cwd(), 'rag-store');
+
+// Funções auxiliares para acessar globalThis
+function getGlobalInstance() {
+  return globalThis[VECTOR_STORE_KEY] ?? null;
+}
+
+function setGlobalInstance(instance) {
+  globalThis[VECTOR_STORE_KEY] = instance;
+}
+
+function getGlobalInitialized() {
+  return globalThis[VECTOR_STORE_INIT_KEY] ?? false;
+}
+
+function setGlobalInitialized(value) {
+  globalThis[VECTOR_STORE_INIT_KEY] = value;
+}
 
 /**
  * Obtém a instância do HNSWLib VectorStore
  * @returns {HNSWLib|null} Instância do vector store ou null se não inicializado
  */
 export function getVectorStore() {
-  return vectorStoreInstance;
+  // Prioriza globalThis, fallback para module-level
+  return getGlobalInstance() ?? vectorStoreInstance;
 }
 
 /**
@@ -28,7 +50,9 @@ export function getVectorStore() {
  * @returns {boolean}
  */
 export function isVectorStoreReady() {
-  return isInitialized && vectorStoreInstance !== null;
+  const globalInstance = getGlobalInstance();
+  const globalInitialized = getGlobalInitialized();
+  return (globalInitialized && globalInstance !== null) || (isInitialized && vectorStoreInstance !== null);
 }
 
 /**
@@ -37,9 +61,12 @@ export function isVectorStoreReady() {
  * @returns {Promise<HNSWLib>} Instância inicializada
  */
 export async function initializeVectorStore() {
-  if (isInitialized && vectorStoreInstance) {
+  // Verificar tanto globalThis quanto module-level
+  const globalInstance = getGlobalInstance();
+  const globalInitialized = getGlobalInitialized();
+  if ((globalInitialized && globalInstance) || (isInitialized && vectorStoreInstance)) {
     logger.info('VectorStore já inicializado');
-    return vectorStoreInstance;
+    return globalInstance ?? vectorStoreInstance;
   }
 
   try {
@@ -54,14 +81,15 @@ export async function initializeVectorStore() {
       storeExists = false;
     }
 
+    let instance;
     if (storeExists) {
       logger.info('Carregando VectorStore existente do disco...');
-      vectorStoreInstance = await HNSWLib.load(STORE_PATH, embeddings);
+      instance = await HNSWLib.load(STORE_PATH, embeddings);
     } else {
       logger.info('Criando novo VectorStore (HNSWLib)...');
       // HNSWLib.fromTexts com arrays vazios não define dimensão corretamente
       // Criar com um documento dummy e depois remover, ou usar fromDocuments
-      vectorStoreInstance = await HNSWLib.fromTexts(
+      instance = await HNSWLib.fromTexts(
         ['inicialização do vector store'], // documento dummy para definir dimensão
         [{ _dummy: true, psicologoId: -1 }], // metadados dummy
         embeddings
@@ -70,9 +98,14 @@ export async function initializeVectorStore() {
       // Nota: HNSWLib não suporta deleção fácil, mas o dummy tem ID -1 que não conflita
     }
 
+    // Atualizar ambos: globalThis (para compartilhamento entre instâncias de módulo) e module-level
+    vectorStoreInstance = instance;
     isInitialized = true;
+    setGlobalInstance(instance);
+    setGlobalInitialized(true);
+
     logger.info('HNSWLib VectorStore inicializado com sucesso');
-    return vectorStoreInstance;
+    return instance;
   } catch (error) {
     logger.error('Erro ao inicializar HNSWLib VectorStore', { error: error.message });
     throw error;
@@ -89,9 +122,10 @@ export async function saveVectorStore() {
     return;
   }
 
+  const instance = getGlobalInstance() ?? vectorStoreInstance;
   try {
     await fs.mkdir(STORE_PATH, { recursive: true });
-    await vectorStoreInstance.save(STORE_PATH);
+    await instance.save(STORE_PATH);
     logger.info('VectorStore salvo no disco', { path: STORE_PATH });
   } catch (error) {
     logger.error('Erro ao salvar VectorStore', { error: error.message });
@@ -108,8 +142,9 @@ export async function addDocuments(documents) {
     await initializeVectorStore();
   }
 
+  const instance = getGlobalInstance() ?? vectorStoreInstance;
   try {
-    await vectorStoreInstance.addDocuments(
+    await instance.addDocuments(
       documents.map((d) => ({
         pageContent: d.pageContent,
         metadata: d.metadata,
@@ -140,6 +175,7 @@ export async function similaritySearch(query, k = 5, filter = {}) {
   }
 
   try {
+    const instance = getGlobalInstance() ?? vectorStoreInstance;
     // HNSWLib falha se k > número de elementos no índice
     // Obter contagem real de documentos válidos
     const stats = getStats();
@@ -152,7 +188,7 @@ export async function similaritySearch(query, k = 5, filter = {}) {
 
     // IMPORTANTE: Não passar filter para HNSWLib (causa crash no CustomFilterFunctor)
     // Filtrar em JavaScript após a busca
-    const results = await vectorStoreInstance.similaritySearchWithScore(query, safeK);
+    const results = await instance.similaritySearchWithScore(query, safeK);
     // Filtrar documento dummy (psicologoId: -1) e aplicar filtros manuais
     return results
       .filter(([doc]) => doc.metadata?.psicologoId !== -1)
@@ -186,6 +222,7 @@ export async function similaritySearchWithScore(query, k = 5, filter = {}) {
     return [];
   }
   try {
+    const instance = getGlobalInstance() ?? vectorStoreInstance;
     // HNSWLib falha se k > número de elementos no índice
     const stats = getStats();
     const validCount = stats.documentCount;
@@ -197,7 +234,7 @@ export async function similaritySearchWithScore(query, k = 5, filter = {}) {
 
     // IMPORTANTE: Não passar filter para HNSWLib (causa crash no CustomFilterFunctor)
     // Filtrar em JavaScript após a busca
-    const results = await vectorStoreInstance.similaritySearchWithScore(query, safeK);
+    const results = await instance.similaritySearchWithScore(query, safeK);
     // Filtrar documento dummy (psicologoId: -1) e aplicar filtros manuais
     return results
       .filter(([doc]) => doc.metadata?.psicologoId !== -1)
@@ -219,7 +256,8 @@ export async function similaritySearchWithScore(query, k = 5, filter = {}) {
  * @returns {Object} Estatísticas
  */
 export function getStats() {
-  if (!vectorStoreInstance) {
+  const instance = getGlobalInstance() ?? vectorStoreInstance;
+  if (!instance) {
     return { initialized: false, documentCount: 0 };
   }
 
@@ -227,7 +265,7 @@ export function getStats() {
   let totalCount = 0;
   let dummyCount = 0;
 
-  const docstore = vectorStoreInstance.docstore;
+  const docstore = instance.docstore;
   let docsMap = null;
 
   if (docstore) {
@@ -256,8 +294,11 @@ export function getStats() {
     }
   }
 
+  // Usar globalInitialized se disponível, senão fallback para module-level
+  const initialized = getGlobalInitialized() || isInitialized;
+
   return {
-    initialized: isInitialized,
+    initialized,
     documentCount: Math.max(0, totalCount - dummyCount),
   };
 }
@@ -274,8 +315,9 @@ export async function upsertDocument(document) {
     await initializeVectorStore();
   }
 
+  const instance = getGlobalInstance() ?? vectorStoreInstance;
   try {
-    await vectorStoreInstance.addDocuments([
+    await instance.addDocuments([
       {
         pageContent: document.pageContent,
         metadata: document.metadata,
@@ -299,8 +341,12 @@ export async function upsertDocument(document) {
  * @returns {Promise<void>}
  */
 export async function resetVectorStore() {
+  // Limpar ambos: globalThis e module-level
   vectorStoreInstance = null;
   isInitialized = false;
+  setGlobalInstance(null);
+  setGlobalInitialized(false);
+
   // Remover diretório do store
   try {
     await fs.rm(STORE_PATH, { recursive: true, force: true });
