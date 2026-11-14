@@ -65,8 +65,8 @@ routes.get(
       // Criar set de horários já ocupados (dataHora ISO string)
       const horariosOcupados = new Set(
         (agendamentos || [])
-          .filter(a => a.status !== 'CANCELADO_PACIENTE' && a.status !== 'CANCELADO_PSICOLOGO')
-          .map(a => new Date(a.dataHora).toISOString())
+          .filter((a) => a.status !== 'CANCELADO_PACIENTE' && a.status !== 'CANCELADO_PSICOLOGO')
+          .map((a) => new Date(a.dataHora).toISOString())
       );
 
       // Gerar slots disponíveis para os próximos 30 dias baseado nos horários recorrentes
@@ -85,7 +85,7 @@ routes.get(
         const diaSemana = dataAtual.getDay(); // 0=Domingo ... 6=Sábado
 
         // Filtrar horários deste dia da semana
-        const horariosDoDia = horarios.filter(h => h.diaSemana === diaSemana && h.ativo);
+        const horariosDoDia = horarios.filter((h) => h.diaSemana === diaSemana && h.ativo);
 
         for (const horario of horariosDoDia) {
           // Gerar slots de 50 min (duração padrão da sessão) dentro do intervalo
@@ -133,7 +133,9 @@ function timeToMinutes(time) {
 }
 
 function minutesToTime(minutes) {
-  const h = Math.floor(minutes / 60).toString().padStart(2, '0');
+  const h = Math.floor(minutes / 60)
+    .toString()
+    .padStart(2, '0');
   const m = (minutes % 60).toString().padStart(2, '0');
   return `${h}:${m}`;
 }

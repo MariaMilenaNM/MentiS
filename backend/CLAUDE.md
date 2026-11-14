@@ -146,7 +146,8 @@ model Paciente {
 ```
 
 > **Nota**: A rota `/profissionais` (compatibilidade) transforma o modelo `Psicologo` para o formato legado esperado pelo frontend: `{ id, nome, crp, modalidade, link, numero, contato }`.
-```
+
+````
 
 ---
 
@@ -212,7 +213,7 @@ export const pacienteRepository = {
 
   delete: async (id) => await prisma.paciente.delete({ where: { id } }),
 };
-```
+````
 
 ---
 

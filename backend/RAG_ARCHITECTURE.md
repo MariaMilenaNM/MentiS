@@ -16,8 +16,8 @@ Implementar um sistema RAG que **conecta pacientes aos profissionais mais adequa
 
 ### Casos de Uso Principais
 
-| Cenário               | Entrada do Paciente                                                     | Saída Esperada                                                          |
-| --------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Cenário               | Entrada do Paciente                                                     | Saída Esperada                                                             |
+| --------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | Ansiedade + TCC       | "Tenho crises de ansiedade, quero terapia cognitivo-comportamental"     | Profissionais especialistas em TCC/ansiedade, modalidade online/presencial |
 | Depressão + Humanista | "Me sinto vazio, quero me entender melhor, prefiro abordagem humanista" | Profissionais com formação humanista/centrada na pessoa                    |
 | Casal + Online        | "Problemas no relacionamento, só posso fazer online à noite"            | Profissionais de terapia de casal com horário noturno online               |
@@ -151,49 +151,50 @@ model ProfissionalProfile {
 
 // Sessão de triagem do paciente
 model TriageSession {
-  id           String   @id @default(cuid())
-  pacienteId   Int?     // Null se anônimo (não logado)
-  status       String   @default("active") // active, completed, abandoned
-  messages     Json     // Array: { role: "user|assistant", content: string, timestamp }
-  extractedFeatures Json?  // Features extraídas: { dores, preferencias, urgencia, ... }
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  completedAt  DateTime?
+id String @id @default(cuid())
+pacienteId Int? // Null se anônimo (não logado)
+status String @default("active") // active, completed, abandoned
+messages Json // Array: { role: "user|assistant", content: string, timestamp }
+extractedFeatures Json? // Features extraídas: { dores, preferencias, urgencia, ... }
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+completedAt DateTime?
 
-  @@index([pacienteId])
-  @@index([status])
+@@index([pacienteId])
+@@index([status])
 }
 
 // Resultado do match (persistido para auditoria/métricas)
 model MatchResult {
-  id             String   @id @default(cuid())
-  sessionId      String
-  session        TriageSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  profissionalId Int
-  profissional   Profissional @relation(fields: [profissionalId], references: [id], onDelete: Cascade)
-  rank           Int      // 1, 2, 3, 4, 5
-  score          Float    // Score de similaridade 0-1
-  matchReasons   String[] // ["Especialista em TCC para ansiedade", "Atende online à noite", ...]
-  createdAt      DateTime @default(now())
+id String @id @default(cuid())
+sessionId String
+session TriageSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+profissionalId Int
+profissional Profissional @relation(fields: [profissionalId], references: [id], onDelete: Cascade)
+rank Int // 1, 2, 3, 4, 5
+score Float // Score de similaridade 0-1
+matchReasons String[] // ["Especialista em TCC para ansiedade", "Atende online à noite", ...]
+createdAt DateTime @default(now())
 
-  @@index([sessionId])
-  @@index([profissionalId])
+@@index([sessionId])
+@@index([profissionalId])
 }
 
 // Documentos clínicos de referência (protocolos, psicoeducação)
 model ClinicalDocument {
-  id          String   @id @default(cuid())
-  title       String
-  category    String   // "protocol", "psychoeducation", "technique", "guideline"
-  tags        String[] // ["ansiedade", "tcc", "protocolo-cfp", ...]
-  content     String   // Texto completo
-  source      String   // "CFP", "APA", "Ministerio Saude", "custom"
-  embedding   Byte[]?  // Ou reference para vector DB
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+id String @id @default(cuid())
+title String
+category String // "protocol", "psychoeducation", "technique", "guideline"
+tags String[] // ["ansiedade", "tcc", "protocolo-cfp", ...]
+content String // Texto completo
+source String // "CFP", "APA", "Ministerio Saude", "custom"
+embedding Byte[]? // Ou reference para vector DB
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
 
-  @@index([category])
+@@index([category])
 }
+
 ```
 
 ---
@@ -203,80 +204,88 @@ model ClinicalDocument {
 ### 1. Indexação Offline (Profissionais + Documentos Clínicos)
 
 ```
+
 Profissionais (tabela Profissional + ProfissionalProfile)
-    ↓
+↓
 Text Builder: Concatena bio + especialidades + abordagens + público + modalidades
-    ↓
+↓
 Chunking: 1 chunk por profissional (texto ~500-1500 tokens)
-    ↓
+↓
 Embedding Model (bge-m3 / e5-large) → Vetores (1024 dims)
-    ↓
+↓
 Vector DB (Chroma) collection: "profissionais"
-    ↓
+↓
 Metadados no Prisma: ProfissionalProfile.embeddingVersion++
+
 ```
 
 ```
+
 Documentos Clínicos (ClinicalDocument)
-    ↓
+↓
 Semantic Chunking (500 tokens, overlap 100)
-    ↓
+↓
 Embedding → Vetores
-    ↓
+↓
 Vector DB (Chroma) collection: "clinical_docs"
+
 ```
 
 ### 2. Triagem Online (Chat com Paciente)
 
 ```
+
 ┌─────────────────────────────────────────────────────────────┐
-│  SESSÃO DE TRIAGEM (múltiplas rodadas de chat)             │
+│ SESSÃO DE TRIAGEM (múltiplas rodadas de chat) │
 ├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  PACIENTE: "Tenho ansiedade, crises de pânico..."          │
-│       ↓                                                      │
-│  TRIAGE AGENT: Extrai features (NER/LLM)                   │
-│       ↓  { dores: ["ansiedade", "panico"],                 │
-│            preferencias: { modalidade: "online",           │
-│                           abordagem: "tcc" },              │
-│            urgencia: "alta" }                              │
-│       ↓                                                      │
-│  HYBRID RETRIEVAL:                                          │
-│  • Vector Search (query expandida com features)            │
-│  • Filtro metadados (modalidade, preço, disponibilidade)   │
-│  • Keyword match (especialidades, abordagens)              │
-│       ↓                                                      │
-│  RERANK: Cross-encoder ou LLM-based scoring                │
-│       ↓                                                      │
-│  TOP-K (10-15) → GENERATOR:                                │
-│  Prompt: "Explique por que cada profissional é adequado..." │
-│       ↓                                                      │
-│  RESPOSTA DO ASSISTENTE:                                    │
-│  "Entendi... Aqui estão 3 opções iniciais:                 │
-│  1. Dra. Maria - TCC, ansiedade, online à noite...         │
-│  2. Dr. João - EMDR, trauma, online..."                   │
-│                                                             │
-│  [Paciente responde: 'Gostei da Dra. Maria, mas quero      │
-│   saber se tem experiência com pânico']                     │
-│       ↓                                                      │
-│  LOOP: Refina busca → nova resposta contextualizada        │
+│ │
+│ PACIENTE: "Tenho ansiedade, crises de pânico..." │
+│ ↓ │
+│ TRIAGE AGENT: Extrai features (NER/LLM) │
+│ ↓ { dores: ["ansiedade", "panico"], │
+│ preferencias: { modalidade: "online", │
+│ abordagem: "tcc" }, │
+│ urgencia: "alta" } │
+│ ↓ │
+│ HYBRID RETRIEVAL: │
+│ • Vector Search (query expandida com features) │
+│ • Filtro metadados (modalidade, preço, disponibilidade) │
+│ • Keyword match (especialidades, abordagens) │
+│ ↓ │
+│ RERANK: Cross-encoder ou LLM-based scoring │
+│ ↓ │
+│ TOP-K (10-15) → GENERATOR: │
+│ Prompt: "Explique por que cada profissional é adequado..." │
+│ ↓ │
+│ RESPOSTA DO ASSISTENTE: │
+│ "Entendi... Aqui estão 3 opções iniciais: │
+│ 1. Dra. Maria - TCC, ansiedade, online à noite... │
+│ 2. Dr. João - EMDR, trauma, online..." │
+│ │
+│ [Paciente responde: 'Gostei da Dra. Maria, mas quero │
+│ saber se tem experiência com pânico'] │
+│ ↓ │
+│ LOOP: Refina busca → nova resposta contextualizada │
 └─────────────────────────────────────────────────────────────┘
+
 ```
 
 ### 3. Finalização (Ranking Final)
 
 ```
+
 Session completa (paciente satisfeito ou max rodadas)
-    ↓
+↓
 FINAL RANKING:
 • Recupera top 15 da última busca
 • Aplica pesos finais: match clínico (40%) + fit prático (30%) + disponibilidade (20%) + avaliação (10%)
 • Gera explicação personalizada para top 5
-    ↓
+↓
 Persiste MatchResult (auditoria)
-    ↓
+↓
 Retorna: { matches: [...], sessionId, nextSteps: "agendar" }
-```
+
+````
 
 ---
 
@@ -321,7 +330,7 @@ export async function runTriageAgent(sessionId, userMessage, chatHistory) {
   });
   return result.output; // Resposta estruturada do agente
 }
-```
+````
 
 ### Extração de Features Estruturada (LangChain Structured Output)
 
@@ -515,7 +524,8 @@ export const filterByMetadataTool = tool(
   },
   {
     name: 'filter_by_metadata',
-    description: 'Filtra profissionais por critérios práticos: modalidade, preço, horário, exclusões.',
+    description:
+      'Filtra profissionais por critérios práticos: modalidade, preço, horário, exclusões.',
     schema: z.object({
       profissionalIds: z.array(z.number()),
       filters: z.object({
@@ -555,13 +565,13 @@ export const getProfissionalDetailsTool = tool(
 
 ## 🔐 Segurança e Privacidade (CRÍTICO - LGPD)
 
-| Camada               | Medida                                                                                                           |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| **Dados da triagem** | Nunca saem do servidor; Ollama + Chroma rodam local                                                              |
-| **Identificação**    | Sessão anônima por default; vincula a pacienteId só se logado + consentimento                                    |
-| **Retenção**         | TriageSession: 30 dias auto-expiração; MatchResult: 1 ano (auditoria)                                            |
-| **Acesso**           | Paciente vê apenas sua sessão; Profissional vê apenas matches onde ele aparece; Admin vê agregados anonimizados  |
-| **Logs**             | Audit log: sessionId, timestamp, ação (chat/retrieve/generate), chunks usados                                    |
+| Camada               | Medida                                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Dados da triagem** | Nunca saem do servidor; Ollama + Chroma rodam local                                                                 |
+| **Identificação**    | Sessão anônima por default; vincula a pacienteId só se logado + consentimento                                       |
+| **Retenção**         | TriageSession: 30 dias auto-expiração; MatchResult: 1 ano (auditoria)                                               |
+| **Acesso**           | Paciente vê apenas sua sessão; Profissional vê apenas matches onde ele aparece; Admin vê agregados anonimizados     |
+| **Logs**             | Audit log: sessionId, timestamp, ação (chat/retrieve/generate), chunks usados                                       |
 | **Consentimento**    | Termos claros no início: "Esta conversa ajuda a encontrar profissionais compatíveis. Dados não são compartilhados." |
 
 ---
@@ -706,9 +716,9 @@ export const getProfissionalDetailsTool = tool(
 | Decisão                                            | Justificativa                                                                                                                                     |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **LangChain.js**                                   | Ecossistema maduro: chains, agents, tools, structured output, streaming, callbacks; reduz boilerplate; integração nativa Chroma/Ollama            |
-| **Chroma embedded/server**                         | Zero infra extra (embedded) ou escalável (server); SQLite-based; suficiente para <50k profissionais; LangChain tem integração nativa                 |
+| **Chroma embedded/server**                         | Zero infra extra (embedded) ou escalável (server); SQLite-based; suficiente para <50k profissionais; LangChain tem integração nativa              |
 | **bge-m3 via Ollama**                              | Melhor qualidade português; roda local; uma instância Ollama serve embeddings + LLM; LangChain suporta nativamente                                |
-| **1 chunk por profissional**                          | Perfil é documento coeso; chunking fragmentaria contexto; rerank resolve granularidade                                                            |
+| **1 chunk por profissional**                       | Perfil é documento coeso; chunking fragmentaria contexto; rerank resolve granularidade                                                            |
 | **Sessão anônima first**                           | Baixa barreira de entrada; LGPD by design; vincula depois se quiser agendar                                                                       |
 | **Features extraídas por LLM (Structured Output)** | Mais flexível que formulário rígido; captura nuances ("não gosto de tarefa de casa" → evita TCC clássico); Zod + JsonOutputParser garante tipagem |
 | **Agent + Tools**                                  | Agente decide dinamicamente quais tools usar (buscar, filtrar, detalhar); permite multi-step reasoning; extensível para novas tools               |

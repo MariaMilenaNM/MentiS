@@ -11,6 +11,8 @@ import crudHorario from './crudnode/crudHorarioRotas.js';
 import crudAgendamento from './crudnode/crudAgendamentoRotas.js';
 import crudConversa from './crudnode/crudConversaRotas.js';
 import authRoutes from './crudnode/authRotas.js';
+import ragRoutes from './crudnode/ragRotas.js';
+import { initializeRAG } from './rag/index.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -88,12 +90,28 @@ app.use('/auth', authRoutes);
 app.use('/horarios', crudHorario);
 app.use('/agendamentos', agendamentoLimiter, crudAgendamento);
 app.use('/conversas', chatLimiter, crudConversa);
+app.use('/rag', ragRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Inicialização assíncrona do RAG (não bloqueia o servidor)
+async function initializeApp() {
+  try {
+    await initializeRAG();
+    logger.info('Sistema RAG inicializado com sucesso');
+  } catch (error) {
+    logger.error('Falha ao inicializar RAG (servidor continua funcionando)', {
+      error: error.message,
+    });
+  }
+}
+
+// Iniciar servidor
 app.listen(PORT, () => {
   logger.info(`Servidor rodando na porta ${PORT}`);
+  // Inicializar RAG em background
+  initializeApp();
 });

@@ -17,6 +17,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@langchain/community": "^1.1.29",
+    "@langchain/core": "^1.4.1",
+    "@langchain/openai": "^1.8.4",
     "@prisma/client": "^6.19.3",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.6",
@@ -24,6 +27,7 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.1",
     "jsonwebtoken": "^9.0.3",
+    "langchain": "^1.6.6",
     "morgan": "^1.10.1",
     "prisma": "^6.19.3",
     "winston": "^3.19.0",

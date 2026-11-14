@@ -228,8 +228,10 @@ routes.delete(
       return res.status(400).json({ erro: 'ID inválido' });
     }
 
-    if (req.usuario.role !== "ADMIN") {
-        return res.status(403).json({ erro: "Acesso negado: apenas administradores podem remover profissionais" });
+    if (req.usuario.role !== 'ADMIN') {
+      return res
+        .status(403)
+        .json({ erro: 'Acesso negado: apenas administradores podem remover profissionais' });
     }
 
     try {
