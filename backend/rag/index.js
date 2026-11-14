@@ -12,6 +12,7 @@ export {
   isVectorStoreReady,
   initializeVectorStore,
   addDocuments,
+  upsertDocument,
   similaritySearch,
   similaritySearchWithScore,
   getStats,
@@ -22,6 +23,7 @@ export {
 export {
   ingestPsychologists,
   reingestPsychologist,
+  upsertPsychologist,
   initializeRAG,
   formatPsychologistDocument,
 } from './ingestion.js';

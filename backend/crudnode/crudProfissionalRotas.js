@@ -9,6 +9,7 @@ import {
   profissionalCompatCadastroSchema,
 } from '../utils/validation.js';
 import { logger } from '../utils/logger.js';
+import { upsertPsychologist } from '../rag/index.js';
 
 const routes = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -175,6 +176,10 @@ routes.put(
     }
 
     try {
+      // Buscar estado anterior para verificar se foi validado agora
+      const psicologoAnterior = await psicologoRepository.findById(id);
+      const eraValidado = psicologoAnterior?.validado === true;
+
       // Converter formato antigo para novo
       const dadosAtualizados = {};
       if (dadosNovos.nome) dadosAtualizados.nome = dadosNovos.nome; // Não existe no novo modelo, mas podemos ignorar
@@ -188,9 +193,29 @@ routes.put(
               : 'HIBRIDO';
       }
       if (dadosNovos.link) dadosAtualizados.fotoUrl = dadosNovos.link;
+      // Processar campo validado se enviado
+      if (typeof dadosNovos.validado === 'boolean') {
+        dadosAtualizados.validado = dadosNovos.validado;
+      }
 
       const psicologoAtualizado = await psicologoRepository.update(id, dadosAtualizados);
       logger.info('Profissional atualizado (compat)', { id });
+
+      // Se foi validado agora (era false, virou true), fazer upsert no VectorStore RAG
+      const agoraValidado = psicologoAtualizado.validado === true;
+      if (!eraValidado && agoraValidado) {
+        logger.info('Psicólogo validado - indexando no VectorStore RAG', { id });
+        try {
+          await upsertPsychologist(id);
+        } catch (ragError) {
+          // Não falhar a requisição principal se RAG falhar
+          logger.error('Erro ao indexar psicólogo no RAG (não crítico)', {
+            id,
+            error: ragError.message,
+          });
+        }
+      }
+
       return res.status(200).json({
         id: psicologoAtualizado.id,
         nome: psicologoAtualizado.nome || psicologoAtualizado.usuario?.email || 'Psicólogo',

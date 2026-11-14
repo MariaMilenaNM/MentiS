@@ -178,6 +178,38 @@ export function getStats() {
 }
 
 /**
+ * Adiciona ou atualiza um único documento no vector store (upsert)
+ * Nota: HNSWLib não suporta deleção por ID, então isso apenas adiciona.
+ * Para updates reais, recomenda-se re-ingestão completa.
+ * @param {Object} document - Documento no formato { pageContent, metadata }
+ * @returns {Promise<void>}
+ */
+export async function upsertDocument(document) {
+  if (!isVectorStoreReady()) {
+    await initializeVectorStore();
+  }
+
+  try {
+    await vectorStoreInstance.addDocuments([
+      {
+        pageContent: document.pageContent,
+        metadata: document.metadata,
+      },
+    ]);
+
+    // Salvar após adicionar
+    await saveVectorStore();
+
+    logger.info(`Documento upsertado no VectorStore`, {
+      psicologoId: document.metadata?.psicologoId,
+    });
+  } catch (error) {
+    logger.error('Erro ao fazer upsert de documento', { error: error.message });
+    throw error;
+  }
+}
+
+/**
  * Reseta o vector store (útil para testes ou re-ingestão completa)
  * @returns {Promise<void>}
  */

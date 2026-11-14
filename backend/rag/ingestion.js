@@ -4,7 +4,12 @@
  */
 
 import { psicologoRepository } from '../repository/psicologoRepository.js';
-import { addDocuments, initializeVectorStore, resetVectorStore } from './vectorStore.js';
+import {
+  addDocuments,
+  initializeVectorStore,
+  resetVectorStore,
+  upsertDocument,
+} from './vectorStore.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -111,6 +116,7 @@ export async function ingestPsychologists(forceReset = false) {
 
 /**
  * Re-ingere um único psicólogo (quando atualizado/validado)
+ * Faz re-ingestão completa para garantir consistência
  * @param {number} psicologoId - ID do psicólogo
  * @returns {Promise<Object>} Resultado
  */
@@ -130,7 +136,7 @@ export async function reingestPsychologist(psicologoId) {
       return { success: false, error: 'Psicólogo não validado' };
     }
 
-    // Para simplicidade com MemoryVectorStore, fazemos re-ingestão completa
+    // Para simplicidade com HNSWLib, fazemos re-ingestão completa
     // Em produção com ChromaDB/Pinecone, faríamos upsert por ID
     await ingestPsychologists(true); // force reset e re-ingestão completa
 
@@ -138,6 +144,40 @@ export async function reingestPsychologist(psicologoId) {
     return { success: true };
   } catch (error) {
     logger.error(`Erro ao re-ingerir psicólogo ${psicologoId}`, { error: error.message });
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Adiciona/atualiza um único psicólogo validado no VectorStore (upsert eficiente)
+ * Usado quando um psicólogo é recém-cadastrado e validado
+ * @param {number} psicologoId - ID do psicólogo
+ * @returns {Promise<Object>} Resultado
+ */
+export async function upsertPsychologist(psicologoId) {
+  logger.info(`Fazendo upsert do psicólogo ${psicologoId} no VectorStore...`);
+
+  try {
+    const psicologo = await psicologoRepository.findById(psicologoId);
+
+    if (!psicologo) {
+      logger.warn(`Psicólogo ${psicologoId} não encontrado para upsert`);
+      return { success: false, error: 'Psicólogo não encontrado' };
+    }
+
+    if (!psicologo.validado) {
+      logger.info(`Psicólogo ${psicologoId} não está validado - pulando upsert`);
+      return { success: false, error: 'Psicólogo não validado' };
+    }
+
+    // Formatar documento e fazer upsert
+    const document = formatPsychologistDocument(psicologo);
+    await upsertDocument(document);
+
+    logger.info(`Psicólogo ${psicologoId} adicionado ao VectorStore com sucesso`);
+    return { success: true };
+  } catch (error) {
+    logger.error(`Erro ao fazer upsert do psicólogo ${psicologoId}`, { error: error.message });
     return { success: false, error: error.message };
   }
 }
