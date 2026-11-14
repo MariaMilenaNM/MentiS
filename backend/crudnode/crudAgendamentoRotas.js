@@ -218,7 +218,9 @@ routes.put(
 
         // Apenas profissional pode confirmar
         if (dados.status === 'CONFIRMADO' && !isPsicologo && !isAdmin) {
-          return res.status(403).json({ erro: 'Apenas o profissional pode confirmar o agendamento' });
+          return res
+            .status(403)
+            .json({ erro: 'Apenas o profissional pode confirmar o agendamento' });
         }
 
         // Apenas paciente pode cancelar como paciente
@@ -228,7 +230,9 @@ routes.put(
 
         // Apenas profissional pode cancelar como profissional
         if (dados.status === 'CANCELADO_PSICOLOGO' && !isPsicologo && !isAdmin) {
-          return res.status(403).json({ erro: 'Apenas o profissional pode cancelar como profissional' });
+          return res
+            .status(403)
+            .json({ erro: 'Apenas o profissional pode cancelar como profissional' });
         }
       }
 
