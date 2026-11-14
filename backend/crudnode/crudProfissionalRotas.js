@@ -2,8 +2,9 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import { psicologoRepository } from "../repository/psicologoRepository.js";
 import { usuarioRepository } from "../repository/usuarioRepository.js";
-import { validate, profissionalCadastroSchema, profissionalAtualizacaoSchema, profissionalCompatCadastroSchema } from "../utils/validation.js";
+import { validate, profissionalAtualizacaoSchema, profissionalCompatCadastroSchema } from "../utils/validation.js";
 import { logger } from "../utils/logger.js";
+import { indexSinglePsychologist } from "../rag/indexer.js";
 
 const routes = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -29,8 +30,8 @@ function verificarToken(req, res, next) {
         const payload = jwt.verify(token, JWT_SECRET);
         req.usuario = payload;
         next();
-    } catch (erro) {
-        logger.warn("Token inválido ou expirado", { error: erro.message });
+    } catch {
+        logger.warn("Token inválido ou expirado");
         return res.status(401).json({ erro: "Token inválido ou expirado" });
     }
 }
@@ -51,7 +52,7 @@ function verifyAuthOrAdmin(req, res, next) {
         const payload = jwt.verify(token, JWT_SECRET);
         req.usuario = payload;
         next();
-    } catch (erro) {
+    } catch {
         return res.status(401).json({ erro: "Token inválido ou expirado" });
     }
 }
@@ -171,7 +172,8 @@ routes.post("/", verifyAuthOrAdmin, validate(profissionalCompatCadastroSchema), 
         });
 
         // Preparar dados para Psicologo (remover campos que não existem no modelo)
-        const { nome, numero, contato, link, ...dadosPsicologo } = dados;
+        // eslint-disable-next-line no-unused-vars
+        const { numero, contato, link, ...dadosPsicologo } = dados;
 
         // Criar Psicologo
         const psicologo = await psicologoRepository.create(usuario.id, {
@@ -186,6 +188,21 @@ routes.post("/", verifyAuthOrAdmin, validate(profissionalCompatCadastroSchema), 
         });
 
         logger.info("Profissional criado", { id: psicologo.id, crp: psicologo.crp });
+
+        // Auto-indexar no RAG se o profissional for validado
+        // Nota: atualmente cria com validado=false, mas se no futuro criar com validado=true, indexará automaticamente
+        if (psicologo.validado) {
+          try {
+            await indexSinglePsychologist(psicologo.id);
+            logger.info("Profissional auto-indexado no RAG", { psicologoId: psicologo.id });
+          } catch (ragError) {
+            // Não falha o cadastro se indexação falhar - apenas loga
+            logger.warn("Falha ao auto-indexar profissional no RAG", {
+              psicologoId: psicologo.id,
+              error: ragError.message,
+            });
+          }
+        }
 
         // Retornar formato legado
         return res.status(201).json(toLegacyFormat(psicologo));
@@ -226,9 +243,6 @@ routes.put("/:id", verificarToken, validate(profissionalAtualizacaoSchema), asyn
 
         // Converter formato antigo para novo
         const dadosAtualizados = {};
-        if (dadosNovos.nome) {
-            // 'nome' não existe no modelo Psicologo (vem de Usuario), ignorar por enquanto
-        }
         if (dadosNovos.crp) dadosAtualizados.crp = String(dadosNovos.crp);
         if (dadosNovos.modalidade) {
             dadosAtualizados.modalidade = modalidadeLegacyToModern[dadosNovos.modalidade] || "HIBRIDO";
@@ -249,6 +263,20 @@ routes.put("/:id", verificarToken, validate(profissionalAtualizacaoSchema), asyn
 
         const psicologoAtualizado = await psicologoRepository.update(id, dadosAtualizados);
         logger.info("Profissional atualizado", { id });
+
+        // Auto-reindexar no RAG se o profissional for validado
+        if (psicologoAtualizado.validado) {
+          try {
+            await indexSinglePsychologist(psicologoAtualizado.id);
+            logger.info("Profissional reindexado no RAG após atualização", { psicologoId: psicologoAtualizado.id });
+          } catch (ragError) {
+            logger.warn("Falha ao reindexar profissional no RAG", {
+              psicologoId: psicologoAtualizado.id,
+              error: ragError.message,
+            });
+          }
+        }
+
         return res.status(200).json(toLegacyFormat(psicologoAtualizado));
     } catch (error) {
         logger.error("Erro ao atualizar profissional", { id, error: error.message });
@@ -296,7 +324,7 @@ routes.delete("/:id", verificarToken, asyncHandler(async (req, res) => {
 // ============================================
 // Middleware de erro global
 // ============================================
-routes.use((err, req, res, next) => {
+routes.use((err, req, res, _next) => {
     logger.error("Erro não tratado na rota de profissionais", {
         error: err.message,
         stack: err.stack,

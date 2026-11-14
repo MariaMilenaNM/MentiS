@@ -194,100 +194,251 @@ nav a:hover {
   line-height: 1.5;
 }
 
-/* -- PROFISSIONAIS -- */
-.profissionais {
+/* -- PROFISSIONAIS CATÁLOGO (LandingPage) -- */
+.profissionais-catalogo {
   padding: 80px;
-  text-align: center;
   background-color: #fafafa;
 }
 
-.profissionais h2 {
+.catalogo-header {
+  max-width: 1200px;
+  margin: 0 auto 50px auto;
+  text-align: left;
+}
+
+.catalogo-header h2 {
   font-size: 20px;
   font-weight: 700;
   color: var(--gray-blue);
-  margin-bottom: 50px;
-  text-align: left;
-  max-width: 1200px;
-  margin: 0 auto 50px auto;
+  margin-bottom: 8px;
 }
 
-.grade-profissionais {
+.catalogo-subtitle {
+  font-size: 14px;
+  color: var(--gray-blue);
+  font-weight: 300;
+}
+
+.catalogo-loading,
+.catalogo-erro,
+.catalogo-vazio {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto 60px auto;
-  flex-wrap: wrap;
+  padding: 60px 20px;
+  text-align: center;
+  gap: 16px;
+  color: var(--gray-blue);
 }
 
-.card-profissional {
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: var(--dark-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-retry {
+  background: var(--dark-blue);
+  color: var(--white);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-retry:hover {
+  opacity: 0.9;
+}
+
+.catalogo-carousel {
+  display: flex;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto 40px auto;
+  overflow-x: auto;
+  padding: 0 20px 20px 20px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--light-blue) transparent;
+}
+
+.catalogo-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.catalogo-carousel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.catalogo-carousel::-webkit-scrollbar-thumb {
+  background: var(--light-blue);
+  border-radius: 4px;
+}
+
+.catalogo-card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
   background: var(--white);
   border-radius: 12px;
   padding: 24px;
-  width: 200px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.foto-placeholder {
-  width: 100px;
-  height: 100px;
-  background-color: #e0e0e0;
-  border-radius: 4px;
-  margin-bottom: 16px;
-}
-
-.card-profissional h4 {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.card-profissional p {
-  font-size: 10px;
-  color: var(--gray-blue);
-  margin-bottom: 16px;
-}
-
-.badges {
-  display: flex;
-  gap: 8px;
-}
-
-.badge {
-  font-size: 9px;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-.badge.online {
-  background-color: var(--light-blue);
-  color: var(--dark-blue);
-}
-
-.badge.presencial {
-  background-color: var(--green);
-  color: var(--dark-blue);
-}
-
-.btn-container {
   text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.btn-dark {
-  background-color: var(--dark-blue);
+.catalogo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.catalogo-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--light-blue), var(--dark-blue));
   color: var(--white);
-  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.catalogo-info {
+  width: 100%;
+  text-align: left;
+}
+
+.catalogo-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.catalogo-nome {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark-blue);
+  margin: 0;
+}
+
+.catalogo-badge-nao-validado {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #fef2f2;
+  color: #dc2626;
+  white-space: nowrap;
+}
+
+.catalogo-crp {
+  display: block;
+  font-size: 12px;
+  color: var(--gray-blue);
+  margin-bottom: 6px;
+}
+
+.catalogo-modalidade {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+.tag-online {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.tag-presencial {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.tag-ambas {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.catalogo-especialidades {
+  font-size: 12px;
+  color: var(--gray-blue);
+  margin: 8px 0;
+  line-height: 1.4;
+}
+
+.catalogo-contato {
+  font-size: 12px;
+  color: var(--gray-blue);
+  margin: 4px 0;
+}
+
+.catalogo-btn-insta {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #e1306c, #fd1d1d);
+  color: white;
   border-radius: 6px;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: opacity 0.2s, transform 0.2s;
+  align-self: center;
+}
+
+.catalogo-btn-insta:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.catalogo-cta {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.btn-primary {
+  background-color: var(--dark-blue);
+  color: var(--white);
+  padding: 14px 32px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   display: inline-block;
+  transition: opacity 0.2s, transform 0.2s;
 }
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* -- BARRA DE CONFIANÇA -- */
+.trust-section {
 
 /* -- BARRA DE CONFIANÇA -- */
 .trust-section {

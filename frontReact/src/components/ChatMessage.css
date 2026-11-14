@@ -1,0 +1,247 @@
+/* ChatMessage.css - Estilos para bolhas de mensagem do chat de triagem */
+
+.chat-message {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 85%;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.chat-message.user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.chat-message.assistant {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-bubble {
+  padding: 12px 16px;
+  border-radius: 18px;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chat-message.user .message-bubble {
+  background: var(--primary-color, #2563eb);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-message.assistant .message-bubble {
+  background: #f3f4f6;
+  color: #1f2937;
+  border-bottom-left-radius: 4px;
+}
+
+.message-content {
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Matches parciais e finais */
+.partial-matches,
+.final-matches {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.chat-message.user .partial-matches,
+.chat-message.user .final-matches {
+  border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.matches-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+.matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chat-message.user .match-card {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.match-card:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.match-card.partial {
+  padding: 8px 10px;
+}
+
+.match-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.match-info strong {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.match-meta {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.match-reason {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.match-score {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--primary-color, #2563eb);
+  color: white;
+  align-self: flex-start;
+}
+
+.match-card.final {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.match-rank {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary-color, #2563eb);
+  min-width: 28px;
+  padding-top: 2px;
+}
+
+.match-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.match-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 70px;
+}
+
+.next-step {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #e5e7eb;
+  color: #374151;
+  font-weight: 500;
+}
+
+.chat-message.user .next-step {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Perguntas sugeridas */
+.suggested-questions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.chat-message.user .suggested-questions {
+  border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.questions-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+.questions-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.question-chip {
+  padding: 6px 12px;
+  background: var(--primary-color, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.9;
+}
+
+.question-chip:hover {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+/* Timestamp */
+.message-time {
+  font-size: 0.65rem;
+  opacity: 0.6;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.chat-message.assistant .message-time {
+  text-align: left;
+}
+
+.message-anchor {
+  height: 0;
+}
