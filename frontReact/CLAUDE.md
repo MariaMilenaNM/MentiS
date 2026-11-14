@@ -140,12 +140,12 @@ Painel/index.jsx → usePainel.js → carrega perfil + profissionais
 
 ## 📄 Páginas e Responsabilidades
 
-| Página         | Rota            | Hook              | Services                         | Descrição                                              |
-| -------------- | --------------- | ----------------- | -------------------------------- | ------------------------------------------------------ |
-| `LandingPage`  | `/`             | —                 | —                                | Pública, marketing, navegação                          |
-| `Paciente`     | `/paciente`     | `usePaciente`     | `crudPaciente`                   | Login / Cadastro                                       |
+| Página         | Rota            | Hook              | Services                         | Descrição                                                 |
+| -------------- | --------------- | ----------------- | -------------------------------- | --------------------------------------------------------- |
+| `LandingPage`  | `/`             | —                 | —                                | Pública, marketing, navegação                             |
+| `Paciente`     | `/paciente`     | `usePaciente`     | `crudPaciente`                   | Login / Cadastro                                          |
 | `Painel`       | `/painel`       | `usePainel`       | `crudPainel`, `crudProfissional` | Dashboard logado: perfil + lista profissionais (paginada) |
-| `Profissional` | `/profissional` | `useProfissional` | `crudProfissional`               | Admin: CRUD completo de profissionais                  |
+| `Profissional` | `/profissional` | `useProfissional` | `crudProfissional`               | Admin: CRUD completo de profissionais                     |
 
 ---
 

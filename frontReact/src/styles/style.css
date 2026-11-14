@@ -194,32 +194,499 @@ nav a:hover {
   line-height: 1.5;
 }
 
-/* -- PROFISSIONAIS -- */
-.profissionais {
+/* -- PROFISSIONAIS CATÁLOGO (LandingPage) -- */
+.profissionais-catalogo {
   padding: 80px;
-  text-align: center;
   background-color: #fafafa;
 }
 
-.profissionais h2 {
+.catalogo-header {
+  max-width: 1200px;
+  margin: 0 auto 50px auto;
+  text-align: left;
+}
+
+.catalogo-header h2 {
   font-size: 20px;
   font-weight: 700;
   color: var(--gray-blue);
-  margin-bottom: 50px;
-  text-align: left;
+  margin-bottom: 8px;
+}
+
+.catalogo-subtitle {
+  font-size: 14px;
+  color: var(--gray-blue);
+  font-weight: 300;
+}
+
+.catalogo-loading,
+.catalogo-erro,
+.catalogo-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  gap: 16px;
+  color: var(--gray-blue);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: var(--dark-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-retry {
+  background: var(--dark-blue);
+  color: var(--white);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-retry:hover {
+  opacity: 0.9;
+}
+
+.catalogo-carousel {
+  display: flex;
+  gap: 24px;
   max-width: 1200px;
-  margin: 0 auto 50px auto;
+  margin: 0 auto 40px auto;
+  overflow-x: auto;
+  padding: 0 20px 20px 20px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--light-blue) transparent;
+}
+
+.catalogo-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.catalogo-carousel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.catalogo-carousel::-webkit-scrollbar-thumb {
+  background: var(--light-blue);
+  border-radius: 4px;
+}
+
+.catalogo-card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  width: 280px;
+  min-height: 380px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.catalogo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.catalogo-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--light-blue), var(--dark-blue));
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.catalogo-info {
+  width: 100%;
+  text-align: left;
+}
+
+.catalogo-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.catalogo-nome {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark-blue);
+  margin: 0;
+}
+
+.catalogo-badge-nao-validado {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #fef2f2;
+  color: #dc2626;
+  white-space: nowrap;
+}
+
+.catalogo-crp {
+  display: block;
+  font-size: 12px;
+  color: var(--gray-blue);
+  margin-bottom: 6px;
+}
+
+.catalogo-modalidade {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+.tag-online {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.tag-presencial {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.tag-ambas {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.catalogo-especialidades {
+  font-size: 12px;
+  color: var(--gray-blue);
+  margin: 8px 0;
+  line-height: 1.4;
+}
+
+.catalogo-contato {
+  font-size: 12px;
+  color: var(--gray-blue);
+  margin: 4px 0;
+}
+
+.catalogo-btn-insta {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #e1306c, #fd1d1d);
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  transition: opacity 0.2s, transform 0.2s;
+  align-self: center;
+}
+
+.catalogo-btn-insta:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.catalogo-cta {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.btn-primary {
+  background-color: var(--dark-blue);
+  color: var(--white);
+  padding: 14px 32px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* -- BARRA DE CONFIANÇA -- */
+.trust-section {
+  background-color: var(--gray-blue);
+  padding: 40px 0;
+}
+
+.trust-bar {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--white);
+}
+
+.trust-item span.tlabel {
+  font-size: 14px;
+  font-weight: 300;
+}
+
+/* --- FAQ --- */
+.faq-section {
+  padding: 80px;
+  background-color: var(--white);
+}
+
+.faq-container {
+  display: flex;
+  max-width: 1000px;
+  margin: 0 auto;
+  gap: 80px;
+}
+
+.faq-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 30%;
+}
+
+.icon-large {
+  font-size: 40px;
+  color: var(--dark-blue);
+}
+
+.t1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.t2 {
+  font-size: 24px;
+  font-weight: 300;
+  color: var(--gray-blue);
+}
+
+.faq-right {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.faq-item {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 16px;
+}
+
+.faq-q {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--dark-blue);
+  background-color: #f3f1f1;
+  list-style: none;
+}
+
+.faq-q::-webkit-details-marker {
+  display: none;
+}
+
+.seta-icone {
+  transition: transform 0.3s ease;
+}
+
+details[open] .seta-icone {
+  transform: rotate(180deg);
+  color: var(--light-blue);
+}
+
+.faq-a-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-in-out;
+}
+
+details[open] .faq-a-content {
+  max-height: 200px;
+}
+
+.faq-a {
+  font-size: 14px;
+  color: var(--gray-blue);
+  line-height: 1.6;
+  padding-bottom: 16px;
+}
+
+/* -- FOOTER -- */
+footer {
+  background-color: var(--dark-blue);
+  padding: 40px 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--white);
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.logo-imagem-footer {
+  width: 30px;
+}
+
+.footer-links {
+  display: flex;
+  list-style: none;
+  gap: 16px;
+  align-items: center;
+}
+
+.footer-links a,
+.footer-links .sep {
+  color: var(--white);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 300;
+}
+
+.footer-links a:hover {
+  color: var(--light-blue);
+}
+
+/* -- PROFISSIONAIS WRAPPER (Catálogo horizontal - compatibilidade) -- */
+.profissionais-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
 }
 
 .grade-profissionais {
   display: flex;
   justify-content: center;
   gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto 60px auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex: 1;
+  overflow-x: hidden;
+  scroll-snap-type: x mandatory;
+  padding: 0 8px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
+.grade-profissionais::-webkit-scrollbar {
+  display: none;
+}
+
+/* Indicadores de continuidade lateral (setas) */
+.continuidade-lateral {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--dark-blue) 0%, #1a1d4a 100%);
+  color: var(--light-blue);
+  box-shadow: 0 4px 16px rgba(10, 11, 38, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.continuidade-lateral:hover {
+  background: linear-gradient(135deg, var(--gray-blue) 0%, var(--dark-blue) 100%);
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px rgba(10, 11, 38, 0.4);
+}
+
+.continuidade-lateral .material-icons {
+  font-size: 28px;
+}
+
+.continuidade-lateral.esquerda {
+  margin-right: -40px;
+}
+
+.continuidade-lateral.direita {
+  margin-left: -40px;
+}
+
+/* Efeito de fade nas laterais do catálogo */
+.profissionais-wrapper::before,
+.profissionais-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.profissionais-wrapper::before {
+  left: 0;
+  background: linear-gradient(90deg, #fafafa 0%, transparent 100%);
+}
+
+.profissionais-wrapper::after {
+  right: 0;
+  background: linear-gradient(270deg, #fafafa 0%, transparent 100%);
+}
+
+/* Card profissional (compatibilidade com LandingPage antiga) */
 .card-profissional {
   background: var(--white);
   border-radius: 12px;
@@ -230,6 +697,7 @@ nav a:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -424,10 +892,10 @@ nav a:hover {
 .btn-dark {
   background-color: var(--dark-blue);
   color: var(--white);
-  padding: 14px 28px;
-  border-radius: 6px;
+  padding: 14px 32px;
+  border-radius: 8px;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   display: inline-block;
@@ -439,251 +907,6 @@ nav a:hover {
 .btn-dark:hover {
   opacity: 0.9;
   background: var(--gray-blue);
-}
-
-/* -- PROFISSIONAIS WRAPPER (Catálogo horizontal) -- */
-.profissionais-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-}
-
-.grade-profissionais {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  flex-wrap: nowrap;
-  flex: 1;
-  overflow-x: hidden;
-  scroll-snap-type: x mandatory;
-  padding: 0 8px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.grade-profissionais::-webkit-scrollbar {
-  display: none;
-}
-
-/* Indicadores de continuidade lateral (setas) */
-.continuidade-lateral {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--dark-blue) 0%, #1a1d4a 100%);
-  color: var(--light-blue);
-  box-shadow: 0 4px 16px rgba(10, 11, 38, 0.3);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-  z-index: 2;
-}
-
-.continuidade-lateral:hover {
-  background: linear-gradient(135deg, var(--gray-blue) 0%, var(--dark-blue) 100%);
-  transform: scale(1.1);
-  box-shadow: 0 6px 24px rgba(10, 11, 38, 0.4);
-}
-
-.continuidade-lateral .material-icons {
-  font-size: 28px;
-}
-
-.continuidade-lateral.esquerda {
-  margin-right: -40px;
-}
-
-.continuidade-lateral.direita {
-  margin-left: -40px;
-}
-
-/* Efeito de fade nas laterais do catálogo */
-.profissionais-wrapper::before,
-.profissionais-wrapper::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 80px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.profissionais-wrapper::before {
-  left: 0;
-  background: linear-gradient(90deg, #fafafa 0%, transparent 100%);
-}
-
-.profissionais-wrapper::after {
-  right: 0;
-  background: linear-gradient(270deg, #fafafa 0%, transparent 100%);
-}
-
-/* -- BARRA DE CONFIANÇA -- */
-.trust-section {
-  background-color: var(--gray-blue);
-  padding: 40px 0;
-}
-
-.trust-bar {
-  display: flex;
-  justify-content: center;
-  gap: 80px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.trust-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--white);
-}
-
-.trust-item span.tlabel {
-  font-size: 14px;
-  font-weight: 300;
-}
-
-/* --- FAQ --- */
-.faq-section {
-  padding: 80px;
-  background-color: var(--white);
-}
-
-.faq-container {
-  display: flex;
-  max-width: 1000px;
-  margin: 0 auto;
-  gap: 80px;
-}
-
-.faq-left {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  width: 30%;
-}
-
-.icon-large {
-  font-size: 40px;
-  color: var(--dark-blue);
-}
-
-.t1 {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.t2 {
-  font-size: 24px;
-  font-weight: 300;
-  color: var(--gray-blue);
-}
-
-.faq-right {
-  width: 70%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.faq-item {
-  border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 16px;
-}
-
-.faq-q {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 12px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 400;
-  color: var(--dark-blue);
-  background-color: #f3f1f1;
-  list-style: none;
-}
-
-.faq-q::-webkit-details-marker {
-  display: none;
-}
-
-.seta-icone {
-  transition: transform 0.3s ease;
-}
-
-details[open] .seta-icone {
-  transform: rotate(180deg);
-  color: var(--light-blue);
-}
-
-.faq-a-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease-in-out;
-}
-
-details[open] .faq-a-content {
-  max-height: 200px;
-}
-
-.faq-a {
-  font-size: 14px;
-  color: var(--gray-blue);
-  line-height: 1.6;
-  padding-bottom: 16px;
-}
-
-/* -- FOOTER -- */
-footer {
-  background-color: var(--dark-blue);
-  padding: 40px 80px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo-footer {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--white);
-  text-decoration: none;
-  font-size: 24px;
-  font-weight: 300;
-}
-
-.logo-imagem-footer {
-  width: 30px;
-}
-
-.footer-links {
-  display: flex;
-  list-style: none;
-  gap: 16px;
-  align-items: center;
-}
-
-.footer-links a,
-.footer-links .sep {
-  color: var(--white);
-  text-decoration: none;
-  font-size: 12px;
-  font-weight: 300;
-}
-
-.footer-links a:hover {
-  color: var(--light-blue);
 }
 
 /*

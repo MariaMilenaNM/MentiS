@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getProfissionais } from '../../services/crudProfissional.js';
+import { getPacienteLogado } from '../../services/crudPaciente.js';
 
 import logoBranca from '../../assets/LogoBranca.png';
 import imgConversa from '../../assets/ConversaPsicologo.png';
@@ -12,24 +13,36 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [profissionais, setProfissionais] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(null);
+  const [pacienteLogado, setPacienteLogado] = useState(null);
+
+  const carregarProfissionais = useCallback(async () => {
+    try {
+      setCarregando(true);
+      const dados = await getProfissionais();
+      // Filtrar apenas profissionais validados para a landing page
+      const validados = (dados || []).filter((p) => p.validado !== false);
+      setProfissionais(validados);
+      setErro(null);
+    } catch (error) {
+      console.error('Erro ao carregar profissionais:', error);
+      setProfissionais([]);
+      setErro('Não foi possível carregar os profissionais');
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const carregarProfissionais = async () => {
-      try {
-        const dados = await getProfissionais();
-        // Filtrar apenas profissionais validados para a landing page
-        const validados = (dados || []).filter((p) => p.validado === true);
-        setProfissionais(validados);
-      } catch (error) {
-        console.error('Erro ao carregar profissionais:', error);
-        setProfissionais([]);
-      } finally {
-        setCarregando(false);
-      }
-    };
+    // Verifica se paciente está logado
+    const storage = getPacienteLogado();
+    if (storage) {
+      setPacienteLogado(storage);
+    }
 
+    // Carrega profissionais da API
     carregarProfissionais();
-  }, []);
+  }, [carregarProfissionais]);
 
   const handleAgendarClick = () => {
     // Verificar se há token no localStorage
@@ -42,12 +55,13 @@ export default function LandingPage() {
   };
 
   const formatarModalidade = (modalidade) => {
-    if (!modalidade) return '';
-    const m = modalidade.toLowerCase();
-    if (m === 'online' || m === 'remota') return 'Online';
-    if (m === 'presencial') return 'Presencial';
-    if (m === 'hibrido' || m === 'presencial e remota') return 'Presencial e Online';
+    if (!modalidade) return 'Não informado';
+    if (modalidade === 'Presencial e Remota') return 'Híbrido';
     return modalidade;
+  };
+
+  const getInicial = (nome) => {
+    return nome ? nome.charAt(0).toUpperCase() : '?';
   };
 
   return (
@@ -65,9 +79,15 @@ export default function LandingPage() {
               <a href="#">QUEM SOMOS?</a>
             </li>
             <li>
-              <Link to="/paciente" id="inscrevaButton">
-                FAÇA LOGIN
-              </Link>
+              {pacienteLogado ? (
+                <Link to="/painel" id="inscrevaButton">
+                  MEU PAINEL
+                </Link>
+              ) : (
+                <Link to="/paciente" id="inscrevaButton">
+                  FAÇA LOGIN
+                </Link>
+              )}
             </li>
           </ul>
         </nav>
@@ -135,153 +155,120 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      <section className="profissionais">
-        <h2>CONHEÇA OS PROFISSIONAIS</h2>
+
+      {/* Catálogo dinâmico de profissionais */}
+      <section className="profissionais-catalogo">
+        <div className="catalogo-header">
+          <h2>PROFISSIONAIS DISPONÍVEIS</h2>
+          <p className="catalogo-subtitle">
+            {profissionais.length} profissional{profissionais.length !== 1 ? 'is' : ''} verificado
+            {profissionais.length !== 1 ? 's' : ''} pronto{profissionais.length !== 1 ? 's' : ''}{' '}
+            para atender
+          </p>
+        </div>
+
         {carregando ? (
-          <div className="grade-profissionais">
-            <div className="card-profissional loading">
-              <div className="foto-placeholder skeleton"></div>
-              <div className="skeleton-text"></div>
-              <div className="skeleton-text short"></div>
-              <div className="skeleton-badges">
-                <div className="skeleton-badge"></div>
-                <div className="skeleton-badge"></div>
-              </div>
-            </div>
-            <div className="card-profissional loading">
-              <div className="foto-placeholder skeleton"></div>
-              <div className="skeleton-text"></div>
-              <div className="skeleton-text short"></div>
-              <div className="skeleton-badges">
-                <div className="skeleton-badge"></div>
-                <div className="skeleton-badge"></div>
-              </div>
-            </div>
-            <div className="card-profissional loading">
-              <div className="foto-placeholder skeleton"></div>
-              <div className="skeleton-text"></div>
-              <div className="skeleton-text short"></div>
-              <div className="skeleton-badges">
-                <div className="skeleton-badge"></div>
-                <div className="skeleton-badge"></div>
-              </div>
-            </div>
+          <div className="catalogo-loading" role="status" aria-live="polite">
+            <div className="spinner"></div>
+            <p>Carregando profissionais...</p>
           </div>
-        ) : profissionais.length > 0 ? (
+        ) : erro ? (
+          <div className="catalogo-erro" role="alert">
+            <p>{erro}</p>
+            <button onClick={carregarProfissionais} className="btn-retry">
+              Tentar novamente
+            </button>
+          </div>
+        ) : profissionais.length === 0 ? (
+          <div className="catalogo-vazio">
+            <p>Nenhum profissional cadastrado no momento.</p>
+            {pacienteLogado ? (
+              <Link to="/painel" className="btn-primary">
+                Ver painel
+              </Link>
+            ) : (
+              <Link to="/paciente" className="btn-primary">
+                Faça login para ser notificado
+              </Link>
+            )}
+          </div>
+        ) : (
           <>
-            <div className="profissionais-wrapper">
-              {/* Indicador de continuidade à esquerda */}
-              {profissionais.length > 5 && (
-                <div className="continuidade-lateral esquerda" aria-hidden="true">
-                  <span className="material-icons">chevron_left</span>
-                </div>
-              )}
+            <div className="catalogo-carousel" role="list" aria-label="Catálogo de profissionais">
+              {profissionais.map((profissional) => {
+                const instagramUsername = profissional.link
+                  ? profissional.link
+                      .replace(/^https?:\/\/(www\.)?instagram\.com\//, '')
+                      .replace('@', '')
+                      .split('/')[0]
+                  : '';
+                const instagramValido =
+                  instagramUsername && /^[a-zA-Z0-9_.]+$/.test(instagramUsername);
+                const modalidadeFormatada = formatarModalidade(profissional.modalidade);
+                const classeTag =
+                  modalidadeFormatada === 'Híbrido' ? 'ambas' : modalidadeFormatada.toLowerCase();
 
-              <div className="grade-profissionais" role="list" aria-label="Profissionais validados">
-                {/* Mostrar até 5 profissionais centralizados */}
-                {profissionais.slice(0, 5).map((profissional) => {
-                  const letra = profissional.nome ? profissional.nome.charAt(0).toUpperCase() : '?';
-                  // Validar link do Instagram
-                  const instagramUsername = profissional.link
-                    ? profissional.link
-                        .replace(/^https?:\/\/(www\.)?instagram\.com\//, '')
-                        .replace('@', '')
-                        .split('/')[0]
-                        .split('?')[0] // Remover query parameters
-                    : '';
-                  const instagramValido =
-                    instagramUsername && /^[a-zA-Z0-9_.]+$/.test(instagramUsername);
-
-                  // Formatar especialidades para exibição
-                  const formatarEspecialidades = (especialidadesStr) => {
-                    if (!especialidadesStr) return [];
-                    try {
-                      const espArray = JSON.parse(especialidadesStr);
-                      return Array.isArray(espArray) ? espArray : [especialidadesStr];
-                    } catch {
-                      return [especialidadesStr];
-                    }
-                  };
-
-                  const especialidades = formatarEspecialidades(profissional.especialidades);
-
-                  return (
-                    <div className="card-profissional" key={profissional.id} role="listitem">
-                      <div className="prof-avatar" aria-hidden="true">
-                        {letra}
-                      </div>
-                      <h4>{profissional.nome || 'Profissional'}</h4>
-                      <p className="prof-crp">CRP: {profissional.crp}</p>
-                      <p className="prof-modalidade">{formatarModalidade(profissional.modalidade)}</p>
-
-                      {especialidades.length > 0 && (
-                        <div className="prof-especialidades" aria-label="Especialidades">
-                          {especialidades.slice(0, 3).map((esp, idx) => (
-                            <span key={idx} className="prof-especialidade-tag">
-                              {esp}
-                            </span>
-                          ))}
-                          {especialidades.length > 3 && (
-                            <span className="prof-especialidade-tag mais">+{especialidades.length - 3}</span>
-                          )}
-                        </div>
-                      )}
-
-                      {profissional.preco && (
-                        <div className="prof-preco" aria-label={`Preço da consulta: R$ ${profissional.preco.toFixed(2)}`}>
-                          <strong>Consulta:</strong> R$ {profissional.preco.toFixed(2)}
-                        </div>
-                      )}
-
-                      <div className="prof-contato">
-                        <p>
-                          <strong>E-mail:</strong> {profissional.contato || '–'}
-                        </p>
-                        <p>
-                          <strong>Telefone:</strong> {profissional.numero || '–'}
-                        </p>
-                      </div>
-                      {instagramValido && (
-                        <a
-                          href={`https://instagram.com/${instagramUsername}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="prof-btn-insta"
-                          aria-label={`Ver Instagram de ${profissional.nome}`}
-                        >
-                          Ver Instagram
-                        </a>
-                      )}
-                      <button
-                        className="btn-agendar-landing"
-                        onClick={handleAgendarClick}
-                        aria-label={`Agendar com ${profissional.nome}`}
-                      >
-                        Agendar
-                      </button>
+                return (
+                  <article key={profissional.id} className="catalogo-card" role="listitem">
+                    <div className="catalogo-avatar" aria-hidden="true">
+                      {getInicial(profissional.nome)}
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="catalogo-info">
+                      <div className="catalogo-header-card">
+                        <h3 className="catalogo-nome">{profissional.nome}</h3>
+                        {profissional.validado === false && (
+                          <span
+                            className="catalogo-badge-nao-validado"
+                            aria-label="Profissional não validado"
+                          >
+                            Não validado
+                          </span>
+                        )}
+                      </div>
+                      <span className="catalogo-crp">CRP: {profissional.crp}</span>
+                      <span className={`catalogo-modalidade tag-${classeTag}`}>
+                        {modalidadeFormatada}
+                      </span>
+                      <p className="catalogo-especialidades">
+                        <strong>Especialidades:</strong>{' '}
+                        {profissional.especialidades || 'Não informadas'}
+                      </p>
+                      <p className="catalogo-contato">
+                        <strong>E-mail:</strong> {profissional.contato}
+                      </p>
+                      <p className="catalogo-contato">
+                        <strong>Telefone:</strong> {profissional.numero}
+                      </p>
+                    </div>
+                    {instagramValido && (
+                      <a
+                        href={`https://instagram.com/${instagramUsername}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="catalogo-btn-insta"
+                        aria-label={`Ver Instagram de ${profissional.nome}`}
+                      >
+                        Ver Instagram
+                      </a>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
 
-              {/* Indicador de continuidade à direita */}
-              {profissionais.length > 5 && (
-                <div className="continuidade-lateral direita" aria-hidden="true">
-                  <span className="material-icons">chevron_right</span>
-                </div>
+            <div className="catalogo-cta">
+              {pacienteLogado ? (
+                <Link to="/painel" className="btn-primary">
+                  Ver todos os profissionais no painel
+                </Link>
+              ) : (
+                <Link to="/paciente" className="btn-primary">
+                  Faça login para ver detalhes e agendar
+                </Link>
               )}
             </div>
           </>
-        ) : (
-          <p className="sem-profissionais">Nenhum profissional validado disponível no momento.</p>
         )}
-        <div className="btn-container">
-          <button className="btn-dark" onClick={handleAgendarClick}>
-            {profissionais.length > 0
-              ? 'VER TODOS OS PROFISSIONAIS'
-              : 'CADASTRAR-SE COMO PROFISSIONAL'}
-          </button>
-        </div>
       </section>
 
       <section className="trust-section">
@@ -296,7 +283,7 @@ export default function LandingPage() {
           </div>
           <div className="trust-item">
             <span className="material-icons">favorite_border</span>
-            <span className="tlabel">Respeito à sua história</span>
+            <span className="tlabel">Respeito a sua história</span>
           </div>
         </div>
       </section>

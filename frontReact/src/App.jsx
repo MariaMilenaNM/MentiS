@@ -7,6 +7,7 @@ import Paciente from './pages/Paciente';
 import Painel from './pages/Painel';
 import Profissional from './pages/Profissional';
 import Horarios from './pages/Horarios';
+import TriageChat from './pages/TriageChat';
 
 function AppRoutes() {
   return (
@@ -17,6 +18,7 @@ function AppRoutes() {
       <Route path="/painel" element={<Painel />} />
       <Route path="/profissional" element={<Profissional />} />
       <Route path="/horarios" element={<Horarios />} />
+      <Route path="/triagem" element={<TriageChat />} />
     </Routes>
   );
 }

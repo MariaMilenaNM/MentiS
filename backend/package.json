@@ -10,7 +10,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "node --test"
+    "test": "node --test",
+    "rag:ingest": "node scripts/ingestPsychologists.js",
+    "rag:reindex": "node scripts/reindexPsychologists.js"
   },
   "keywords": [],
   "author": "",
