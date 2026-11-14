@@ -1,6 +1,16 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
 const URL_PROF = `${API_URL}/profissionais`;
 
+// Converter modalidade do formato legado para enum do backend
+const modalidadeLegacyToEnum = {
+  'Remota': 'ONLINE',
+  'Presencial': 'PRESENCIAL',
+  'Presencial e Remota': 'HIBRIDO',
+  'Online': 'ONLINE',
+  'Híbrido': 'HIBRIDO',
+  'Presencial e Online': 'HIBRIDO',
+};
+
 async function handleResponse(response) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -9,9 +19,21 @@ async function handleResponse(response) {
   return data;
 }
 
-export async function getProfissionais() {
+export async function getProfissionais(filters = {}) {
   try {
-    const res = await fetch(URL_PROF);
+    const params = new URLSearchParams();
+
+    if (filters.validado !== undefined) params.append('validado', filters.validado);
+    if (filters.modalidade) {
+      const modalidadeEnum = modalidadeLegacyToEnum[filters.modalidade] || filters.modalidade;
+      params.append('modalidade', modalidadeEnum);
+    }
+    if (filters.abordagem) params.append('abordagem', filters.abordagem);
+    if (filters.precoMax) params.append('precoMax', filters.precoMax);
+    if (filters.especialidade) params.append('especialidade', filters.especialidade);
+
+    const url = params.toString() ? `${URL_PROF}?${params.toString()}` : URL_PROF;
+    const res = await fetch(url);
     return await handleResponse(res);
   } catch (error) {
     console.error('Erro ao buscar profissionais:', error);

@@ -1,10 +1,10 @@
 # MentiS
 ## Assistente de Triagem com RAG
 ### Introdução
-O nosso objeto de estudo é a conexão entre pacientes e profissionais de saúde mental, onde o sistema tem como finalidade maior centralizar e organizar a oferta de serviços psicológicos, eliminando as barreiras de comunicação existentes entre quem busca atendimento e quem o oferece. Tendo em vista a fragmentação e a dificuldade de acesso a esses profissionais, o projeto MentiS. vem com o objetivo de criar uma plataforma unificada para o gerenciamento e a descoberta de profissionais de psicologia.
+O nosso objeto de estudo é a conexão entre pacientes e profissionais de saúde mental, onde o sistema tem como finalidade maior centralizar e organizar a oferta de serviços psicológicos, eliminando as barreiras de comunicação existentes entre quem busca atendimento e quem o oferece. Tendo em vista a fragmentação e a dificuldade de acesso a esses profissionais, o projeto MentiS. vem com o objetivo de criar uma plataforma unificada para o gerenciamento e a descoberta de profissionais de saúde mental.
 
 ### Escopo do MVP
-O Produto Mínimo Viável (MVP) tem como foco entregar um fluxo principal ponta a ponta: o paciente interage com um Assistente de Triagem Conversacional (RF16), recebe até 3 recomendações de psicólogos através de uma Busca Semântica baseada em RAG (RF15), visualiza os horários disponíveis e realiza o agendamento diretamente pelo chat.
+O Produto Mínimo Viável (MVP) tem como foco entregar um fluxo principal ponta a ponta: o paciente interage com um Assistente de Triagem Conversacional (RF16), recebe até 3 recomendações de profissionais através de uma Busca Semântica baseada em RAG (RF15), visualiza os horários disponíveis e realiza o agendamento diretamente pelo chat.
 Qualquer funcionalidade que não alimente esse fluxo foi simplificada ou removida.
 
 ### O que Fica no MVP (Núcleo)
@@ -42,10 +42,10 @@ Sprint 5: Correção de bugs do agente
 ### Maria Eduarda Neves
 Frente Principal: Pipeline RAG (ingestão, embeddings, retriever, avaliação)
 Sprint 0: MB-03 spike LLM/embeddings
-Sprint 0: MB-08 seed dos psicólogos
+Sprint 0: MB-08 seed dos profissionais
 Sprint 1: MB-12 ingestão + embeddings
 Sprint 2: MB-14 retriever + filtros
-Sprint 3: MB-18 tool buscarPsicologos
+Sprint 3: MB-18 tool buscarProfissionais
 Sprint 4: Ajuste fino do retriever pela avaliação
 Sprint 5: Slides da arquitetura RAG
 
@@ -60,12 +60,12 @@ Sprint 4: MB-21 testes de integração
 Sprint 5: Correção de bugs do backend
 
 ### Maria Milena
-Frente Principal: Frontend (chat, cards de psicólogo, vitrine)
+Frente Principal: Frontend (chat, cards de profissional, vitrine)
 Sprint 0: Layout base React e rotas
 Sprint 0: Telas de login
 Sprint 1: MB-11 vitrine
 Sprint 2: MB-16 tela de chat (mock)
-Sprint 3: Cards de psicólogo e horários no chat
+Sprint 3: Cards de profissional e horários no chat
 Sprint 4: MB-20 integração do chat
 Sprint 5: Responsividade e acessibilidade
 
@@ -73,7 +73,7 @@ Sprint 5: Responsividade e acessibilidade
 Frente Principal: Frontend de cadastros, QA e Documentação
 Sprint 0: MB-01 correção do documento
 Sprint 0: MB-06/07 telas de cadastro
-Sprint 1: Tela de agenda do psicólogo
+Sprint 1: Tela de agenda do profissional
 Sprint 2: MB-15 perguntas de avaliação
 Sprint 3: MB-19  testes
 Sprint 4: MB-21 roteiro de testes do chat

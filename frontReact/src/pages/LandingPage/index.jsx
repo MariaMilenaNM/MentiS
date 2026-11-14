@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { getProfissionais } from '../../services/crudProfissional.js';
 
 import logoBranca from '../../assets/LogoBranca.png';
 import imgConversa from '../../assets/ConversaPsicologo.png';
@@ -7,6 +9,47 @@ import imgCard2 from '../../assets/Card2.jpg';
 import imgCard3 from '../../assets/Card3.jpg';
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const [profissionais, setProfissionais] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    const carregarProfissionais = async () => {
+      try {
+        const dados = await getProfissionais();
+        // Filtrar apenas profissionais validados para a landing page
+        const validados = (dados || []).filter((p) => p.validado === true);
+        setProfissionais(validados);
+      } catch (error) {
+        console.error('Erro ao carregar profissionais:', error);
+        setProfissionais([]);
+      } finally {
+        setCarregando(false);
+      }
+    };
+
+    carregarProfissionais();
+  }, []);
+
+  const handleAgendarClick = () => {
+    // Verificar se há token no localStorage
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/painel');
+    } else {
+      navigate('/paciente');
+    }
+  };
+
+  const formatarModalidade = (modalidade) => {
+    if (!modalidade) return '';
+    const m = modalidade.toLowerCase();
+    if (m === 'online' || m === 'remota') return 'Online';
+    if (m === 'presencial') return 'Presencial';
+    if (m === 'hibrido' || m === 'presencial e remota') return 'Presencial e Online';
+    return modalidade;
+  };
+
   return (
     <>
       <header>
@@ -38,11 +81,11 @@ export default function LandingPage() {
           </h2>
           <p>
             Encontrar o profissional certo não precisa ser um desafio. Nossa plataforma une você a
-            psicólogos verificados de forma simples e segura. Navegue pelos perfis e cuide da sua
+            profissionais verificados de forma simples e segura. Navegue pelos perfis e cuide da sua
             saúde mental no seu ritmo.
           </p>
           <Link to="/profissional" className="btn-encontrar">
-            REGISTRE-SE COMO PSICÓLOGO
+            REGISTRE-SE COMO PROFISSIONAL
           </Link>
         </div>
         <div className="imagem-direita">
@@ -59,8 +102,8 @@ export default function LandingPage() {
             <div className="corpo">
               <h3>Profissional Certo</h3>
               <p>
-                Encontre o psicólogo ideal para o seu momento de vida, navegando por perfis focados
-                no que você realmente busca.
+                Encontre o profissional ideal para o seu momento de vida, navegando por perfis
+                focados no que você realmente busca.
               </p>
             </div>
           </div>
@@ -94,21 +137,150 @@ export default function LandingPage() {
       </section>
       <section className="profissionais">
         <h2>CONHEÇA OS PROFISSIONAIS</h2>
-        <div className="grade-profissionais">
-          <div className="card-profissional">
-            <div className="foto-placeholder"></div>
-            <h4>NOME</h4>
-            <p>ESPECIALIDADE(S)</p>
-            <div className="badges">
-              <span className="badge online">ONLINE</span>
-              <span className="badge presencial">PRESENCIAL</span>
+        {carregando ? (
+          <div className="grade-profissionais">
+            <div className="card-profissional loading">
+              <div className="foto-placeholder skeleton"></div>
+              <div className="skeleton-text"></div>
+              <div className="skeleton-text short"></div>
+              <div className="skeleton-badges">
+                <div className="skeleton-badge"></div>
+                <div className="skeleton-badge"></div>
+              </div>
+            </div>
+            <div className="card-profissional loading">
+              <div className="foto-placeholder skeleton"></div>
+              <div className="skeleton-text"></div>
+              <div className="skeleton-text short"></div>
+              <div className="skeleton-badges">
+                <div className="skeleton-badge"></div>
+                <div className="skeleton-badge"></div>
+              </div>
+            </div>
+            <div className="card-profissional loading">
+              <div className="foto-placeholder skeleton"></div>
+              <div className="skeleton-text"></div>
+              <div className="skeleton-text short"></div>
+              <div className="skeleton-badges">
+                <div className="skeleton-badge"></div>
+                <div className="skeleton-badge"></div>
+              </div>
             </div>
           </div>
-        </div>
+        ) : profissionais.length > 0 ? (
+          <>
+            <div className="profissionais-wrapper">
+              {/* Indicador de continuidade à esquerda */}
+              {profissionais.length > 5 && (
+                <div className="continuidade-lateral esquerda" aria-hidden="true">
+                  <span className="material-icons">chevron_left</span>
+                </div>
+              )}
+
+              <div className="grade-profissionais" role="list" aria-label="Profissionais validados">
+                {/* Mostrar até 5 profissionais centralizados */}
+                {profissionais.slice(0, 5).map((profissional) => {
+                  const letra = profissional.nome ? profissional.nome.charAt(0).toUpperCase() : '?';
+                  // Validar link do Instagram
+                  const instagramUsername = profissional.link
+                    ? profissional.link
+                        .replace(/^https?:\/\/(www\.)?instagram\.com\//, '')
+                        .replace('@', '')
+                        .split('/')[0]
+                        .split('?')[0] // Remover query parameters
+                    : '';
+                  const instagramValido =
+                    instagramUsername && /^[a-zA-Z0-9_.]+$/.test(instagramUsername);
+
+                  // Formatar especialidades para exibição
+                  const formatarEspecialidades = (especialidadesStr) => {
+                    if (!especialidadesStr) return [];
+                    try {
+                      const espArray = JSON.parse(especialidadesStr);
+                      return Array.isArray(espArray) ? espArray : [especialidadesStr];
+                    } catch {
+                      return [especialidadesStr];
+                    }
+                  };
+
+                  const especialidades = formatarEspecialidades(profissional.especialidades);
+
+                  return (
+                    <div className="card-profissional" key={profissional.id} role="listitem">
+                      <div className="prof-avatar" aria-hidden="true">
+                        {letra}
+                      </div>
+                      <h4>{profissional.nome || 'Profissional'}</h4>
+                      <p className="prof-crp">CRP: {profissional.crp}</p>
+                      <p className="prof-modalidade">{formatarModalidade(profissional.modalidade)}</p>
+
+                      {especialidades.length > 0 && (
+                        <div className="prof-especialidades" aria-label="Especialidades">
+                          {especialidades.slice(0, 3).map((esp, idx) => (
+                            <span key={idx} className="prof-especialidade-tag">
+                              {esp}
+                            </span>
+                          ))}
+                          {especialidades.length > 3 && (
+                            <span className="prof-especialidade-tag mais">+{especialidades.length - 3}</span>
+                          )}
+                        </div>
+                      )}
+
+                      {profissional.preco && (
+                        <div className="prof-preco" aria-label={`Preço da consulta: R$ ${profissional.preco.toFixed(2)}`}>
+                          <strong>Consulta:</strong> R$ {profissional.preco.toFixed(2)}
+                        </div>
+                      )}
+
+                      <div className="prof-contato">
+                        <p>
+                          <strong>E-mail:</strong> {profissional.contato || '–'}
+                        </p>
+                        <p>
+                          <strong>Telefone:</strong> {profissional.numero || '–'}
+                        </p>
+                      </div>
+                      {instagramValido && (
+                        <a
+                          href={`https://instagram.com/${instagramUsername}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="prof-btn-insta"
+                          aria-label={`Ver Instagram de ${profissional.nome}`}
+                        >
+                          Ver Instagram
+                        </a>
+                      )}
+                      <button
+                        className="btn-agendar-landing"
+                        onClick={handleAgendarClick}
+                        aria-label={`Agendar com ${profissional.nome}`}
+                      >
+                        Agendar
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Indicador de continuidade à direita */}
+              {profissionais.length > 5 && (
+                <div className="continuidade-lateral direita" aria-hidden="true">
+                  <span className="material-icons">chevron_right</span>
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <p className="sem-profissionais">Nenhum profissional validado disponível no momento.</p>
+        )}
         <div className="btn-container">
-          <a href="#" className="btn-dark">
-            PROCURE POR PROFISSIONAIS
-          </a>
+          <button className="btn-dark" onClick={handleAgendarClick}>
+            {profissionais.length > 0
+              ? 'VER TODOS OS PROFISSIONAIS'
+              : 'CADASTRAR-SE COMO PROFISSIONAL'}
+          </button>
         </div>
       </section>
 
@@ -141,7 +313,7 @@ export default function LandingPage() {
           <div className="faq-right">
             <details className="faq-item" name="faq">
               <summary className="faq-q">
-                <span>Como escolho o psicólogo ideal?</span>
+                <span>Como escolho o profissional ideal?</span>
                 <span className="material-icons seta-icone">expand_more</span>
               </summary>
               <div className="faq-a-content">

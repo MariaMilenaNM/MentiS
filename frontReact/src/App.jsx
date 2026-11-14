@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage';
 import Paciente from './pages/Paciente';
 import Painel from './pages/Painel';
 import Profissional from './pages/Profissional';
+import Horarios from './pages/Horarios';
 
 function AppRoutes() {
   return (
@@ -15,6 +16,7 @@ function AppRoutes() {
       <Route path="/paciente" element={<Paciente />} />
       <Route path="/painel" element={<Painel />} />
       <Route path="/profissional" element={<Profissional />} />
+      <Route path="/horarios" element={<Horarios />} />
     </Routes>
   );
 }

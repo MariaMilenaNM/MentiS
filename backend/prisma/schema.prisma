@@ -79,12 +79,16 @@ model Psicologo {
   id            Int        @id @default(autoincrement())
   usuarioId     Int        @unique
   crp           String     @unique // CRM/CRP como string (pode ter letras/UF)
+  nome          String?    // Nome do profissional (para exibição pública)
+  telefone      String?    // Telefone de contato
+  contato       String?    // Email de contato
+  link          String?    // Instagram / Site
   bio           String?
   especialidades String    // JSON stringificado: ["CBT", "Psicanálise"]
   abordagem     Abordagem  @default(OUTRA)
   preco         Float      // preço por sessão
   modalidade    Modalidade @default(ONLINE)
-  validado      Boolean    @default(false) // CRP validado manualmente
+  validado      Boolean    @default(true) // CRP validado manualmente (default true para permitir agendamento imediato)
   fotoUrl       String?
   criadoEm      DateTime   @default(now())
   atualizadoEm  DateTime   @updatedAt

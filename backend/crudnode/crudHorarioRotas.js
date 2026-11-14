@@ -1,8 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { horarioRepository } from '../repository/horarioRepository.js';
-import { psicologoRepository } from '../repository/psicologoRepository.js';
-import { validate, horarioCadastroSchema, horarioAtualizacaoSchema } from '../utils/validation.js';
+import { agendamentoRepository } from '../repository/agendamentoRepository.js';
 import { logger } from '../utils/logger.js';
 
 const routes = express.Router();
@@ -31,180 +30,112 @@ const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-// GET /horarios/psicologo/:psicologoId - Lista horários de um psicólogo
+// GET /horarios/profissional/:psicologoId - Lista horários disponíveis de um profissional para agendamento
+// Query params: dataInicio (ISO string), dataFim (ISO string) - opcionais
 routes.get(
-  '/psicologo/:psicologoId',
+  '/profissional/:psicologoId',
+  verificarToken,
   asyncHandler(async (req, res) => {
     const psicologoId = parseInt(req.params.psicologoId);
+    const { dataInicio, dataFim } = req.query;
 
     if (isNaN(psicologoId)) {
-      return res.status(400).json({ erro: 'ID do psicólogo inválido' });
+      return res.status(400).json({ erro: 'ID do profissional inválido' });
     }
 
     try {
+      // Buscar todos os horários ativos do profissional
       const horarios = await horarioRepository.findByPsicologoId(psicologoId);
-      return res.status(200).json(horarios);
+
+      if (!horarios || horarios.length === 0) {
+        return res.status(200).json([]);
+      }
+
+      // Definir range de datas para buscar agendamentos existentes
+      const inicio = dataInicio ? new Date(dataInicio) : new Date();
+      const fim = dataFim ? new Date(dataFim) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 dias por padrão
+
+      // Buscar agendamentos existentes no período para este profissional
+      const agendamentos = await agendamentoRepository.findAll({
+        psicologoId,
+        dataInicio: inicio.toISOString(),
+        dataFim: fim.toISOString(),
+      });
+
+      // Criar set de horários já ocupados (dataHora ISO string)
+      const horariosOcupados = new Set(
+        (agendamentos || [])
+          .filter(a => a.status !== 'CANCELADO_PACIENTE' && a.status !== 'CANCELADO_PSICOLOGO')
+          .map(a => new Date(a.dataHora).toISOString())
+      );
+
+      // Gerar slots disponíveis para os próximos 30 dias baseado nos horários recorrentes
+      const slotsDisponiveis = [];
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+
+      for (let d = 0; d < 30; d++) {
+        const dataAtual = new Date(hoje);
+        dataAtual.setDate(hoje.getDate() + d);
+
+        // Pular datas passadas
+        if (dataAtual < inicio) continue;
+        if (dataAtual > fim) continue;
+
+        const diaSemana = dataAtual.getDay(); // 0=Domingo ... 6=Sábado
+
+        // Filtrar horários deste dia da semana
+        const horariosDoDia = horarios.filter(h => h.diaSemana === diaSemana && h.ativo);
+
+        for (const horario of horariosDoDia) {
+          // Gerar slots de 50 min (duração padrão da sessão) dentro do intervalo
+          const inicioMin = timeToMinutes(horario.horaInicio);
+          const fimMin = timeToMinutes(horario.horaFim);
+          const duracaoSessao = 50; // minutos
+
+          for (let min = inicioMin; min + duracaoSessao <= fimMin; min += duracaoSessao) {
+            const horaSlot = minutesToTime(min);
+            const dataHoraSlot = new Date(dataAtual);
+            const [h, m] = horaSlot.split(':').map(Number);
+            dataHoraSlot.setHours(h, m, 0, 0);
+
+            const isoString = dataHoraSlot.toISOString();
+
+            // Verificar se não está no passado e não está ocupado
+            if (dataHoraSlot > new Date() && !horariosOcupados.has(isoString)) {
+              slotsDisponiveis.push({
+                dataHora: isoString,
+                data: dataAtual.toISOString().split('T')[0],
+                hora: horaSlot,
+                horarioId: horario.id,
+                diaSemana: diaSemana,
+              });
+            }
+          }
+        }
+      }
+
+      // Ordenar por data/hora
+      slotsDisponiveis.sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora));
+
+      return res.status(200).json(slotsDisponiveis);
     } catch (error) {
-      logger.error('Erro ao buscar horários', { psicologoId, error: error.message });
-      return res.status(500).json({ erro: 'Erro ao buscar horários' });
+      logger.error('Erro ao buscar horários disponíveis', { psicologoId, error: error.message });
+      return res.status(500).json({ erro: 'Erro ao buscar horários disponíveis' });
     }
   })
 );
 
-// GET /horarios/:id - Busca horário por ID
-routes.get(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const id = parseInt(req.params.id);
+// Funções auxiliares
+function timeToMinutes(time) {
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + m;
+}
 
-    if (isNaN(id)) {
-      return res.status(400).json({ erro: 'ID inválido' });
-    }
-
-    try {
-      const horario = await horarioRepository.findById(id);
-
-      if (!horario) {
-        return res.status(404).json({ erro: 'Horário não encontrado' });
-      }
-
-      return res.status(200).json(horario);
-    } catch (error) {
-      logger.error('Erro ao buscar horário', { id, error: error.message });
-      return res.status(500).json({ erro: 'Erro ao buscar horário' });
-    }
-  })
-);
-
-// POST /horarios - Cadastra horário (requer token, próprio psicólogo ou admin)
-routes.post(
-  '/',
-  verificarToken,
-  validate(horarioCadastroSchema),
-  asyncHandler(async (req, res) => {
-    const dados = req.body;
-
-    try {
-      // Verificar se o psicólogo existe
-      const psicologo = await psicologoRepository.findById(dados.psicologoId);
-      if (!psicologo) {
-        return res.status(404).json({ erro: 'Psicólogo não encontrado' });
-      }
-
-      // Verificação de posse: psicólogo só pode cadastrar seus próprios horários (ou admin)
-      if (req.usuario.role !== 'ADMIN' && psicologo.usuarioId !== req.usuario.id) {
-        return res
-          .status(403)
-          .json({ erro: 'Acesso negado: você só pode cadastrar horários para seu próprio perfil' });
-      }
-
-      const horario = await horarioRepository.create(dados);
-      logger.info('Horário cadastrado', { id: horario.id, psicologoId: horario.psicologoId });
-      return res.status(201).json(horario);
-    } catch (error) {
-      logger.error('Erro ao criar horário', { error: error.message });
-      if (error.message.includes('Horário já cadastrado')) {
-        return res.status(409).json({ erro: 'Horário já cadastrado para este psicólogo' });
-      }
-      return res.status(500).json({ erro: 'Erro ao criar horário' });
-    }
-  })
-);
-
-// PUT /horarios/:id - Atualiza horário (requer token, próprio psicólogo ou admin)
-routes.put(
-  '/:id',
-  verificarToken,
-  validate(horarioAtualizacaoSchema),
-  asyncHandler(async (req, res) => {
-    const id = parseInt(req.params.id);
-    const dados = req.body;
-
-    if (isNaN(id)) {
-      return res.status(400).json({ erro: 'ID inválido' });
-    }
-
-    try {
-      const horario = await horarioRepository.findById(id);
-
-      if (!horario) {
-        return res.status(404).json({ erro: 'Horário não encontrado' });
-      }
-
-      const psicologo = await psicologoRepository.findById(horario.psicologoId);
-
-      // Verificação de posse
-      if (req.usuario.role !== 'ADMIN' && psicologo.usuarioId !== req.usuario.id) {
-        return res
-          .status(403)
-          .json({ erro: 'Acesso negado: você só pode atualizar seus próprios horários' });
-      }
-
-      const horarioAtualizado = await horarioRepository.update(id, dados);
-      logger.info('Horário atualizado', { id });
-      return res.status(200).json(horarioAtualizado);
-    } catch (error) {
-      logger.error('Erro ao atualizar horário', { id, error: error.message });
-      if (error.message.includes('Horário já cadastrado')) {
-        return res.status(409).json({ erro: 'Horário já cadastrado para este psicólogo' });
-      }
-      if (error.message.includes('não encontrado')) {
-        return res.status(404).json({ erro: error.message });
-      }
-      return res.status(500).json({ erro: 'Erro ao atualizar horário' });
-    }
-  })
-);
-
-// DELETE /horarios/:id - Remove horário (requer token, próprio psicólogo ou admin)
-routes.delete(
-  '/:id',
-  verificarToken,
-  asyncHandler(async (req, res) => {
-    const id = parseInt(req.params.id);
-
-    if (isNaN(id)) {
-      return res.status(400).json({ erro: 'ID inválido' });
-    }
-
-    try {
-      const horario = await horarioRepository.findById(id);
-
-      if (!horario) {
-        return res.status(404).json({ erro: 'Horário não encontrado' });
-      }
-
-      const psicologo = await psicologoRepository.findById(horario.psicologoId);
-
-      // Verificação de posse
-      if (req.usuario.role !== 'ADMIN' && psicologo.usuarioId !== req.usuario.id) {
-        return res
-          .status(403)
-          .json({ erro: 'Acesso negado: você só pode remover seus próprios horários' });
-      }
-
-      await horarioRepository.delete(id);
-      logger.info('Horário removido', { id });
-      return res.status(200).json({ status: 'removido', mensagem: 'Horário removido com sucesso' });
-    } catch (error) {
-      logger.error('Erro ao deletar horário', { id, error: error.message });
-      if (error.message.includes('não encontrado')) {
-        return res.status(404).json({ erro: error.message });
-      }
-      return res.status(500).json({ erro: 'Erro ao deletar horário' });
-    }
-  })
-);
-
-// Middleware de erro global
-routes.use((err, req, res, next) => {
-  logger.error('Erro não tratado na rota de horários', {
-    error: err.message,
-    stack: err.stack,
-    path: req.path,
-    method: req.method,
-  });
-  return res.status(500).json({ erro: 'Erro interno do servidor' });
-});
+function minutesToTime(minutes) {
+  const h = Math.floor(minutes / 60).toString().padStart(2, '0');
+  const m = (minutes % 60).toString().padStart(2, '0');
+  return `${h}:${m}`;
+}
 
 export default routes;

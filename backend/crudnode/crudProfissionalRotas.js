@@ -13,6 +13,10 @@ import { logger } from '../utils/logger.js';
 const routes = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
+// ============================================
+// Middlewares
+// ============================================
+
 const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
@@ -224,6 +228,10 @@ routes.delete(
       return res.status(400).json({ erro: 'ID inválido' });
     }
 
+    if (req.usuario.role !== "ADMIN") {
+        return res.status(403).json({ erro: "Acesso negado: apenas administradores podem remover profissionais" });
+    }
+
     try {
       await psicologoRepository.delete(id);
       logger.info('Profissional removido (compat)', { id });
@@ -240,7 +248,9 @@ routes.delete(
   })
 );
 
+// ============================================
 // Middleware de erro global
+// ============================================
 routes.use((err, req, res, next) => {
   logger.error('Erro não tratado na rota de profissionais (compat)', {
     error: err.message,

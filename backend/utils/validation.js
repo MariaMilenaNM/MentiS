@@ -104,6 +104,10 @@ export const psicologoAtualizacaoSchema = z
     message: 'Pelo menos um campo deve ser fornecido para atualização',
   });
 
+// Aliases para terminologia unificada "profissional"
+export const profissionalCadastroSchema = psicologoCadastroSchema;
+export const profissionalAtualizacaoSchema = psicologoAtualizacaoSchema;
+
 // Schema de compatibilidade para rota /profissionais (formato antigo do frontend)
 export const profissionalCompatCadastroSchema = z.object({
   nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100),

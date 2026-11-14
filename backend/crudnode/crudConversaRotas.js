@@ -125,7 +125,7 @@ routes.post(
         if (!psicologo || psicologo.id !== psicologoId) {
           return res
             .status(403)
-            .json({ erro: 'Acesso negado: você só pode iniciar conversas como psicólogo' });
+            .json({ erro: 'Acesso negado: você só pode iniciar conversas como profissional' });
         }
       }
       // ADMIN pode criar qualquer conversa
@@ -138,7 +138,7 @@ routes.post(
 
       const psicologo = await psicologoRepository.findById(psicologoId);
       if (!psicologo) {
-        return res.status(404).json({ erro: 'Psicólogo não encontrado' });
+        return res.status(404).json({ erro: 'Profissional não encontrado' });
       }
 
       // Buscar ou criar conversa

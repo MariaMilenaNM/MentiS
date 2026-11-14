@@ -47,8 +47,8 @@ describe('usePainel', () => {
         estado: 'SP',
       };
       const mockProfissionais = [
-        { id: 1, nome: 'Psicólogo 1', crp: 12345, modalidade: 'Presencial' },
-        { id: 2, nome: 'Psicólogo 2', crp: 54321, modalidade: 'Remota' },
+        { id: 1, nome: 'Profissional 1', crp: 12345, modalidade: 'Presencial' },
+        { id: 2, nome: 'Profissional 2', crp: 54321, modalidade: 'Remota' },
       ];
       buscarPacientePorId.mockResolvedValue(mockPaciente);
       getProfissionais.mockResolvedValue(mockProfissionais);
@@ -57,7 +57,7 @@ describe('usePainel', () => {
         expect(result.current.pacienteLogado).toEqual(mockPaciente);
       });
       await waitFor(() => {
-        expect(result.current.todosPsicologos).toEqual(mockProfissionais);
+        expect(result.current.todosProfissionais).toEqual(mockProfissionais);
       });
     });
     it('deve fazer logout se token expirado', async () => {
@@ -204,7 +204,7 @@ describe('usePainel', () => {
       };
       const mockProfissionais = Array.from({ length: 15 }, (_, i) => ({
         id: i + 1,
-        nome: `Psicólogo ${i + 1}`,
+        nome: `Profissional ${i + 1}`,
         crp: 10000 + i,
         modalidade: 'Presencial',
       }));
@@ -212,18 +212,18 @@ describe('usePainel', () => {
       getProfissionais.mockResolvedValue(mockProfissionais);
       const { result } = renderHook(() => usePainel());
       await waitFor(() => {
-        expect(result.current.todosPsicologos).toHaveLength(15);
+        expect(result.current.todosProfissionais).toHaveLength(15);
       });
-      expect(result.current.psicologosPagina).toHaveLength(6);
+      expect(result.current.profissionaisPagina).toHaveLength(6);
       expect(result.current.totalPaginas).toBe(3);
       act(() => {
         result.current.setPaginaAtual(2);
       });
-      expect(result.current.psicologosPagina).toHaveLength(6);
+      expect(result.current.profissionaisPagina).toHaveLength(6);
       act(() => {
         result.current.setPaginaAtual(3);
       });
-      expect(result.current.psicologosPagina).toHaveLength(3);
+      expect(result.current.profissionaisPagina).toHaveLength(3);
     });
   });
 });

@@ -47,20 +47,31 @@ export const agendamentoRepository = {
 
   create: async (data) => {
     try {
-      // Verificar se o horário está disponível
-      const agendamentoExistente = await prisma.agendamento.findFirst({
-        where: {
-          psicologoId: data.psicologoId,
-          dataHora: new Date(data.dataHora),
-          status: { in: ['AGENDADO', 'CONFIRMADO'] },
-        },
+      // Usar transação para garantir atomicidade (evita race conditions)
+      return await prisma.$transaction(async (tx) => {
+        // Verificar se o horário está disponível dentro da transação
+        const agendamentoExistente = await tx.agendamento.findFirst({
+          where: {
+            psicologoId: data.psicologoId,
+            dataHora: new Date(data.dataHora),
+            status: { in: ['AGENDADO', 'CONFIRMADO'] },
+          },
+        });
+
+        if (agendamentoExistente) {
+          throw new Error('Horário já agendado para este psicólogo');
+        }
+
+        // Se horárioId fornecido, marcar horário como inativo (opcional)
+        if (data.horarioId) {
+          await tx.horarioDisponivel.update({
+            where: { id: data.horarioId },
+            data: { ativo: false },
+          });
+        }
+
+        return await tx.agendamento.create({ data });
       });
-
-      if (agendamentoExistente) {
-        throw new Error('Horário já agendado para este psicólogo');
-      }
-
-      return await prisma.agendamento.create({ data });
     } catch (error) {
       throw new Error(`Erro ao criar agendamento: ${error.message}`);
     }
