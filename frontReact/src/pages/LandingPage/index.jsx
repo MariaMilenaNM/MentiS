@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getProfissionais } from '../../services/crudProfissional.js';
 import { getPacienteLogado } from '../../services/crudPaciente.js';
+import TriageChatWidget from '../../components/TriageChatWidget';
 
 import logoBranca from '../../assets/LogoBranca.png';
 import imgConversa from '../../assets/ConversaPsicologo.png';
@@ -281,7 +282,7 @@ export default function LandingPage() {
             <span className="material-icons icon-large">help_outline</span>
             <div className="faq-title-block">
               <div className="t1">FAQ</div>
-              <div className="t2">Duvidas Frequentes</div>
+              <div className="t2">Dúvidas Frequentes</div>
             </div>
           </div>
           <div className="faq-right">
@@ -293,7 +294,7 @@ export default function LandingPage() {
               <div className="faq-a-content">
                 <p className="faq-a">
                   Use os filtros de especialidade, modalidade de atendimento e disponibilidade para
-                  encontrar o melhor profissional para voce.
+                  encontrar o melhor profissional para você.
                 </p>
               </div>
             </details>
@@ -305,8 +306,8 @@ export default function LandingPage() {
               </summary>
               <div className="faq-a-content">
                 <p className="faq-a">
-                  Apos escolher o profissional, voce e direcionado diretamente para o contato dele.
-                  O agendamento e feito sem intermediarios, de forma simples e rapida.
+                  Após escolher o profissional, você é direcionado diretamente para o contato dele.
+                  O agendamento é feito sem intermediários, de forma simples e rápida.
                 </p>
               </div>
             </details>
@@ -318,15 +319,17 @@ export default function LandingPage() {
               </summary>
               <div className="faq-a-content">
                 <p className="faq-a">
-                  Cada perfil exibe as especialidades do profissional. Voce pode filtrar por area de
-                  atuacao diretamente na busca para encontrar quem atende sua necessidade
-                  especifica.
+                  Cada perfil exibe as especialidades do profissional. Você pode filtrar por área de
+                  atuação diretamente na busca para encontrar quem atende sua necessidade
+                  específica.
                 </p>
               </div>
             </details>
           </div>
         </div>
       </section>
+
+      <TriageChatWidget />
 
       <footer>
         <a href="#" className="logo-footer">
