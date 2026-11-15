@@ -1,5 +1,4 @@
 /**
-<<<<<<< HEAD
  * HNSWLib VectorStore Singleton para RAG
  * Armazena documentos dos psicólogos validados em memória com embeddings
  * Usa HNSWLib (Hierarchical Navigable Small World) para busca vetorial eficiente
@@ -130,59 +129,11 @@ export async function saveVectorStore() {
     logger.info('VectorStore salvo no disco', { path: STORE_PATH });
   } catch (error) {
     logger.error('Erro ao salvar VectorStore', { error: error.message });
-=======
- * Abstração do Vector Store usando MemoryVectorStore do LangChain (desenvolvimento local).
- * Em produção, migrar para Chroma server ou Qdrant.
- */
-
-import { MemoryVectorStore } from 'langchain/vectorstores/memory';
-import { OllamaEmbeddings } from '@langchain/ollama';
-import { logger } from '../utils/logger.js';
-import { RAG_CONSTANTS } from './utils/constants.js';
-
-let vectorStoreInstance = null;
-let embeddingsInstance = null;
-
-/**
- * Inicializa (ou retorna instância existente) do MemoryVectorStore com embeddings Ollama
- */
-export async function getVectorStore() {
-  if (vectorStoreInstance) {
-    return vectorStoreInstance;
-  }
-
-  try {
-    // Inicializa embeddings Ollama
-    embeddingsInstance = new OllamaEmbeddings({
-      baseUrl: RAG_CONSTANTS.OLLAMA.BASE_URL,
-      model: RAG_CONSTANTS.OLLAMA.EMBEDDING_MODEL,
-    });
-
-    // Testa conexão com Ollama
-    await embeddingsInstance.embedQuery('teste de conexão');
-    logger.info('Conexão com Ollama embeddings estabelecida', {
-      model: RAG_CONSTANTS.OLLAMA.EMBEDDING_MODEL,
-      baseUrl: RAG_CONSTANTS.OLLAMA.BASE_URL,
-    });
-
-    // Cria MemoryVectorStore vazio (documentos serão adicionados via indexer)
-    vectorStoreInstance = new MemoryVectorStore(embeddingsInstance);
-
-    logger.info('MemoryVectorStore inicializado com sucesso');
-    return vectorStoreInstance;
-  } catch (error) {
-    logger.error('Erro ao inicializar Vector Store', {
-      error: error.message,
-      stack: error.stack,
-    });
-    throw new Error(`Falha ao inicializar Vector Store: ${error.message}`);
->>>>>>> RAG
   }
 }
 
 /**
  * Adiciona documentos ao vector store
-<<<<<<< HEAD
  * @param {Array<{pageContent: string, metadata: Object}>} documents - Documentos no formato LangChain
  * @returns {Promise<void>}
  */
@@ -206,35 +157,12 @@ export async function addDocuments(documents) {
     logger.info(`Adicionados ${documents.length} documentos ao VectorStore`);
   } catch (error) {
     logger.error('Erro ao adicionar documentos ao VectorStore', { error: error.message });
-=======
- * @param {Array<{pageContent: string, metadata: Object}>} documents - Documentos para indexar
- */
-export async function addDocuments(documents) {
-  const store = await getVectorStore();
-
-  if (!documents || documents.length === 0) {
-    logger.warn('addDocuments: nenhum documento fornecido');
-    return;
-  }
-
-  try {
-    await store.addDocuments(documents);
-    logger.info('Documentos adicionados ao Vector Store', {
-      count: documents.length,
-    });
-  } catch (error) {
-    logger.error('Erro ao adicionar documentos ao Vector Store', {
-      error: error.message,
-      count: documents.length,
-    });
->>>>>>> RAG
     throw error;
   }
 }
 
 /**
  * Busca por similaridade no vector store
-<<<<<<< HEAD
  * @param {string} query - Texto da busca
  * @param {number} k - Número de resultados (padrão: 5)
  * @param {Object} filter - Filtro de metadados (aplicado em JS pós-busca, HNSWLib filter crasha)
@@ -252,7 +180,7 @@ export async function similaritySearch(query, k = 5, filter = {}) {
     // Obter contagem real de documentos válidos
     const stats = getStats();
     const validCount = stats.documentCount;
-    const safeK = Math.min(k, Math.max(1, validCount));
+    const safeK = Math.min(k * 3, Math.max(1, validCount)); // Buscar 3x para compensar filtros
 
     if (validCount === 0) {
       return [];
@@ -262,7 +190,7 @@ export async function similaritySearch(query, k = 5, filter = {}) {
     // Filtrar em JavaScript após a busca
     const results = await instance.similaritySearchWithScore(query, safeK);
     // Filtrar documento dummy (psicologoId: -1) e aplicar filtros manuais
-    return results
+    const filtered = results
       .filter(([doc]) => doc.metadata?.psicologoId !== -1)
       .filter(([doc]) => {
         // Aplicar filtros manuais
@@ -271,37 +199,11 @@ export async function similaritySearch(query, k = 5, filter = {}) {
         }
         return true;
       })
-      .map(([doc, score]) => ({
-        pageContent: doc.pageContent,
-        metadata: doc.metadata,
-        score: 1 - score, // Converter distância para similaridade (0-1)
-      }));
-  } catch (error) {
-    logger.error('Erro na busca por similaridade', { error: error.message, query });
-=======
- * @param {string} query - Query de busca
- * @param {number} k - Número de resultados
- * @param {Object} filter - Filtro de metadados (opcional)
- * @returns {Array<{pageContent: string, metadata: Object, score: number}>}
- */
-export async function similaritySearch(query, k = 10, filter = {}) {
-  const store = await getVectorStore();
-
-  try {
-    // MemoryVectorStore não suporta filtro nativo, filtramos após a busca
-    const results = await store.similaritySearchWithScore(query, k * 3); // Busca mais para compensar filtro manual
-
-    let filtered = results
-      .filter(([doc]) => {
-        if (Object.keys(filter).length === 0) return true;
-        return Object.entries(filter).every(([key, value]) => doc.metadata[key] === value);
-      })
       .slice(0, k)
       .map(([doc, score]) => ({
         pageContent: doc.pageContent,
         metadata: doc.metadata,
-        // Converter distance para similarity (0-1, onde 1 = mais similar)
-        similarity: 1 - Math.min(score, 1),
+        score: 1 - score, // Converter distância para similaridade (0-1)
       }));
 
     logger.debug('Busca por similaridade realizada', {
@@ -312,17 +214,12 @@ export async function similaritySearch(query, k = 10, filter = {}) {
 
     return filtered;
   } catch (error) {
-    logger.error('Erro na busca por similaridade', {
-      error: error.message,
-      query: query.substring(0, 100),
-    });
->>>>>>> RAG
+    logger.error('Erro na busca por similaridade', { error: error.message, query });
     throw error;
   }
 }
 
 /**
-<<<<<<< HEAD
  * Busca por similaridade com score bruto
  * @param {string} query
  * @param {number} k
@@ -338,7 +235,7 @@ export async function similaritySearchWithScore(query, k = 5, filter = {}) {
     // HNSWLib falha se k > número de elementos no índice
     const stats = getStats();
     const validCount = stats.documentCount;
-    const safeK = Math.min(k, Math.max(1, validCount));
+    const safeK = Math.min(k * 3, Math.max(1, validCount)); // Buscar 3x para compensar filtros
 
     if (validCount === 0) {
       return [];
@@ -356,35 +253,15 @@ export async function similaritySearchWithScore(query, k = 5, filter = {}) {
           if (doc.metadata[key] !== value) return false;
         }
         return true;
-      });
+      })
+      .slice(0, k);
   } catch (error) {
     logger.error('Erro na busca por similaridade com score', { error: error.message, query });
-=======
- * Busca por similaridade com score bruto (para debug/rerank)
- * @param {string} query
- * @param {number} k
- * @returns {Array<{pageContent: string, metadata: Object, score: number}>}
- */
-export async function similaritySearchWithScore(query, k = 10) {
-  const store = await getVectorStore();
-
-  try {
-    const results = await store.similaritySearchWithScore(query, k);
-    return results.map(([doc, score]) => ({
-      pageContent: doc.pageContent,
-      metadata: doc.metadata,
-      score, // distance score (menor = mais similar)
-      similarity: 1 - Math.min(score, 1),
-    }));
-  } catch (error) {
-    logger.error('Erro na busca com score', { error: error.message });
->>>>>>> RAG
     throw error;
   }
 }
 
 /**
-<<<<<<< HEAD
  * Obtém estatísticas do vector store
  * @returns {Object} Estatísticas
  */
@@ -489,57 +366,3 @@ export async function resetVectorStore() {
   await initializeVectorStore();
   logger.info('VectorStore resetado');
 }
-=======
- * Limpa o vector store (recria instância vazia)
- */
-export async function clearVectorStore() {
-  vectorStoreInstance = null;
-  embeddingsInstance = null;
-  logger.info('Vector Store limpo - próxima chamada recriará instância');
-}
-
-/**
- * Retorna estatísticas do vector store
- */
-export async function getVectorStoreStats() {
-  const store = await getVectorStore();
-  // MemoryVectorStore não expõe count diretamente, estimativa via busca ampla
-  try {
-    const all = await store.similaritySearchWithScore('', 1000);
-    return {
-      documentCount: all.length,
-      type: 'MemoryVectorStore',
-      embeddingModel: RAG_CONSTANTS.OLLAMA.EMBEDDING_MODEL,
-    };
-  } catch {
-    return {
-      documentCount: 0,
-      type: 'MemoryVectorStore',
-      embeddingModel: RAG_CONSTANTS.OLLAMA.EMBEDDING_MODEL,
-    };
-  }
-}
-
-/**
- * Verifica se o vector store está saudável (consegue fazer embedding)
- */
-export async function healthCheck() {
-  try {
-    const store = await getVectorStore();
-    await store.similaritySearchWithScore('health check', 1);
-    return { status: 'healthy', type: 'MemoryVectorStore' };
-  } catch (error) {
-    return { status: 'unhealthy', error: error.message };
-  }
-}
-
-export default {
-  getVectorStore,
-  addDocuments,
-  similaritySearch,
-  similaritySearchWithScore,
-  clearVectorStore,
-  getVectorStoreStats,
-  healthCheck,
-};
->>>>>>> RAG

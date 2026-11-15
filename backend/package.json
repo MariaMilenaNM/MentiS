@@ -12,7 +12,8 @@
     "format:check": "prettier --check .",
     "test": "node --test",
     "rag:ingest": "node scripts/ingestPsychologists.js",
-    "rag:reindex": "node scripts/reindexPsychologists.js"
+    "rag:reindex": "node scripts/reindexPsychologists.js",
+    "rag:evaluate": "node rag/evaluation/runEvaluation.js"
   },
   "keywords": [],
   "author": "",

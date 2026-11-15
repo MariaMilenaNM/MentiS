@@ -37,3 +37,17 @@ export {
   advancedSearch,
   getSearchSuggestions,
 } from './search.js';
+
+// Retriever (nova interface de alto nível com top-k e filtros)
+export {
+  retrieve,
+  retrieveWithScore,
+  retrieveByEspecialidade,
+  retrieveByModalidade,
+  retrieveByLocation,
+  retrieveByPrice,
+  advancedRetrieve,
+  getRetrieverStats,
+  healthCheck,
+  RETRIEVER_DEFAULTS,
+} from './retriever.js';
