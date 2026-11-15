@@ -1,6 +1,7 @@
 /**
  * Componente de mensagem do chat de triagem.
  * Suporta mensagens do usuário, assistente, matches de profissionais e ações.
+ * Compatível com formato do backend RAG (matches.profissional) e formato legado.
  */
 
 import './TriageChatMessage.css';
@@ -16,7 +17,7 @@ function TriageChatMessage({ message, onLoginClick, onNewSearch }) {
 
   const formatModalidade = (modalidade) => {
     if (!modalidade) return 'Não informado';
-    if (modalidade === 'Presencial e Remota') return 'Híbrido';
+    if (modalidade === 'Presencial e Remota' || modalidade === 'HIBRIDO') return 'Híbrido';
     return modalidade;
   };
 
@@ -27,6 +28,22 @@ function TriageChatMessage({ message, onLoginClick, onNewSearch }) {
   };
 
   const getInicial = (nome) => (nome ? nome.charAt(0).toUpperCase() : '?');
+
+  // Normaliza match para acessar campos tanto do formato backend (profissional) quanto legado
+  const getProfField = (prof, field) => {
+    // Backend RAG retorna { profissional: { nome, crp, ... }, score, matchReasons }
+    // Formato legado retorna { nome, crp, matchScore, ... }
+    if (prof.profissional && prof.profissional[field] !== undefined) {
+      return prof.profissional[field];
+    }
+    return prof[field];
+  };
+
+  const getEspecialidades = (prof) => {
+    const esp = getProfField(prof, 'especialidades');
+    if (Array.isArray(esp)) return esp.join(', ');
+    return esp || 'Não informadas';
+  };
 
   return (
     <div className={`triage-message ${isUser ? 'user' : 'assistant'}`}>
@@ -49,40 +66,54 @@ function TriageChatMessage({ message, onLoginClick, onNewSearch }) {
 
             <div className="matches-list">
               {matches.map((prof) => (
-                <article key={prof.id} className="match-card">
+                <article
+                  key={prof.profissionalId || prof.id || prof.profissional?.id}
+                  className="match-card"
+                >
                   <div className="match-avatar" aria-hidden="true">
-                    {getInicial(prof.nome)}
+                    {getInicial(getProfField(prof, 'nome'))}
                   </div>
                   <div className="match-info">
                     <div className="match-header">
-                      <h4 className="match-nome">{prof.nome}</h4>
-                      {prof.validado === false && (
+                      <h4 className="match-nome">{getProfField(prof, 'nome')}</h4>
+                      {getProfField(prof, 'validado') === false && (
                         <span className="match-badge-nao-validado">Não validado</span>
                       )}
                     </div>
-                    <span className="match-crp">CRP: {prof.crp}</span>
+                    <span className="match-crp">CRP: {getProfField(prof, 'crp')}</span>
                     <div className="match-meta">
-                      <span className={`match-modalidade ${getModalidadeClass(prof.modalidade)}`}>
-                        {formatModalidade(prof.modalidade)}
+                      <span
+                        className={`match-modalidade ${getModalidadeClass(getProfField(prof, 'modalidade'))}`}
+                      >
+                        {formatModalidade(getProfField(prof, 'modalidade'))}
                       </span>
-                      {prof.abordagem && (
-                        <span className="match-abordagem">{prof.abordagem.replace('_', ' ')}</span>
+                      {getProfField(prof, 'abordagem') && (
+                        <span className="match-abordagem">
+                          {getProfField(prof, 'abordagem').replace('_', ' ')}
+                        </span>
                       )}
                     </div>
                     <p className="match-especialidades">
-                      <strong>Especialidades:</strong> {prof.especialidades || 'Não informadas'}
+                      <strong>Especialidades:</strong> {getEspecialidades(prof)}
                     </p>
+                    {/* Mostra contatos apenas se logado (action !== 'require_login') */}
                     {action !== 'require_login' && (
                       <div className="match-contato">
                         <p>
-                          <strong>E-mail:</strong> {prof.contato}
+                          <strong>E-mail:</strong>{' '}
+                          {getProfField(prof, 'contato') ||
+                            getProfField(prof, 'email') ||
+                            'Disponível no painel'}
                         </p>
                         <p>
-                          <strong>Telefone:</strong> {prof.numero}
+                          <strong>Telefone:</strong>{' '}
+                          {getProfField(prof, 'numero') ||
+                            getProfField(prof, 'telefone') ||
+                            'Disponível no painel'}
                         </p>
-                        {prof.link && (
+                        {getProfField(prof, 'link') && (
                           <a
-                            href={prof.link}
+                            href={getProfField(prof, 'link')}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="match-instagram"
@@ -94,7 +125,11 @@ function TriageChatMessage({ message, onLoginClick, onNewSearch }) {
                     )}
                   </div>
                   <div className="match-score">
-                    <span className="score-value">{prof.matchScore || 0} pts</span>
+                    <span className="score-value">
+                      {prof.score !== undefined
+                        ? `${(prof.score * 100).toFixed(0)}%`
+                        : `${prof.matchScore || 0} pts`}
+                    </span>
                   </div>
                 </article>
               ))}
@@ -125,8 +160,8 @@ function TriageChatMessage({ message, onLoginClick, onNewSearch }) {
           </div>
         )}
 
-        {/* Features detectadas (para debug/transparência) */}
-        {features && features.palavrasChave.length > 0 && (
+        {/* Features detectadas (para debug/transparência) - apenas formato legado */}
+        {features && features.palavrasChave && features.palavrasChave.length > 0 && (
           <div className="detected-features">
             <span className="features-label">Detectado:</span>
             <div className="features-chips">
