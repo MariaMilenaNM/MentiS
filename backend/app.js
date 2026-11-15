@@ -11,6 +11,8 @@ import crudHorario from './crudnode/crudHorarioRotas.js';
 import crudAgendamento from './crudnode/crudAgendamentoRotas.js';
 import crudConversa from './crudnode/crudConversaRotas.js';
 import authRoutes from './crudnode/authRotas.js';
+import crudTriage from './crudnode/crudTriageRotas.js';
+import { indexValidatedPsychologists } from './rag/indexer.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -89,11 +91,31 @@ app.use('/horarios', crudHorario);
 app.use('/agendamentos', agendamentoLimiter, crudAgendamento);
 app.use('/conversas', chatLimiter, crudConversa);
 
+// Rota de triagem/RAG
+app.use('/triage', chatLimiter, crudTriage);
+
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.listen(PORT, () => {
+// Inicializa RAG indexer na inicialização do servidor (non-blocking)
+async function initializeRAG() {
+  try {
+    logger.info('Inicializando indexador RAG...');
+    const result = await indexValidatedPsychologists({ clearFirst: true });
+    logger.info('Indexador RAG concluído', result);
+  } catch (error) {
+    logger.error('Erro ao inicializar indexador RAG', { error: error.message });
+    // Não falha o servidor se indexação falhar
+  }
+}
+
+// Inicia servidor
+const server = app.listen(PORT, async () => {
   logger.info(`Servidor rodando na porta ${PORT}`);
+  // Inicializa RAG em background após servidor estar pronto
+  initializeRAG();
 });
+
+export default server;
