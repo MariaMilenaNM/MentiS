@@ -439,9 +439,6 @@ nav a:hover {
 
 /* -- BARRA DE CONFIANÇA -- */
 .trust-section {
-
-/* -- BARRA DE CONFIANÇA -- */
-.trust-section {
   background-color: var(--gray-blue);
   padding: 40px 0;
 }
@@ -468,7 +465,7 @@ nav a:hover {
 
 /* --- FAQ --- */
 .faq-section {
-  padding: 80px;
+  padding: 60px 80px;
   background-color: var(--white);
 }
 
@@ -476,14 +473,15 @@ nav a:hover {
   display: flex;
   max-width: 1000px;
   margin: 0 auto;
-  gap: 80px;
+  gap: 48px;
 }
 
 .faq-left {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  width: 30%;
+  width: 25%;
+  flex-shrink: 0;
 }
 
 .icon-large {
@@ -504,28 +502,31 @@ nav a:hover {
 }
 
 .faq-right {
-  width: 70%;
+  width: 75%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .faq-item {
   border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 16px;
 }
 
 .faq-q {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 12px;
+  padding: 16px 0;
   cursor: pointer;
   font-size: 15px;
   font-weight: 400;
   color: var(--dark-blue);
-  background-color: #f3f1f1;
   list-style: none;
+  transition: color 0.2s;
+}
+
+.faq-q:hover {
+  color: var(--light-blue);
 }
 
 .faq-q::-webkit-details-marker {
@@ -534,6 +535,7 @@ nav a:hover {
 
 .seta-icone {
   transition: transform 0.3s ease;
+  color: var(--gray-blue);
 }
 
 details[open] .seta-icone {
@@ -555,7 +557,7 @@ details[open] .faq-a-content {
   font-size: 14px;
   color: var(--gray-blue);
   line-height: 1.6;
-  padding-bottom: 16px;
+  padding: 0 0 16px 0;
 }
 
 /* -- FOOTER -- */
