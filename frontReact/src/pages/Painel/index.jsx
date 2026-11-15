@@ -1,6 +1,7 @@
 import { usePainel } from '../../hooks/usePainel';
 import { useState, useMemo } from 'react';
 import '../../styles/painel.css';
+import TriageChatWidget from '../../components/TriageChatWidget';
 
 export default function Painel() {
   const {
@@ -606,6 +607,8 @@ export default function Painel() {
           </div>
         )}
       </main>
+
+      <TriageChatWidget />
     </div>
   );
 }

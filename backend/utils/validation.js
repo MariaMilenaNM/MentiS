@@ -250,6 +250,16 @@ export const mensagemCadastroSchema = z.object({
 });
 
 // ============================================
+// TRIAGE SCHEMAS
+// ============================================
+
+export const triageSearchSchema = z.object({
+  query: z.string().trim().min(1, "Query de busca é obrigatória").max(500),
+  k: z.number().int().positive("k deve ser um número positivo").max(50).optional().default(10),
+  filters: z.record(z.unknown()).optional().default({}),
+});
+
+// ============================================
 // VALIDATION MIDDLEWARE
 // ============================================
 

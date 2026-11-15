@@ -12,7 +12,9 @@ import crudAgendamento from './crudnode/crudAgendamentoRotas.js';
 import crudConversa from './crudnode/crudConversaRotas.js';
 import authRoutes from './crudnode/authRotas.js';
 import ragRoutes from './crudnode/ragRotas.js';
+import crudTriage from './crudnode/crudTriageRotas.js';
 import { initializeRAG } from './rag/index.js';
+import { indexValidatedPsychologists } from './rag/indexer.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -92,14 +94,18 @@ app.use('/agendamentos', agendamentoLimiter, crudAgendamento);
 app.use('/conversas', chatLimiter, crudConversa);
 app.use('/rag', ragRoutes);
 
+// Rota de triagem/RAG
+app.use('/triage', chatLimiter, crudTriage);
+
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Inicialização assíncrona do RAG (não bloqueia o servidor)
-async function initializeApp() {
+async function initializeRAGSystems() {
   try {
+    // Inicializa sistema RAG principal (test-claude)
     await initializeRAG();
     logger.info('Sistema RAG inicializado com sucesso');
   } catch (error) {
@@ -107,11 +113,23 @@ async function initializeApp() {
       error: error.message,
     });
   }
+
+  try {
+    // Inicializa indexador de psicólogos validados (RAG branch)
+    logger.info('Inicializando indexador RAG de psicólogos validados...');
+    const result = await indexValidatedPsychologists({ clearFirst: true });
+    logger.info('Indexador RAG de psicólogos concluído', result);
+  } catch (error) {
+    logger.error('Erro ao inicializar indexador RAG', { error: error.message });
+    // Não falha o servidor se indexação falhar
+  }
 }
 
-// Iniciar servidor
-app.listen(PORT, () => {
+// Inicia servidor
+const server = app.listen(PORT, () => {
   logger.info(`Servidor rodando na porta ${PORT}`);
   // Inicializar RAG em background
-  initializeApp();
+  initializeRAGSystems();
 });
+
+export default server;

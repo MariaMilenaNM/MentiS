@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import { getProfissionais } from '../../services/crudProfissional.js';
 import { getPacienteLogado } from '../../services/crudPaciente.js';
+import TriageChatWidget from '../../components/TriageChatWidget';
 
 import logoBranca from '../../assets/LogoBranca.png';
 import imgConversa from '../../assets/ConversaPsicologo.png';
@@ -340,6 +341,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <TriageChatWidget />
 
       <footer>
         <a href="#" className="logo-footer">
