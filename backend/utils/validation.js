@@ -143,9 +143,9 @@ export const profissionalCompatCadastroSchema = z.object({
 // HORARIO SCHEMAS
 // ============================================
 
+// Schema para criação de horário (psicologoId vem do usuário autenticado, não do body)
 export const horarioCadastroSchema = z
   .object({
-    psicologoId: z.number().int().positive('ID do psicólogo inválido'),
     diaSemana: z
       .number()
       .int()
@@ -163,6 +163,7 @@ export const horarioCadastroSchema = z
     path: ['horaFim'],
   });
 
+// Schema para atualização de horário
 export const horarioAtualizacaoSchema = z
   .object({
     diaSemana: z
@@ -193,6 +194,27 @@ export const horarioAtualizacaoSchema = z
       path: ['horaFim'],
     }
   );
+
+// Schema legado (mantém compatibilidade se usado em outro lugar)
+export const horarioCadastroSchemaLegado = z
+  .object({
+    psicologoId: z.number().int().positive('ID do psicólogo inválido'),
+    diaSemana: z
+      .number()
+      .int()
+      .min(0, 'Dia da semana inválido (0-6)')
+      .max(6, 'Dia da semana inválido (0-6)'),
+    horaInicio: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Hora início deve estar no formato HH:mm'),
+    horaFim: z
+      .string()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Hora fim deve estar no formato HH:mm'),
+  })
+  .refine((data) => data.horaInicio < data.horaFim, {
+    message: 'Hora início deve ser anterior à hora fim',
+    path: ['horaFim'],
+  });
 
 // ============================================
 // AGENDAMENTO SCHEMAS

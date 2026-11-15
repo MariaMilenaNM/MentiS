@@ -2,6 +2,8 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { horarioRepository } from '../repository/horarioRepository.js';
 import { agendamentoRepository } from '../repository/agendamentoRepository.js';
+import { psicologoRepository } from '../repository/psicologoRepository.js';
+import { validate, horarioCadastroSchema, horarioAtualizacaoSchema } from '../utils/validation.js';
 import { logger } from '../utils/logger.js';
 
 const routes = express.Router();
@@ -30,8 +32,10 @@ const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-// GET /horarios/profissional/:psicologoId - Lista horários disponíveis de um profissional para agendamento
-// Query params: dataInicio (ISO string), dataFim (ISO string) - opcionais
+// ============================================
+// GET /horarios/profissional/:psicologoId - Lista horários disponíveis para agendamento (paciente)
+// Query params: dataInicio, dataFim (ISO strings) - opcionais
+// ============================================
 routes.get(
   '/profissional/:psicologoId',
   verificarToken,
@@ -122,6 +126,197 @@ routes.get(
     } catch (error) {
       logger.error('Erro ao buscar horários disponíveis', { psicologoId, error: error.message });
       return res.status(500).json({ erro: 'Erro ao buscar horários disponíveis' });
+    }
+  })
+);
+
+// ============================================
+// GET /horarios/meus - Lista horários recorrentes do psicólogo logado (para gerenciamento)
+// ============================================
+routes.get(
+  '/meus',
+  verificarToken,
+  asyncHandler(async (req, res) => {
+    // Apenas psicólogos podem acessar
+    if (req.usuario.role !== 'PSICOLOGO') {
+      return res.status(403).json({ erro: 'Acesso negado: apenas psicólogos podem gerenciar horários' });
+    }
+
+    try {
+      // Buscar psicólogo do usuário logado
+      const psicologo = await psicologoRepository.findByUsuarioId(req.usuario.id);
+      if (!psicologo) {
+        return res.status(404).json({ erro: 'Perfil de psicólogo não encontrado' });
+      }
+
+      const horarios = await horarioRepository.findByPsicologoId(psicologo.id);
+      return res.status(200).json(horarios || []);
+    } catch (error) {
+      logger.error('Erro ao buscar horários do psicólogo', { error: error.message });
+      return res.status(500).json({ erro: 'Erro ao buscar horários' });
+    }
+  })
+);
+
+// ============================================
+// POST /horarios - Cria novo horário recorrente (psicólogo logado)
+// Body: { diaSemana (0-6), horaInicio (HH:mm), horaFim (HH:mm) }
+// ============================================
+routes.post(
+  '/',
+  verificarToken,
+  validate(horarioCadastroSchema),
+  asyncHandler(async (req, res) => {
+    // Apenas psicólogos podem criar horários
+    if (req.usuario.role !== 'PSICOLOGO') {
+      return res.status(403).json({ erro: 'Acesso negado: apenas psicólogos podem criar horários' });
+    }
+
+    try {
+      // Buscar psicólogo do usuário logado
+      const psicologo = await psicologoRepository.findByUsuarioId(req.usuario.id);
+      if (!psicologo) {
+        return res.status(404).json({ erro: 'Perfil de psicólogo não encontrado' });
+      }
+
+      const { diaSemana, horaInicio, horaFim } = req.body;
+
+      // Verificar se já existe horário para este dia/horário
+      const existente = await horarioRepository.findByPsicologoId(psicologo.id);
+      const conflito = existente?.find(
+        (h) => h.diaSemana === diaSemana && h.horaInicio === horaInicio && h.horaFim === horaFim && h.ativo
+      );
+
+      if (conflito) {
+        return res.status(409).json({ erro: 'Já existe horário cadastrado para este dia e horário' });
+      }
+
+      const horario = await horarioRepository.create({
+        psicologoId: psicologo.id,
+        diaSemana,
+        horaInicio,
+        horaFim,
+        ativo: true,
+      });
+
+      logger.info('Horário criado', { psicologoId: psicologo.id, horarioId: horario.id });
+      return res.status(201).json(horario);
+    } catch (error) {
+      logger.error('Erro ao criar horário', { error: error.message });
+      if (error.message.includes('já cadastrado')) {
+        return res.status(409).json({ erro: error.message });
+      }
+      return res.status(500).json({ erro: 'Erro ao criar horário' });
+    }
+  })
+);
+
+// ============================================
+// PUT /horarios/:id - Atualiza horário recorrente (psicólogo logado)
+// Body: { diaSemana?, horaInicio?, horaFim?, ativo? }
+// ============================================
+routes.put(
+  '/:id',
+  verificarToken,
+  validate(horarioAtualizacaoSchema),
+  asyncHandler(async (req, res) => {
+    // Apenas psicólogos podem atualizar horários
+    if (req.usuario.role !== 'PSICOLOGO') {
+      return res.status(403).json({ erro: 'Acesso negado: apenas psicólogos podem atualizar horários' });
+    }
+
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ erro: 'ID inválido' });
+    }
+
+    try {
+      // Buscar psicólogo do usuário logado
+      const psicologo = await psicologoRepository.findByUsuarioId(req.usuario.id);
+      if (!psicologo) {
+        return res.status(404).json({ erro: 'Perfil de psicólogo não encontrado' });
+      }
+
+      // Verificar se o horário pertence a este psicólogo
+      const horario = await horarioRepository.findById(id);
+      if (!horario || horario.psicologoId !== psicologo.id) {
+        return res.status(404).json({ erro: 'Horário não encontrado' });
+      }
+
+      const { diaSemana, horaInicio, horaFim, ativo } = req.body;
+
+      // Se alterando dia/hora, verificar conflito
+      if (diaSemana !== undefined || horaInicio !== undefined || horaFim !== undefined) {
+        const novoDia = diaSemana !== undefined ? diaSemana : horario.diaSemana;
+        const novoInicio = horaInicio !== undefined ? horaInicio : horario.horaInicio;
+        const novoFim = horaFim !== undefined ? horaFim : horario.horaFim;
+
+        const existentes = await horarioRepository.findByPsicologoId(psicologo.id);
+        const conflito = existentes?.find(
+          (h) => h.id !== id && h.diaSemana === novoDia && h.horaInicio === novoInicio && h.horaFim === novoFim && h.ativo
+        );
+
+        if (conflito) {
+          return res.status(409).json({ erro: 'Já existe horário cadastrado para este dia e horário' });
+        }
+      }
+
+      const horarioAtualizado = await horarioRepository.update(id, { diaSemana, horaInicio, horaFim, ativo });
+      logger.info('Horário atualizado', { psicologoId: psicologo.id, horarioId: id });
+      return res.status(200).json(horarioAtualizado);
+    } catch (error) {
+      logger.error('Erro ao atualizar horário', { id, error: error.message });
+      if (error.message.includes('não encontrado')) {
+        return res.status(404).json({ erro: 'Horário não encontrado' });
+      }
+      if (error.message.includes('já cadastrado')) {
+        return res.status(409).json({ erro: error.message });
+      }
+      return res.status(500).json({ erro: 'Erro ao atualizar horário' });
+    }
+  })
+);
+
+// ============================================
+// DELETE /horarios/:id - Desativa horário recorrente (psicólogo logado)
+// ============================================
+routes.delete(
+  '/:id',
+  verificarToken,
+  asyncHandler(async (req, res) => {
+    // Apenas psicólogos podem deletar horários
+    if (req.usuario.role !== 'PSICOLOGO') {
+      return res.status(403).json({ erro: 'Acesso negado: apenas psicólogos podem remover horários' });
+    }
+
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ erro: 'ID inválido' });
+    }
+
+    try {
+      // Buscar psicólogo do usuário logado
+      const psicologo = await psicologoRepository.findByUsuarioId(req.usuario.id);
+      if (!psicologo) {
+        return res.status(404).json({ erro: 'Perfil de psicólogo não encontrado' });
+      }
+
+      // Verificar se o horário pertence a este psicólogo
+      const horario = await horarioRepository.findById(id);
+      if (!horario || horario.psicologoId !== psicologo.id) {
+        return res.status(404).json({ erro: 'Horário não encontrado' });
+      }
+
+      // Soft delete: marcar como inativo (mantém histórico de agendamentos)
+      await horarioRepository.update(id, { ativo: false });
+      logger.info('Horário desativado', { psicologoId: psicologo.id, horarioId: id });
+      return res.status(200).json({ status: 'desativado', mensagem: 'Horário desativado com sucesso' });
+    } catch (error) {
+      logger.error('Erro ao desativar horário', { id, error: error.message });
+      if (error.message.includes('não encontrado')) {
+        return res.status(404).json({ erro: 'Horário não encontrado' });
+      }
+      return res.status(500).json({ erro: 'Erro ao desativar horário' });
     }
   })
 );

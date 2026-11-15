@@ -22,12 +22,22 @@ const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-// GET /profissionais - Lista todos os psicólogos validados (compatibilidade)
+// GET /profissionais - Lista psicólogos validados com filtros (compatibilidade + vitrine)
+// Query params: modalidade, precoMax, especialidade, abordagem, validado
 routes.get(
   '/',
   asyncHandler(async (req, res) => {
     try {
-      const psicologos = await psicologoRepository.findValidados();
+      const { modalidade, precoMax, especialidade, abordagem, validado } = req.query;
+
+      const filters = {};
+      if (modalidade) filters.modalidade = modalidade;
+      if (precoMax) filters.precoMax = parseFloat(precoMax);
+      if (especialidade) filters.especialidades = [especialidade];
+      if (abordagem) filters.abordagem = abordagem;
+      if (validado !== undefined) filters.validado = validado === 'true';
+
+      const psicologos = await psicologoRepository.findAll(filters);
 
       // Transformar para formato antigo esperado pelo frontend
       const profissionais = psicologos.map((p) => ({
@@ -43,6 +53,13 @@ routes.get(
         link: p.fotoUrl || '',
         numero: p.usuario?.email || '',
         contato: p.usuario?.email || '',
+        // Campos adicionais para frontend (preço, especialidades, abordagem)
+        preco: p.preco,
+        especialidades: p.especialidades,
+        abordagem: p.abordagem,
+        fotoUrl: p.fotoUrl,
+        cidade: p.cidade,
+        estado: p.estado,
       }));
 
       res.status(200).json(profissionais);
