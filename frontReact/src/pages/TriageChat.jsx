@@ -9,7 +9,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useTriageChat from '../hooks/useTriageChat.js';
+import useRagTriageChat from '../hooks/useRagTriageChat.js';
 import TriageChatMessage from '../components/TriageChatMessage.jsx';
 import TriageChatInput from '../components/TriageChatInput.jsx';
 import TriageTypingIndicator from '../components/TriageTypingIndicator.jsx';
@@ -21,14 +21,13 @@ function TriageChat() {
     messages,
     isLoading,
     isLoggedIn,
-    loadingProfissionais,
-    erroProfissionais,
+    error,
     messagesEndRef,
-    messagesContainerRef,
     sendMessage,
     handleLoginRedirect,
     handleNewSearch,
-  } = useTriageChat();
+    clearError,
+  } = useRagTriageChat();
 
   // Extrai perguntas sugeridas da última mensagem do assistente
   const lastAssistantMessage = [...messages].reverse().find((m) => m.role === 'assistant');
@@ -48,8 +47,8 @@ function TriageChat() {
 
   // Scroll container
   const scrollToBottom = useCallback(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
@@ -66,47 +65,14 @@ function TriageChat() {
 
   const handleLoginClick = useCallback(() => {
     handleLoginRedirect();
-    // O handleLoginRedirect já faz window.location.href = '/paciente'
   }, [handleLoginRedirect]);
 
   const handleBack = useCallback(() => {
     navigate('/');
   }, [navigate]);
 
-  // Estado inicial de loading dos profissionais
-  if (loadingProfissionais) {
-    return (
-      <div className="triage-chat-page loading-state">
-        <header className="chat-header">
-          <button className="back-button" onClick={handleBack} aria-label="Voltar">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <div className="header-info">
-            <h1>Assistente de Triagem</h1>
-            <span className="status-badge">Carregando...</span>
-          </div>
-        </header>
-        <div className="messages-container loading-full">
-          <div className="loading-spinner-large" role="status" aria-live="polite">
-            <div className="spinner"></div>
-            <p>Carregando profissionais disponíveis...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Erro ao carregar profissionais
-  if (erroProfissionais) {
+  // Erro ao buscar
+  if (error) {
     return (
       <div className="triage-chat-page error-state">
         <header className="chat-header">
@@ -141,9 +107,9 @@ function TriageChat() {
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            <h2>Não foi possível carregar os profissionais</h2>
-            <p>{erroProfissionais}</p>
-            <button className="btn-primary" onClick={() => window.location.reload()}>
+            <h2>Erro na busca</h2>
+            <p>{error}</p>
+            <button className="btn-primary" onClick={clearError}>
               Tentar Novamente
             </button>
           </div>

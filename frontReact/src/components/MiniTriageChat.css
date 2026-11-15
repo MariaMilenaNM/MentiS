@@ -1,0 +1,294 @@
+/* MiniTriageChat.css - Estilos para o mini chat flutuante */
+
+/* Container principal */
+.mini-triage-chat {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  font-family: inherit;
+}
+
+/* Botão flutuante (FAB) */
+.chat-fab {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color, #2563eb), #1d4ed8);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4), 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  animation: fabEntrance 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fabEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.chat-fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 28px rgba(37, 99, 235, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.chat-fab:active {
+  transform: scale(0.95);
+}
+
+.chat-fab:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.4);
+  outline-offset: 3px;
+}
+
+.fab-icon {
+  transition: transform 0.2s ease;
+}
+
+.chat-fab:hover .fab-icon {
+  transform: rotate(-5deg);
+}
+
+/* Badge de notificação */
+.fab-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  background: #ef4444;
+  color: white;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Janela do chat */
+.chat-window {
+  position: absolute;
+  bottom: 80px;
+  right: 0;
+  width: 380px;
+  max-height: 550px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  animation: windowEntrance 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: bottom right;
+}
+
+@keyframes windowEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Header */
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, var(--primary-color, #2563eb), #1d4ed8);
+  color: white;
+  border-bottom: none;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-info .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.header-text h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.header-text .status {
+  font-size: 11px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.header-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.close-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+/* Área de mensagens */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fafafa;
+  max-height: 380px;
+}
+
+/* Scrollbar personalizada */
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Error banner */
+.chat-error {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #fef2f2;
+  border-top: 1px solid #fecaca;
+  color: #dc2626;
+  font-size: 13px;
+  gap: 12px;
+}
+
+.retry-btn {
+  padding: 6px 12px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.retry-btn:hover {
+  background: #b91c1c;
+}
+
+/* Estados minimizado/fechado */
+.mini-triage-chat.minimized .chat-window,
+.mini-triage-chat:not(.open):not(.minimized) .chat-window {
+  display: none;
+}
+
+.mini-triage-chat.minimized .chat-fab {
+  animation: fabPulse 2s ease-in-out infinite;
+}
+
+@keyframes fabPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4), 0 2px 8px rgba(0, 0, 0, 0.15); }
+  50% { box-shadow: 0 4px 20px rgba(37, 99, 235, 0.6), 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(37, 99, 235, 0.2); }
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+  .chat-window {
+    width: calc(100vw - 32px);
+    right: -16px;
+    bottom: 80px;
+    max-height: 65vh;
+  }
+
+  .mini-triage-chat {
+    bottom: 16px;
+    right: 16px;
+  }
+}
+
+/* Animação de saída */
+.mini-triage-chat.closing .chat-window {
+  animation: windowExit 0.2s ease-in forwards;
+}
+
+@keyframes windowExit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+}
