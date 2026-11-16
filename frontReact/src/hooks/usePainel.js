@@ -11,8 +11,15 @@ export function usePainel() {
   const [pacienteLogado, setPacienteLogado] = useState(null);
   const [todosProfissionais, setTodosProfissionais] = useState([]);
 
-  // Estado para filtros
+  // Estado para filtros (valores do formulário)
   const [filtros, setFiltros] = useState({
+    especialidade: '',
+    precoMax: '',
+    modalidade: '',
+  });
+
+  // Estado para filtros com debounce (valores usados na API)
+  const [filtrosDebounced, setFiltrosDebounced] = useState({
     especialidade: '',
     precoMax: '',
     modalidade: '',
@@ -21,7 +28,8 @@ export function usePainel() {
   const [sidebarAberta, setSidebarAberta] = useState(true);
   const [modoEdicao, setModoEdicao] = useState(false);
 
-  const ITENS_POR_PAGINA = 6;
+  // Itens por página: 8 com sidebar expandida, 10 com sidebar encolhida
+  const ITENS_POR_PAGINA = sidebarAberta ? 8 : 10;
   const [paginaAtual, setPaginaAtual] = useState(1);
 
   const [editForm, setEditForm] = useState({ nome: '', telefone: '', cidade: '', estado: '' });
@@ -75,15 +83,23 @@ export function usePainel() {
     navigateRef.current = navigate;
   }, [navigate]);
 
+  // Debounce dos filtros: atualiza filtrosDebounced 300ms após última mudança
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFiltrosDebounced(filtros);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [filtros]);
+
   const carregarProfissionais = useCallback(async () => {
     try {
-      const profissionais = await getProfissionais(filtros);
+      const profissionais = await getProfissionais(filtrosDebounced);
       setTodosProfissionais(profissionais || []);
       setPaginaAtual(1); // Reset para primeira página ao filtrar
     } catch (error) {
       console.error('Erro ao carregar profissionais:', error);
     }
-  }, [filtros]);
+  }, [filtrosDebounced]);
 
   const carregarDados = useCallback(async () => {
     const storage = getPacienteLogado();
@@ -110,12 +126,12 @@ export function usePainel() {
     }
   }, [carregarProfissionais]);
 
-  // dependência com useCallback
+  // Carregar dados iniciais apenas uma vez no mount
   useEffect(() => {
     carregarDados();
-  }, [carregarDados]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Recarregar profissionais quando filtros mudarem
+  // Recarregar profissionais quando filtrosDebounced mudarem (após debounce)
   useEffect(() => {
     if (pacienteLogado) {
       carregarProfissionais();
@@ -267,15 +283,15 @@ export function usePainel() {
 
   // Funções para manipular filtros
   const setFiltroEspecialidade = useCallback((especialidade) => {
-    setFiltros(prev => ({ ...prev, especialidade }));
+    setFiltros((prev) => ({ ...prev, especialidade }));
   }, []);
 
   const setFiltroPrecoMax = useCallback((precoMax) => {
-    setFiltros(prev => ({ ...prev, precoMax }));
+    setFiltros((prev) => ({ ...prev, precoMax }));
   }, []);
 
   const setFiltroModalidade = useCallback((modalidade) => {
-    setFiltros(prev => ({ ...prev, modalidade }));
+    setFiltros((prev) => ({ ...prev, modalidade }));
   }, []);
 
   const limparFiltros = useCallback(() => {
@@ -285,14 +301,14 @@ export function usePainel() {
   // Extrair especialidades únicas dos profissionais para o dropdown
   const especialidadesDisponiveis = useMemo(() => {
     const especialidades = new Set();
-    todosProfissionais.forEach(p => {
+    todosProfissionais.forEach((p) => {
       if (p.especialidades) {
         try {
           const espArray = JSON.parse(p.especialidades);
           if (Array.isArray(espArray)) {
-            espArray.forEach(e => especialidades.add(e));
+            espArray.forEach((e) => especialidades.add(e));
           }
-        } catch (e) {
+        } catch {
           // Se não for JSON válido, tratar como string simples
           especialidades.add(p.especialidades);
         }

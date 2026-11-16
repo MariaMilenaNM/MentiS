@@ -430,7 +430,11 @@ describe('useProfissional', () => {
       await waitFor(() => {
         expect(atualizarProfissionalBd).toHaveBeenCalledWith(
           1,
-          expect.objectContaining({ nome: 'Teste Atualizado', preco: 150, especialidades: ['Ansiedade'] })
+          expect.objectContaining({
+            nome: 'Teste Atualizado',
+            preco: 150,
+            especialidades: ['Ansiedade'],
+          })
         );
         expect(result.current.editForm).toBeNull();
       });

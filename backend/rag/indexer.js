@@ -179,9 +179,12 @@ export async function reindexAllPsychologists() {
  * @param {number} psicologoId
  */
 export async function removePsychologist(psicologoId) {
-  logger.warn('Remoção individual não suportada no MemoryVectorStore - use reindexAllPsychologists()', {
-    psicologoId,
-  });
+  logger.warn(
+    'Remoção individual não suportada no MemoryVectorStore - use reindexAllPsychologists()',
+    {
+      psicologoId,
+    }
+  );
   // Futuro: implementar com Chroma server que suporta delete por metadata
   return { success: false, reason: 'not_supported_memory_store' };
 }

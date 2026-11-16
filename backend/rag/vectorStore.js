@@ -52,7 +52,10 @@ export function getVectorStore() {
 export function isVectorStoreReady() {
   const globalInstance = getGlobalInstance();
   const globalInitialized = getGlobalInitialized();
-  return (globalInitialized && globalInstance !== null) || (isInitialized && vectorStoreInstance !== null);
+  return (
+    (globalInitialized && globalInstance !== null) ||
+    (isInitialized && vectorStoreInstance !== null)
+  );
 }
 
 /**
@@ -193,9 +196,40 @@ export async function similaritySearch(query, k = 5, filter = {}) {
     const filtered = results
       .filter(([doc]) => doc.metadata?.psicologoId !== -1)
       .filter(([doc]) => {
-        // Aplicar filtros manuais
+        // Aplicar filtros manuais com lógica apropriada por tipo
         for (const [key, value] of Object.entries(filter)) {
-          if (doc.metadata[key] !== value) return false;
+          // Mapear chaves de filtro para campos de metadata
+          let metaKey = key;
+          if (key === 'precoMax') metaKey = 'preco';
+          if (key === 'especialidade') metaKey = 'especialidades';
+
+          const metaValue = doc.metadata[metaKey];
+
+          // precoMax: filtro de range (<=)
+          if (key === 'precoMax') {
+            if (
+              metaValue === null ||
+              metaValue === undefined ||
+              Number(metaValue) > Number(value)
+            ) {
+              return false;
+            }
+            continue;
+          }
+
+          // especialidade: array contains (case-insensitive)
+          if (key === 'especialidade') {
+            const especialidades = metaValue || [];
+            const searchTerm = String(value).toLowerCase();
+            const hasMatch = especialidades.some((s) =>
+              String(s).toLowerCase().includes(searchTerm)
+            );
+            if (!hasMatch) return false;
+            continue;
+          }
+
+          // Demais filtros: comparação exata
+          if (metaValue !== value) return false;
         }
         return true;
       })
@@ -248,9 +282,40 @@ export async function similaritySearchWithScore(query, k = 5, filter = {}) {
     return results
       .filter(([doc]) => doc.metadata?.psicologoId !== -1)
       .filter(([doc]) => {
-        // Aplicar filtros manuais
+        // Aplicar filtros manuais com lógica apropriada por tipo
         for (const [key, value] of Object.entries(filter)) {
-          if (doc.metadata[key] !== value) return false;
+          // Mapear chaves de filtro para campos de metadata
+          let metaKey = key;
+          if (key === 'precoMax') metaKey = 'preco';
+          if (key === 'especialidade') metaKey = 'especialidades';
+
+          const metaValue = doc.metadata[metaKey];
+
+          // precoMax: filtro de range (<=)
+          if (key === 'precoMax') {
+            if (
+              metaValue === null ||
+              metaValue === undefined ||
+              Number(metaValue) > Number(value)
+            ) {
+              return false;
+            }
+            continue;
+          }
+
+          // especialidade: array contains (case-insensitive)
+          if (key === 'especialidade') {
+            const especialidades = metaValue || [];
+            const searchTerm = String(value).toLowerCase();
+            const hasMatch = especialidades.some((s) =>
+              String(s).toLowerCase().includes(searchTerm)
+            );
+            if (!hasMatch) return false;
+            continue;
+          }
+
+          // Demais filtros: comparação exata
+          if (metaValue !== value) return false;
         }
         return true;
       })
@@ -288,7 +353,7 @@ export function getStats() {
     } else if (Array.isArray(docstore)) {
       // Array
       totalCount = docstore.length;
-      dummyCount = docstore.filter(d => d.metadata?.psicologoId === -1).length;
+      dummyCount = docstore.filter((d) => d.metadata?.psicologoId === -1).length;
     } else if (typeof docstore === 'object') {
       // Objeto genérico
       const entries = Object.entries(docstore);
@@ -347,6 +412,29 @@ export async function upsertDocument(document) {
 }
 
 /**
+ * Health check do vector store
+ * @returns {Promise<Object>} Status de saúde
+ */
+export async function healthCheck() {
+  try {
+    const initialized = isVectorStoreReady();
+    const stats = getStats();
+    return {
+      status: initialized ? 'healthy' : 'initializing',
+      initialized,
+      documentCount: stats.documentCount,
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error) {
+    return {
+      status: 'unhealthy',
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+
+/**
  * Reseta o vector store (útil para testes ou re-ingestão completa)
  * @returns {Promise<void>}
  */
@@ -365,4 +453,20 @@ export async function resetVectorStore() {
   }
   await initializeVectorStore();
   logger.info('VectorStore resetado');
+}
+
+/**
+ * Alias para resetVectorStore (compatibilidade)
+ * @returns {Promise<void>}
+ */
+export async function clearVectorStore() {
+  return await resetVectorStore();
+}
+
+/**
+ * Alias para getStats (compatibilidade)
+ * @returns {Object} Estatísticas do vector store
+ */
+export function getVectorStoreStats() {
+  return getStats();
 }

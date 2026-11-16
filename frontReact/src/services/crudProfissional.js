@@ -3,11 +3,11 @@ const URL_PROF = `${API_URL}/profissionais`;
 
 // Converter modalidade do formato legado para enum do backend
 const modalidadeLegacyToEnum = {
-  'Remota': 'ONLINE',
-  'Presencial': 'PRESENCIAL',
+  Remota: 'ONLINE',
+  Presencial: 'PRESENCIAL',
   'Presencial e Remota': 'HIBRIDO',
-  'Online': 'ONLINE',
-  'Híbrido': 'HIBRIDO',
+  Online: 'ONLINE',
+  Híbrido: 'HIBRIDO',
   'Presencial e Online': 'HIBRIDO',
 };
 

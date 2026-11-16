@@ -27,7 +27,9 @@ async function main() {
     // 2. Verificar saúde
     const { healthCheck } = await import('../retriever.js');
     const health = await healthCheck();
-    console.log(`🏥 Health Check: ${health.status} (VectorStore: ${health.vectorStoreReady ? 'Ready' : 'Not Ready'})\n`);
+    console.log(
+      `🏥 Health Check: ${health.status} (VectorStore: ${health.vectorStoreReady ? 'Ready' : 'Not Ready'})\n`
+    );
 
     if (!health.vectorStoreReady) {
       console.error('❌ VectorStore não está pronto. Execute a indexação primeiro.');
@@ -80,8 +82,12 @@ async function main() {
         if (r.results.length > 0) {
           console.log(`      Resultados obtidos:`);
           r.results.forEach((res, idx) => {
-            console.log(`         ${idx + 1}. ${res.nome} (ID: ${res.psicologoId}) - Score: ${res.similarityScore}`);
-            console.log(`             Modalidade: ${res.modalidade} | Estado: ${res.estado} | Preço: R$ ${res.preco}`);
+            console.log(
+              `         ${idx + 1}. ${res.nome} (ID: ${res.psicologoId}) - Score: ${res.similarityScore}`
+            );
+            console.log(
+              `             Modalidade: ${res.modalidade} | Estado: ${res.estado} | Preço: R$ ${res.preco}`
+            );
             console.log(`             Especialidades: ${res.especialidades?.join(', ') || 'N/A'}`);
             console.log(`             Abordagem: ${res.abordagem || 'N/A'}`);
           });

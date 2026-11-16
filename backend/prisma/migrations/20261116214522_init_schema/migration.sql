@@ -38,8 +38,10 @@ CREATE TABLE "Psicologo" (
     "abordagem" TEXT NOT NULL DEFAULT 'OUTRA',
     "preco" REAL NOT NULL,
     "modalidade" TEXT NOT NULL DEFAULT 'ONLINE',
-    "validado" BOOLEAN NOT NULL DEFAULT false,
+    "validado" BOOLEAN NOT NULL DEFAULT true,
     "fotoUrl" TEXT,
+    "cidade" TEXT,
+    "estado" TEXT,
     "criadoEm" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "atualizadoEm" DATETIME NOT NULL,
     CONSTRAINT "Psicologo_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "Usuario" ("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -130,6 +132,12 @@ CREATE INDEX "Psicologo_validado_idx" ON "Psicologo"("validado");
 
 -- CreateIndex
 CREATE INDEX "Psicologo_modalidade_idx" ON "Psicologo"("modalidade");
+
+-- CreateIndex
+CREATE INDEX "Psicologo_estado_idx" ON "Psicologo"("estado");
+
+-- CreateIndex
+CREATE INDEX "Psicologo_cidade_idx" ON "Psicologo"("cidade");
 
 -- CreateIndex
 CREATE INDEX "HorarioDisponivel_psicologoId_idx" ON "HorarioDisponivel"("psicologoId");

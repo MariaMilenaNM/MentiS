@@ -35,7 +35,10 @@ async function main() {
     process.exit(0);
   } catch (error) {
     console.error('\n❌ Erro fatal na reindexação:', error.message);
-    logger.error('Erro fatal no script de reindexação', { error: error.message, stack: error.stack });
+    logger.error('Erro fatal no script de reindexação', {
+      error: error.message,
+      stack: error.stack,
+    });
     process.exit(1);
   }
 }

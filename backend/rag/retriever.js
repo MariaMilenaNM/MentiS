@@ -13,10 +13,13 @@ import { logger } from '../utils/logger.js';
 
 /**
  * Configurações padrão do Retriever
+ * Em desenvolvimento (mock embeddings), usa threshold mais baixo
  */
+const isMockEmbeddings = !process.env.OPENAI_API_KEY;
+
 export const RETRIEVER_DEFAULTS = {
   topK: 3,
-  minSimilarity: 0.3,
+  minSimilarity: isMockEmbeddings ? 0.01 : 0.3, // Mock: threshold muito baixo; OpenAI: 0.3
   fetchMultiplier: 3, // Buscar Nx mais resultados para compensar filtros
 };
 
@@ -124,7 +127,8 @@ export async function retrieve(query, filters = {}, options = {}) {
  * @returns {Promise<Array<{content, metadata, similarityScore, rawScore}>>}
  */
 export async function retrieveWithScore(query, filters = {}, options = {}) {
-  const { topK = RETRIEVER_DEFAULTS.topK, fetchMultiplier = RETRIEVER_DEFAULTS.fetchMultiplier } = options;
+  const { topK = RETRIEVER_DEFAULTS.topK, fetchMultiplier = RETRIEVER_DEFAULTS.fetchMultiplier } =
+    options;
 
   if (!isVectorStoreReady()) {
     return [];
@@ -141,14 +145,12 @@ export async function retrieveWithScore(query, filters = {}, options = {}) {
   const fetchK = topK * fetchMultiplier;
   const results = await similaritySearchWithScore(query.trim(), fetchK, normalizedFilters);
 
-  return results
-    .slice(0, topK)
-    .map(([doc, score]) => ({
-      content: doc.pageContent,
-      metadata: doc.metadata,
-      similarityScore: Number((1 - Math.min(score, 1)).toFixed(4)),
-      rawScore: score, // distance score (menor = mais similar)
-    }));
+  return results.slice(0, topK).map(([doc, score]) => ({
+    content: doc.pageContent,
+    metadata: doc.metadata,
+    similarityScore: Number((1 - Math.min(score, 1)).toFixed(4)),
+    rawScore: score, // distance score (menor = mais similar)
+  }));
 }
 
 /**

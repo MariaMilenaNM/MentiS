@@ -257,7 +257,9 @@ export default function Painel() {
         {/* Barra de Filtros */}
         <div className="filtros-bar" role="search" aria-label="Filtros de profissionais">
           <div className="filtros-grupo">
-            <label htmlFor="filtro-especialidade" className="filtro-label">Especialidade</label>
+            <label htmlFor="filtro-especialidade" className="filtro-label">
+              Especialidade
+            </label>
             <select
               id="filtro-especialidade"
               className="filtro-select"
@@ -267,13 +269,17 @@ export default function Painel() {
             >
               <option value="">Todas as especialidades</option>
               {especialidadesDisponiveis.map((esp) => (
-                <option key={esp} value={esp}>{esp}</option>
+                <option key={esp} value={esp}>
+                  {esp}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="filtros-grupo">
-            <label htmlFor="filtro-preco" className="filtro-label">Preço máximo (R$)</label>
+            <label htmlFor="filtro-preco" className="filtro-label">
+              Preço máximo (R$)
+            </label>
             <input
               type="number"
               id="filtro-preco"
@@ -281,6 +287,7 @@ export default function Painel() {
               placeholder="Ex: 200"
               value={filtros.precoMax}
               onChange={(e) => setFiltroPrecoMax(e.target.value)}
+              onBlur={(e) => setFiltroPrecoMax(e.target.value)}
               min="0"
               step="0.01"
               aria-label="Filtrar por preço máximo da consulta"
@@ -288,7 +295,9 @@ export default function Painel() {
           </div>
 
           <div className="filtros-grupo">
-            <label htmlFor="filtro-modalidade" className="filtro-label">Modalidade</label>
+            <label htmlFor="filtro-modalidade" className="filtro-label">
+              Modalidade
+            </label>
             <select
               id="filtro-modalidade"
               className="filtro-select"
@@ -303,7 +312,7 @@ export default function Painel() {
             </select>
           </div>
 
-          {Object.values(filtros).some(v => v) && (
+          {Object.values(filtros).some((v) => v) && (
             <div className="filtros-grupo filtro-limpar">
               <button
                 type="button"
@@ -376,7 +385,10 @@ export default function Painel() {
                     )}
 
                     {profissional.preco && (
-                      <div className="psi-preco" aria-label={`Preço da consulta: R$ ${profissional.preco.toFixed(2)}`}>
+                      <div
+                        className="psi-preco"
+                        aria-label={`Preço da consulta: R$ ${profissional.preco.toFixed(2)}`}
+                      >
                         <strong>Consulta:</strong> R$ {profissional.preco.toFixed(2)}
                       </div>
                     )}

@@ -90,6 +90,8 @@ model Psicologo {
   modalidade    Modalidade @default(ONLINE)
   validado      Boolean    @default(true) // CRP validado manualmente (default true para permitir agendamento imediato)
   fotoUrl       String?
+  cidade        String?    // Cidade de atuação (para filtros de localização)
+  estado        String?    // Estado/UF (para filtros de localização)
   criadoEm      DateTime   @default(now())
   atualizadoEm  DateTime   @updatedAt
 
@@ -102,6 +104,8 @@ model Psicologo {
   @@index([crp])
   @@index([validado])
   @@index([modalidade])
+  @@index([estado])
+  @@index([cidade])
 }
 
 model HorarioDisponivel {

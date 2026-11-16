@@ -64,7 +64,8 @@ function generateAssistantResponse(matches, isLoggedIn, query) {
     text += '. Aqui estão as melhores opções com contatos completos:';
     return { text, matches: topMatches, action: 'show_matches' };
   } else {
-    text += '. Para ver os detalhes e contatos desses profissionais, você precisa fazer login ou criar uma conta.';
+    text +=
+      '. Para ver os detalhes e contatos desses profissionais, você precisa fazer login ou criar uma conta.';
     return { text, matches: topMatches, action: 'require_login' };
   }
 }

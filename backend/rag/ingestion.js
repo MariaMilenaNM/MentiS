@@ -190,7 +190,8 @@ export async function initializeRAG() {
   logger.info('=== Inicializando Sistema RAG ===');
 
   const startTime = Date.now();
-  const result = await ingestPsychologists(false);
+  // FORCE RESET para evitar duplicatas em desenvolvimento/testes
+  const result = await ingestPsychologists(true);
   const duration = Date.now() - startTime;
 
   logger.info(`Sistema RAG inicializado em ${duration}ms`, {

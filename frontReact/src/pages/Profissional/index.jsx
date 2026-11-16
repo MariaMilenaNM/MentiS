@@ -517,7 +517,9 @@ export default function Profissional() {
                             } else {
                               setEditForm((prev) => ({
                                 ...prev,
-                                especialidades: (prev.especialidades || []).filter((e) => e !== esp),
+                                especialidades: (prev.especialidades || []).filter(
+                                  (e) => e !== esp
+                                ),
                               }));
                             }
                             // Limpar erro

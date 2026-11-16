@@ -242,7 +242,9 @@ nav a:hover {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .btn-retry {
@@ -299,7 +301,9 @@ nav a:hover {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .catalogo-card:hover {
@@ -404,7 +408,9 @@ nav a:hover {
   text-decoration: none;
   font-size: 12px;
   font-weight: 600;
-  transition: opacity 0.2s, transform 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
   align-self: center;
 }
 
@@ -433,7 +439,9 @@ nav a:hover {
   display: inline-block;
   border: none;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }
 
 .btn-primary:hover {
@@ -524,7 +532,6 @@ nav a:hover {
   cursor: pointer;
   font-size: 15px;
   font-weight: 400;
-  color: var(--dark-blue);
   list-style: none;
   transition: color 0.2s;
 }
@@ -703,7 +710,9 @@ footer {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .card-profissional:hover {
@@ -837,7 +846,9 @@ footer {
   font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
-  transition: opacity 0.2s, background 0.2s;
+  transition:
+    opacity 0.2s,
+    background 0.2s;
 }
 
 .btn-agendar-landing:hover {
@@ -864,8 +875,12 @@ footer {
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .skeleton-text {
@@ -906,7 +921,9 @@ footer {
   display: inline-block;
   border: none;
   cursor: pointer;
-  transition: opacity 0.2s, background 0.2s;
+  transition:
+    opacity 0.2s,
+    background 0.2s;
 }
 
 .btn-dark:hover {

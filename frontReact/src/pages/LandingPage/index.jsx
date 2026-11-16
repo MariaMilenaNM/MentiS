@@ -65,6 +65,20 @@ export default function LandingPage() {
     return nome ? nome.charAt(0).toUpperCase() : '?';
   };
 
+  // Formatar especialidades: parsear JSON e exibir como lista separada por vírgulas
+  const formatarEspecialidades = (especialidadesStr) => {
+    if (!especialidadesStr) return 'Não informadas';
+    try {
+      const espArray = JSON.parse(especialidadesStr);
+      if (Array.isArray(espArray)) {
+        return espArray.join(', ');
+      }
+      return especialidadesStr;
+    } catch {
+      return especialidadesStr;
+    }
+  };
+
   return (
     <>
       <header>
@@ -232,7 +246,7 @@ export default function LandingPage() {
                       </span>
                       <p className="catalogo-especialidades">
                         <strong>Especialidades:</strong>{' '}
-                        {profissional.especialidades || 'Não informadas'}
+                        {formatarEspecialidades(profissional.especialidades)}
                       </p>
                       <p className="catalogo-contato">
                         <strong>E-mail:</strong> {profissional.contato}

@@ -139,7 +139,9 @@ routes.get(
   asyncHandler(async (req, res) => {
     // Apenas psicólogos podem acessar
     if (req.usuario.role !== 'PSICOLOGO') {
-      return res.status(403).json({ erro: 'Acesso negado: apenas psicólogos podem gerenciar horários' });
+      return res
+        .status(403)
+        .json({ erro: 'Acesso negado: apenas psicólogos podem gerenciar horários' });
     }
 
     try {
@@ -169,7 +171,9 @@ routes.post(
   asyncHandler(async (req, res) => {
     // Apenas psicólogos podem criar horários
     if (req.usuario.role !== 'PSICOLOGO') {
-      return res.status(403).json({ erro: 'Acesso negado: apenas psicólogos podem criar horários' });
+      return res
+        .status(403)
+        .json({ erro: 'Acesso negado: apenas psicólogos podem criar horários' });
     }
 
     try {
@@ -184,11 +188,17 @@ routes.post(
       // Verificar se já existe horário para este dia/horário
       const existente = await horarioRepository.findByPsicologoId(psicologo.id);
       const conflito = existente?.find(
-        (h) => h.diaSemana === diaSemana && h.horaInicio === horaInicio && h.horaFim === horaFim && h.ativo
+        (h) =>
+          h.diaSemana === diaSemana &&
+          h.horaInicio === horaInicio &&
+          h.horaFim === horaFim &&
+          h.ativo
       );
 
       if (conflito) {
-        return res.status(409).json({ erro: 'Já existe horário cadastrado para este dia e horário' });
+        return res
+          .status(409)
+          .json({ erro: 'Já existe horário cadastrado para este dia e horário' });
       }
 
       const horario = await horarioRepository.create({
@@ -222,7 +232,9 @@ routes.put(
   asyncHandler(async (req, res) => {
     // Apenas psicólogos podem atualizar horários
     if (req.usuario.role !== 'PSICOLOGO') {
-      return res.status(403).json({ erro: 'Acesso negado: apenas psicólogos podem atualizar horários' });
+      return res
+        .status(403)
+        .json({ erro: 'Acesso negado: apenas psicólogos podem atualizar horários' });
     }
 
     const id = parseInt(req.params.id);
@@ -253,15 +265,27 @@ routes.put(
 
         const existentes = await horarioRepository.findByPsicologoId(psicologo.id);
         const conflito = existentes?.find(
-          (h) => h.id !== id && h.diaSemana === novoDia && h.horaInicio === novoInicio && h.horaFim === novoFim && h.ativo
+          (h) =>
+            h.id !== id &&
+            h.diaSemana === novoDia &&
+            h.horaInicio === novoInicio &&
+            h.horaFim === novoFim &&
+            h.ativo
         );
 
         if (conflito) {
-          return res.status(409).json({ erro: 'Já existe horário cadastrado para este dia e horário' });
+          return res
+            .status(409)
+            .json({ erro: 'Já existe horário cadastrado para este dia e horário' });
         }
       }
 
-      const horarioAtualizado = await horarioRepository.update(id, { diaSemana, horaInicio, horaFim, ativo });
+      const horarioAtualizado = await horarioRepository.update(id, {
+        diaSemana,
+        horaInicio,
+        horaFim,
+        ativo,
+      });
       logger.info('Horário atualizado', { psicologoId: psicologo.id, horarioId: id });
       return res.status(200).json(horarioAtualizado);
     } catch (error) {
@@ -286,7 +310,9 @@ routes.delete(
   asyncHandler(async (req, res) => {
     // Apenas psicólogos podem deletar horários
     if (req.usuario.role !== 'PSICOLOGO') {
-      return res.status(403).json({ erro: 'Acesso negado: apenas psicólogos podem remover horários' });
+      return res
+        .status(403)
+        .json({ erro: 'Acesso negado: apenas psicólogos podem remover horários' });
     }
 
     const id = parseInt(req.params.id);
@@ -310,7 +336,9 @@ routes.delete(
       // Soft delete: marcar como inativo (mantém histórico de agendamentos)
       await horarioRepository.update(id, { ativo: false });
       logger.info('Horário desativado', { psicologoId: psicologo.id, horarioId: id });
-      return res.status(200).json({ status: 'desativado', mensagem: 'Horário desativado com sucesso' });
+      return res
+        .status(200)
+        .json({ status: 'desativado', mensagem: 'Horário desativado com sucesso' });
     } catch (error) {
       logger.error('Erro ao desativar horário', { id, error: error.message });
       if (error.message.includes('não encontrado')) {

@@ -83,7 +83,9 @@ function MiniTriageChat() {
           onClick={toggleChat}
           aria-expanded={isOpen}
           aria-controls="chat-window"
-          aria-label={isMinimized ? 'Expandir assistente de triagem' : 'Abrir assistente de triagem'}
+          aria-label={
+            isMinimized ? 'Expandir assistente de triagem' : 'Abrir assistente de triagem'
+          }
         >
           <svg
             className="fab-icon"

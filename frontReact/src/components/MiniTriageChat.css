@@ -21,7 +21,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4), 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 4px 20px rgba(37, 99, 235, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   animation: fabEntrance 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -40,7 +42,9 @@
 
 .chat-fab:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 28px rgba(37, 99, 235, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 6px 28px rgba(37, 99, 235, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .chat-fab:active {
@@ -81,8 +85,13 @@
 }
 
 @keyframes badgePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 /* Janela do chat */
@@ -94,7 +103,9 @@
   max-height: 550px;
   background: white;
   border-radius: 16px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -258,8 +269,18 @@
 }
 
 @keyframes fabPulse {
-  0%, 100% { box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4), 0 2px 8px rgba(0, 0, 0, 0.15); }
-  50% { box-shadow: 0 4px 20px rgba(37, 99, 235, 0.6), 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(37, 99, 235, 0.2); }
+  0%,
+  100% {
+    box-shadow:
+      0 4px 20px rgba(37, 99, 235, 0.4),
+      0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 4px 20px rgba(37, 99, 235, 0.6),
+      0 2px 8px rgba(0, 0, 0, 0.15),
+      0 0 0 4px rgba(37, 99, 235, 0.2);
+  }
 }
 
 /* Responsividade */
