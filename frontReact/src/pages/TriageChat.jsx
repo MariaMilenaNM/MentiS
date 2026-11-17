@@ -23,6 +23,7 @@ function TriageChat() {
     isLoggedIn,
     error,
     messagesEndRef,
+    messagesContainerRef,
     sendMessage,
     handleLoginRedirect,
     handleNewSearch,
@@ -50,11 +51,13 @@ function TriageChat() {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, scrollToBottom]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
 
   const handleSendMessage = useCallback(
     (content) => {

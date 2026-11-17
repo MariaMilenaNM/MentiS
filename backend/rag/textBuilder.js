@@ -10,13 +10,13 @@ import { logger } from '../utils/logger.js';
  */
 function formatAbordagem(abordagem) {
   const mapa = {
-    'COGNITIVO_COMPORTAMENTAL': 'Cognitivo-Comportamental (TCC)',
-    'PSICANALITICA': 'Psicanalítica',
-    'HUMANISTA': 'Humanista',
-    'SISTEMICA': 'Sistêmica',
-    'GESTALT': 'Gestalt',
-    'JUNGUIANA': 'Junguiana',
-    'OUTRA': 'Outra abordagem',
+    COGNITIVO_COMPORTAMENTAL: 'Cognitivo-Comportamental (TCC)',
+    PSICANALITICA: 'Psicanalítica',
+    HUMANISTA: 'Humanista',
+    SISTEMICA: 'Sistêmica',
+    GESTALT: 'Gestalt',
+    JUNGUIANA: 'Junguiana',
+    OUTRA: 'Outra abordagem',
   };
   return mapa[abordagem] || abordagem;
 }
@@ -26,9 +26,9 @@ function formatAbordagem(abordagem) {
  */
 function formatModalidade(modalidade) {
   const mapa = {
-    'ONLINE': 'Online',
-    'PRESENCIAL': 'Presencial',
-    'HIBRIDO': 'Híbrido (Online e Presencial)',
+    ONLINE: 'Online',
+    PRESENCIAL: 'Presencial',
+    HIBRIDO: 'Híbrido (Online e Presencial)',
   };
   return mapa[modalidade] || modalidade;
 }
@@ -40,7 +40,7 @@ function parseEspecialidades(especialidadesString) {
   try {
     const parsed = JSON.parse(especialidadesString);
     if (Array.isArray(parsed)) {
-      return parsed.filter(s => s && typeof s === 'string').join(', ');
+      return parsed.filter((s) => s && typeof s === 'string').join(', ');
     }
     return '';
   } catch {
@@ -83,9 +83,19 @@ export function buildPsychologistText(psicologo) {
     parts.push(`Modalidade: ${formatModalidade(psicologo.modalidade)}`);
   }
 
-  // Preço
+  // Preço + faixa de preço (para melhor matching semântico em embeddings mock)
   if (psicologo.preco !== undefined && psicologo.preco !== null) {
-    parts.push(`Preço: R$ ${Number(psicologo.preco).toFixed(2)}/sessão`);
+    const preco = Number(psicologo.preco);
+    parts.push(`Preço: R$ ${preco.toFixed(2)}/sessão`);
+
+    // Adicionar faixa de preço para busca semântica
+    if (preco <= 150) {
+      parts.push('Faixa de preço: acessível econômico');
+    } else if (preco <= 200) {
+      parts.push('Faixa de preço: médio');
+    } else {
+      parts.push('Faixa de preço: premium');
+    }
   }
 
   // Bio
@@ -97,7 +107,7 @@ export function buildPsychologistText(psicologo) {
 
   logger.debug('Texto construído para embedding', {
     psicologoId: psicologo.id,
-    textoLength: textoFinal.length
+    textoLength: textoFinal.length,
   });
 
   return textoFinal;
@@ -113,8 +123,8 @@ export function buildPsychologistMetadata(psicologo) {
 
   const especialidades = parseEspecialidades(psicologo.especialidades)
     .split(',')
-    .map(s => s.trim())
-    .filter(s => s);
+    .map((s) => s.trim())
+    .filter((s) => s);
 
   return {
     profissionalId: psicologo.id,
@@ -126,6 +136,8 @@ export function buildPsychologistMetadata(psicologo) {
     modalidade: psicologo.modalidade,
     preco: psicologo.preco ? Number(psicologo.preco) : null,
     validado: psicologo.validado,
+    cidade: psicologo.cidade || null,
+    estado: psicologo.estado || null,
     source: 'profissional_profile',
     version: 1,
   };

@@ -11,7 +11,9 @@ import crudHorario from './crudnode/crudHorarioRotas.js';
 import crudAgendamento from './crudnode/crudAgendamentoRotas.js';
 import crudConversa from './crudnode/crudConversaRotas.js';
 import authRoutes from './crudnode/authRotas.js';
+import ragRoutes from './crudnode/ragRotas.js';
 import crudTriage from './crudnode/crudTriageRotas.js';
+import { initializeRAG } from './rag/index.js';
 import { indexValidatedPsychologists } from './rag/indexer.js';
 
 const app = express();
@@ -90,6 +92,7 @@ app.use('/auth', authRoutes);
 app.use('/horarios', crudHorario);
 app.use('/agendamentos', agendamentoLimiter, crudAgendamento);
 app.use('/conversas', chatLimiter, crudConversa);
+app.use('/rag', ragRoutes);
 
 // Rota de triagem/RAG
 app.use('/triage', chatLimiter, crudTriage);
@@ -99,12 +102,23 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Inicializa RAG indexer na inicialização do servidor (non-blocking)
-async function initializeRAG() {
+// Inicialização assíncrona do RAG (não bloqueia o servidor)
+async function initializeRAGSystems() {
   try {
-    logger.info('Inicializando indexador RAG...');
+    // Inicializa sistema RAG principal (test-claude)
+    await initializeRAG();
+    logger.info('Sistema RAG inicializado com sucesso');
+  } catch (error) {
+    logger.error('Falha ao inicializar RAG (servidor continua funcionando)', {
+      error: error.message,
+    });
+  }
+
+  try {
+    // Inicializa indexador de psicólogos validados (RAG branch)
+    logger.info('Inicializando indexador RAG de psicólogos validados...');
     const result = await indexValidatedPsychologists({ clearFirst: true });
-    logger.info('Indexador RAG concluído', result);
+    logger.info('Indexador RAG de psicólogos concluído', result);
   } catch (error) {
     logger.error('Erro ao inicializar indexador RAG', { error: error.message });
     // Não falha o servidor se indexação falhar
@@ -112,10 +126,10 @@ async function initializeRAG() {
 }
 
 // Inicia servidor
-const server = app.listen(PORT, async () => {
+const server = app.listen(PORT, () => {
   logger.info(`Servidor rodando na porta ${PORT}`);
-  // Inicializa RAG em background após servidor estar pronto
-  initializeRAG();
+  // Inicializar RAG em background
+  initializeRAGSystems();
 });
 
 export default server;

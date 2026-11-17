@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { buscarPacientePorId, atualizarPacienteBd } from '../services/crudPainel.js';
 import { getProfissionais } from '../services/crudProfissional.js';
+import { criarAgendamento, getHorariosDisponiveis } from '../services/crudAgendamento.js';
 import { getToken, isTokenExpired, logout, getPacienteLogado } from '../services/crudPaciente.js';
 
 export function usePainel() {
@@ -10,15 +11,37 @@ export function usePainel() {
   const [pacienteLogado, setPacienteLogado] = useState(null);
   const [todosProfissionais, setTodosProfissionais] = useState([]);
 
+  // Estado para filtros (valores do formulário)
+  const [filtros, setFiltros] = useState({
+    especialidade: '',
+    precoMax: '',
+    modalidade: '',
+  });
+
+  // Estado para filtros com debounce (valores usados na API)
+  const [filtrosDebounced, setFiltrosDebounced] = useState({
+    especialidade: '',
+    precoMax: '',
+    modalidade: '',
+  });
+
   const [sidebarAberta, setSidebarAberta] = useState(true);
   const [modoEdicao, setModoEdicao] = useState(false);
 
-  const ITENS_POR_PAGINA = 6;
+  // Itens por página: 8 com sidebar expandida, 10 com sidebar encolhida
+  const ITENS_POR_PAGINA = sidebarAberta ? 8 : 10;
   const [paginaAtual, setPaginaAtual] = useState(1);
 
   const [editForm, setEditForm] = useState({ nome: '', telefone: '', cidade: '', estado: '' });
   const [editErro, setEditErro] = useState('');
   const [sucessoMsg, setSucessoMsg] = useState('');
+
+  // Estado para agendamento
+  const [agendandoProfissionalId, setAgendandoProfissionalId] = useState(null);
+  const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
+  const [agendamentoCarregando, setAgendamentoCarregando] = useState(false);
+  const [agendamentoErro, setAgendamentoErro] = useState('');
+  const [agendamentoSucesso, setAgendamentoSucesso] = useState('');
 
   // Verificar token no carregamento E quando a janela ganha foco/aba volta ativa
   useEffect(() => {
@@ -60,6 +83,24 @@ export function usePainel() {
     navigateRef.current = navigate;
   }, [navigate]);
 
+  // Debounce dos filtros: atualiza filtrosDebounced 300ms após última mudança
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFiltrosDebounced(filtros);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [filtros]);
+
+  const carregarProfissionais = useCallback(async () => {
+    try {
+      const profissionais = await getProfissionais(filtrosDebounced);
+      setTodosProfissionais(profissionais || []);
+      setPaginaAtual(1); // Reset para primeira página ao filtrar
+    } catch (error) {
+      console.error('Erro ao carregar profissionais:', error);
+    }
+  }, [filtrosDebounced]);
+
   const carregarDados = useCallback(async () => {
     const storage = getPacienteLogado();
     if (!storage) {
@@ -77,19 +118,25 @@ export function usePainel() {
         return;
       }
 
-      const profissionais = await getProfissionais();
-      setTodosProfissionais(profissionais || []);
+      await carregarProfissionais();
     } catch (error) {
       console.error('Erro ao carregar dados do painel:', error);
       logout();
       navigateRef.current('/paciente');
     }
-  }, []); // navigate removido das deps - usa ref estável
+  }, [carregarProfissionais]);
 
-  // dependência com useCallback
+  // Carregar dados iniciais apenas uma vez no mount
   useEffect(() => {
     carregarDados();
-  }, [carregarDados]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Recarregar profissionais quando filtrosDebounced mudarem (após debounce)
+  useEffect(() => {
+    if (pacienteLogado) {
+      carregarProfissionais();
+    }
+  }, [carregarProfissionais, pacienteLogado]);
 
   // (YYYY-MM-DD ou DD/MM/YYYY)
   const formatarData = (data) => {
@@ -164,6 +211,65 @@ export function usePainel() {
     }
   };
 
+  // Agendamento - abrir modal para selecionar horário
+  const abrirAgendamento = async (profissionalId) => {
+    setAgendandoProfissionalId(profissionalId);
+    setAgendamentoErro('');
+    setAgendamentoSucesso('');
+    setHorariosDisponiveis([]);
+    setAgendamentoCarregando(true);
+
+    try {
+      const horarios = await getHorariosDisponiveis(profissionalId);
+      setHorariosDisponiveis(horarios || []);
+    } catch {
+      setAgendamentoErro('Erro ao carregar horários disponíveis. Tente novamente.');
+    } finally {
+      setAgendamentoCarregando(false);
+    }
+  };
+
+  const fecharAgendamento = () => {
+    setAgendandoProfissionalId(null);
+    setHorariosDisponiveis([]);
+    setAgendamentoErro('');
+    setAgendamentoSucesso('');
+  };
+
+  const confirmarAgendamento = async (dataHora, observacoes = '') => {
+    if (!agendandoProfissionalId) return;
+
+    setAgendamentoCarregando(true);
+    setAgendamentoErro('');
+    setAgendamentoSucesso('');
+
+    try {
+      await criarAgendamento({
+        psicologoId: agendandoProfissionalId,
+        dataHora: new Date(dataHora).toISOString(),
+        duracaoMin: 50,
+        observacoes,
+      });
+      setAgendamentoSucesso(
+        'Agendamento realizado com sucesso! Aguarde a confirmação do profissional.'
+      );
+      // Fechar modal após 3 segundos
+      setTimeout(() => {
+        fecharAgendamento();
+      }, 3000);
+    } catch (error) {
+      if (error.message.includes('Horário já agendado')) {
+        setAgendamentoErro('Este horário já foi agendado. Escolha outro horário.');
+      } else if (error.message.includes('Profissional não validado')) {
+        setAgendamentoErro('Este profissional ainda não foi validado.');
+      } else {
+        setAgendamentoErro('Erro ao agendar. Tente novamente.');
+      }
+    } finally {
+      setAgendamentoCarregando(false);
+    }
+  };
+
   const sair = () => {
     logout();
     navigate('/');
@@ -174,6 +280,42 @@ export function usePainel() {
   const totalPaginas = Math.ceil(todosProfissionais.length / ITENS_POR_PAGINA);
 
   const limparSucessoMsg = () => setSucessoMsg('');
+
+  // Funções para manipular filtros
+  const setFiltroEspecialidade = useCallback((especialidade) => {
+    setFiltros((prev) => ({ ...prev, especialidade }));
+  }, []);
+
+  const setFiltroPrecoMax = useCallback((precoMax) => {
+    setFiltros((prev) => ({ ...prev, precoMax }));
+  }, []);
+
+  const setFiltroModalidade = useCallback((modalidade) => {
+    setFiltros((prev) => ({ ...prev, modalidade }));
+  }, []);
+
+  const limparFiltros = useCallback(() => {
+    setFiltros({ especialidade: '', precoMax: '', modalidade: '' });
+  }, []);
+
+  // Extrair especialidades únicas dos profissionais para o dropdown
+  const especialidadesDisponiveis = useMemo(() => {
+    const especialidades = new Set();
+    todosProfissionais.forEach((p) => {
+      if (p.especialidades) {
+        try {
+          const espArray = JSON.parse(p.especialidades);
+          if (Array.isArray(espArray)) {
+            espArray.forEach((e) => especialidades.add(e));
+          }
+        } catch {
+          // Se não for JSON válido, tratar como string simples
+          especialidades.add(p.especialidades);
+        }
+      }
+    });
+    return Array.from(especialidades).sort();
+  }, [todosProfissionais]);
 
   return {
     pacienteLogado,
@@ -194,5 +336,21 @@ export function usePainel() {
     sair,
     profissionaisPagina,
     totalPaginas,
+    // Filtros
+    filtros,
+    setFiltroEspecialidade,
+    setFiltroPrecoMax,
+    setFiltroModalidade,
+    limparFiltros,
+    especialidadesDisponiveis,
+    // Agendamento
+    agendandoProfissionalId,
+    horariosDisponiveis,
+    agendamentoCarregando,
+    agendamentoErro,
+    agendamentoSucesso,
+    abrirAgendamento,
+    fecharAgendamento,
+    confirmarAgendamento,
   };
 }

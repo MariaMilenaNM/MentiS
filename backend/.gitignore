@@ -3,3 +3,5 @@ node_modules/
 prisma/dev.db
 prisma/dev.db-journal
 *.log
+# RAG vector store artifacts (experimental, not implemented)
+rag-store/

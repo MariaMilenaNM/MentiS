@@ -50,8 +50,15 @@
 }
 
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 4px 20px rgba(74, 144, 217, 0.4); }
-  50% { box-shadow: 0 4px 20px rgba(74, 144, 217, 0.6), 0 0 0 8px rgba(74, 144, 217, 0.1); }
+  0%,
+  100% {
+    box-shadow: 0 4px 20px rgba(74, 144, 217, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 4px 20px rgba(74, 144, 217, 0.6),
+      0 0 0 8px rgba(74, 144, 217, 0.1);
+  }
 }
 
 /* Botão toggle oculto quando painel aberto */
@@ -457,12 +464,24 @@
   animation: typing 1.4s infinite ease-in-out;
 }
 
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 @keyframes typing {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30% { transform: translateY(-4px); opacity: 1; }
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
 }
 
 /* Error display */
@@ -517,7 +536,9 @@
   max-height: 100px;
   line-height: 1.4;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .widget-textarea:focus {

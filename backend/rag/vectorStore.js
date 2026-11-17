@@ -1,103 +1,243 @@
 /**
- * Abstração do Vector Store usando MemoryVectorStore do LangChain (desenvolvimento local).
- * Em produção, migrar para Chroma server ou Qdrant.
+ * HNSWLib VectorStore Singleton para RAG
+ * Armazena documentos dos psicólogos validados em memória com embeddings
+ * Usa HNSWLib (Hierarchical Navigable Small World) para busca vetorial eficiente
  */
 
-import { MemoryVectorStore } from 'langchain/vectorstores/memory';
-import { OllamaEmbeddings } from '@langchain/ollama';
+import { HNSWLib } from '@langchain/community/vectorstores/hnswlib';
+import { getEmbeddings } from './embeddings.js';
 import { logger } from '../utils/logger.js';
-import { RAG_CONSTANTS } from './utils/constants.js';
+import { promises as fs } from 'fs';
+import path from 'path';
 
+// Chave única para armazenar a instância no globalThis (evita problemas de cache de módulo)
+const VECTOR_STORE_KEY = Symbol.for('mentis.vectorStore.instance');
+const VECTOR_STORE_INIT_KEY = Symbol.for('mentis.vectorStore.initialized');
+
+// Instância singleton do vector store (fallback para module-level)
 let vectorStoreInstance = null;
-let embeddingsInstance = null;
+let isInitialized = false;
+const STORE_PATH = path.join(process.cwd(), 'rag-store');
+
+// Funções auxiliares para acessar globalThis
+function getGlobalInstance() {
+  return globalThis[VECTOR_STORE_KEY] ?? null;
+}
+
+function setGlobalInstance(instance) {
+  globalThis[VECTOR_STORE_KEY] = instance;
+}
+
+function getGlobalInitialized() {
+  return globalThis[VECTOR_STORE_INIT_KEY] ?? false;
+}
+
+function setGlobalInitialized(value) {
+  globalThis[VECTOR_STORE_INIT_KEY] = value;
+}
 
 /**
- * Inicializa (ou retorna instância existente) do MemoryVectorStore com embeddings Ollama
+ * Obtém a instância do HNSWLib VectorStore
+ * @returns {HNSWLib|null} Instância do vector store ou null se não inicializado
  */
-export async function getVectorStore() {
-  if (vectorStoreInstance) {
-    return vectorStoreInstance;
+export function getVectorStore() {
+  // Prioriza globalThis, fallback para module-level
+  return getGlobalInstance() ?? vectorStoreInstance;
+}
+
+/**
+ * Verifica se o vector store está inicializado
+ * @returns {boolean}
+ */
+export function isVectorStoreReady() {
+  const globalInstance = getGlobalInstance();
+  const globalInitialized = getGlobalInitialized();
+  return (
+    (globalInitialized && globalInstance !== null) ||
+    (isInitialized && vectorStoreInstance !== null)
+  );
+}
+
+/**
+ * Inicializa o HNSWLib VectorStore
+ * Tenta carregar do disco se existir, senão cria novo
+ * @returns {Promise<HNSWLib>} Instância inicializada
+ */
+export async function initializeVectorStore() {
+  // Verificar tanto globalThis quanto module-level
+  const globalInstance = getGlobalInstance();
+  const globalInitialized = getGlobalInitialized();
+  if ((globalInitialized && globalInstance) || (isInitialized && vectorStoreInstance)) {
+    logger.info('VectorStore já inicializado');
+    return globalInstance ?? vectorStoreInstance;
   }
 
   try {
-    // Inicializa embeddings Ollama
-    embeddingsInstance = new OllamaEmbeddings({
-      baseUrl: RAG_CONSTANTS.OLLAMA.BASE_URL,
-      model: RAG_CONSTANTS.OLLAMA.EMBEDDING_MODEL,
-    });
+    const embeddings = getEmbeddings();
 
-    // Testa conexão com Ollama
-    await embeddingsInstance.embedQuery('teste de conexão');
-    logger.info('Conexão com Ollama embeddings estabelecida', {
-      model: RAG_CONSTANTS.OLLAMA.EMBEDDING_MODEL,
-      baseUrl: RAG_CONSTANTS.OLLAMA.BASE_URL,
-    });
+    // Tentar carregar store existente
+    let storeExists = false;
+    try {
+      await fs.access(STORE_PATH);
+      storeExists = true;
+    } catch {
+      storeExists = false;
+    }
 
-    // Cria MemoryVectorStore vazio (documentos serão adicionados via indexer)
-    vectorStoreInstance = new MemoryVectorStore(embeddingsInstance);
+    let instance;
+    if (storeExists) {
+      logger.info('Carregando VectorStore existente do disco...');
+      instance = await HNSWLib.load(STORE_PATH, embeddings);
+    } else {
+      logger.info('Criando novo VectorStore (HNSWLib)...');
+      // HNSWLib.fromTexts com arrays vazios não define dimensão corretamente
+      // Criar com um documento dummy e depois remover, ou usar fromDocuments
+      instance = await HNSWLib.fromTexts(
+        ['inicialização do vector store'], // documento dummy para definir dimensão
+        [{ _dummy: true, psicologoId: -1 }], // metadados dummy
+        embeddings
+      );
+      // Remover documento dummy
+      // Nota: HNSWLib não suporta deleção fácil, mas o dummy tem ID -1 que não conflita
+    }
 
-    logger.info('MemoryVectorStore inicializado com sucesso');
-    return vectorStoreInstance;
+    // Atualizar ambos: globalThis (para compartilhamento entre instâncias de módulo) e module-level
+    vectorStoreInstance = instance;
+    isInitialized = true;
+    setGlobalInstance(instance);
+    setGlobalInitialized(true);
+
+    logger.info('HNSWLib VectorStore inicializado com sucesso');
+    return instance;
   } catch (error) {
-    logger.error('Erro ao inicializar Vector Store', {
-      error: error.message,
-      stack: error.stack,
-    });
-    throw new Error(`Falha ao inicializar Vector Store: ${error.message}`);
+    logger.error('Erro ao inicializar HNSWLib VectorStore', { error: error.message });
+    throw error;
+  }
+}
+
+/**
+ * Salva o vector store no disco
+ * @returns {Promise<void>}
+ */
+export async function saveVectorStore() {
+  if (!isVectorStoreReady()) {
+    logger.warn('VectorStore não inicializado - nada para salvar');
+    return;
+  }
+
+  const instance = getGlobalInstance() ?? vectorStoreInstance;
+  try {
+    await fs.mkdir(STORE_PATH, { recursive: true });
+    await instance.save(STORE_PATH);
+    logger.info('VectorStore salvo no disco', { path: STORE_PATH });
+  } catch (error) {
+    logger.error('Erro ao salvar VectorStore', { error: error.message });
   }
 }
 
 /**
  * Adiciona documentos ao vector store
- * @param {Array<{pageContent: string, metadata: Object}>} documents - Documentos para indexar
+ * @param {Array<{pageContent: string, metadata: Object}>} documents - Documentos no formato LangChain
+ * @returns {Promise<void>}
  */
 export async function addDocuments(documents) {
-  const store = await getVectorStore();
-
-  if (!documents || documents.length === 0) {
-    logger.warn('addDocuments: nenhum documento fornecido');
-    return;
+  if (!isVectorStoreReady()) {
+    await initializeVectorStore();
   }
 
+  const instance = getGlobalInstance() ?? vectorStoreInstance;
   try {
-    await store.addDocuments(documents);
-    logger.info('Documentos adicionados ao Vector Store', {
-      count: documents.length,
-    });
+    await instance.addDocuments(
+      documents.map((d) => ({
+        pageContent: d.pageContent,
+        metadata: d.metadata,
+      }))
+    );
+
+    // Salvar após adicionar
+    await saveVectorStore();
+
+    logger.info(`Adicionados ${documents.length} documentos ao VectorStore`);
   } catch (error) {
-    logger.error('Erro ao adicionar documentos ao Vector Store', {
-      error: error.message,
-      count: documents.length,
-    });
+    logger.error('Erro ao adicionar documentos ao VectorStore', { error: error.message });
     throw error;
   }
 }
 
 /**
  * Busca por similaridade no vector store
- * @param {string} query - Query de busca
- * @param {number} k - Número de resultados
- * @param {Object} filter - Filtro de metadados (opcional)
- * @returns {Array<{pageContent: string, metadata: Object, score: number}>}
+ * @param {string} query - Texto da busca
+ * @param {number} k - Número de resultados (padrão: 5)
+ * @param {Object} filter - Filtro de metadados (aplicado em JS pós-busca, HNSWLib filter crasha)
+ * @returns {Promise<Array<{pageContent: string, metadata: Object, score: number}>>}
  */
-export async function similaritySearch(query, k = 10, filter = {}) {
-  const store = await getVectorStore();
+export async function similaritySearch(query, k = 5, filter = {}) {
+  if (!isVectorStoreReady()) {
+    logger.warn('VectorStore não inicializado - retornando resultados vazios');
+    return [];
+  }
 
   try {
-    // MemoryVectorStore não suporta filtro nativo, filtramos após a busca
-    const results = await store.similaritySearchWithScore(query, k * 3); // Busca mais para compensar filtro manual
+    const instance = getGlobalInstance() ?? vectorStoreInstance;
+    // HNSWLib falha se k > número de elementos no índice
+    // Obter contagem real de documentos válidos
+    const stats = getStats();
+    const validCount = stats.documentCount;
+    const safeK = Math.min(k * 3, Math.max(1, validCount)); // Buscar 3x para compensar filtros
 
-    let filtered = results
+    if (validCount === 0) {
+      return [];
+    }
+
+    // IMPORTANTE: Não passar filter para HNSWLib (causa crash no CustomFilterFunctor)
+    // Filtrar em JavaScript após a busca
+    const results = await instance.similaritySearchWithScore(query, safeK);
+    // Filtrar documento dummy (psicologoId: -1) e aplicar filtros manuais
+    const filtered = results
+      .filter(([doc]) => doc.metadata?.psicologoId !== -1)
       .filter(([doc]) => {
-        if (Object.keys(filter).length === 0) return true;
-        return Object.entries(filter).every(([key, value]) => doc.metadata[key] === value);
+        // Aplicar filtros manuais com lógica apropriada por tipo
+        for (const [key, value] of Object.entries(filter)) {
+          // Mapear chaves de filtro para campos de metadata
+          let metaKey = key;
+          if (key === 'precoMax') metaKey = 'preco';
+          if (key === 'especialidade') metaKey = 'especialidades';
+
+          const metaValue = doc.metadata[metaKey];
+
+          // precoMax: filtro de range (<=)
+          if (key === 'precoMax') {
+            if (
+              metaValue === null ||
+              metaValue === undefined ||
+              Number(metaValue) > Number(value)
+            ) {
+              return false;
+            }
+            continue;
+          }
+
+          // especialidade: array contains (case-insensitive)
+          if (key === 'especialidade') {
+            const especialidades = metaValue || [];
+            const searchTerm = String(value).toLowerCase();
+            const hasMatch = especialidades.some((s) =>
+              String(s).toLowerCase().includes(searchTerm)
+            );
+            if (!hasMatch) return false;
+            continue;
+          }
+
+          // Demais filtros: comparação exata
+          if (metaValue !== value) return false;
+        }
+        return true;
       })
       .slice(0, k)
       .map(([doc, score]) => ({
         pageContent: doc.pageContent,
         metadata: doc.metadata,
-        // Converter distance para similarity (0-1, onde 1 = mais similar)
-        similarity: 1 - Math.min(score, 1),
+        score: 1 - score, // Converter distância para similaridade (0-1)
       }));
 
     logger.debug('Busca por similaridade realizada', {
@@ -108,87 +248,225 @@ export async function similaritySearch(query, k = 10, filter = {}) {
 
     return filtered;
   } catch (error) {
-    logger.error('Erro na busca por similaridade', {
-      error: error.message,
-      query: query.substring(0, 100),
-    });
+    logger.error('Erro na busca por similaridade', { error: error.message, query });
     throw error;
   }
 }
 
 /**
- * Busca por similaridade com score bruto (para debug/rerank)
+ * Busca por similaridade com score bruto
  * @param {string} query
  * @param {number} k
- * @returns {Array<{pageContent: string, metadata: Object, score: number}>}
+ * @param {Object} filter - Filtro de metadados (aplicado em JS pós-busca, HNSWLib filter crasha)
+ * @returns {Promise<Array<{doc: Document, score: number}>>}
  */
-export async function similaritySearchWithScore(query, k = 10) {
-  const store = await getVectorStore();
-
+export async function similaritySearchWithScore(query, k = 5, filter = {}) {
+  if (!isVectorStoreReady()) {
+    return [];
+  }
   try {
-    const results = await store.similaritySearchWithScore(query, k);
-    return results.map(([doc, score]) => ({
-      pageContent: doc.pageContent,
-      metadata: doc.metadata,
-      score, // distance score (menor = mais similar)
-      similarity: 1 - Math.min(score, 1),
-    }));
+    const instance = getGlobalInstance() ?? vectorStoreInstance;
+    // HNSWLib falha se k > número de elementos no índice
+    const stats = getStats();
+    const validCount = stats.documentCount;
+    const safeK = Math.min(k * 3, Math.max(1, validCount)); // Buscar 3x para compensar filtros
+
+    if (validCount === 0) {
+      return [];
+    }
+
+    // IMPORTANTE: Não passar filter para HNSWLib (causa crash no CustomFilterFunctor)
+    // Filtrar em JavaScript após a busca
+    const results = await instance.similaritySearchWithScore(query, safeK);
+    // Filtrar documento dummy (psicologoId: -1) e aplicar filtros manuais
+    return results
+      .filter(([doc]) => doc.metadata?.psicologoId !== -1)
+      .filter(([doc]) => {
+        // Aplicar filtros manuais com lógica apropriada por tipo
+        for (const [key, value] of Object.entries(filter)) {
+          // Mapear chaves de filtro para campos de metadata
+          let metaKey = key;
+          if (key === 'precoMax') metaKey = 'preco';
+          if (key === 'especialidade') metaKey = 'especialidades';
+
+          const metaValue = doc.metadata[metaKey];
+
+          // precoMax: filtro de range (<=)
+          if (key === 'precoMax') {
+            if (
+              metaValue === null ||
+              metaValue === undefined ||
+              Number(metaValue) > Number(value)
+            ) {
+              return false;
+            }
+            continue;
+          }
+
+          // especialidade: array contains (case-insensitive)
+          if (key === 'especialidade') {
+            const especialidades = metaValue || [];
+            const searchTerm = String(value).toLowerCase();
+            const hasMatch = especialidades.some((s) =>
+              String(s).toLowerCase().includes(searchTerm)
+            );
+            if (!hasMatch) return false;
+            continue;
+          }
+
+          // Demais filtros: comparação exata
+          if (metaValue !== value) return false;
+        }
+        return true;
+      })
+      .slice(0, k);
   } catch (error) {
-    logger.error('Erro na busca com score', { error: error.message });
+    logger.error('Erro na busca por similaridade com score', { error: error.message, query });
     throw error;
   }
 }
 
 /**
- * Limpa o vector store (recria instância vazia)
+ * Obtém estatísticas do vector store
+ * @returns {Object} Estatísticas
  */
-export async function clearVectorStore() {
-  vectorStoreInstance = null;
-  embeddingsInstance = null;
-  logger.info('Vector Store limpo - próxima chamada recriará instância');
+export function getStats() {
+  const instance = getGlobalInstance() ?? vectorStoreInstance;
+  if (!instance) {
+    return { initialized: false, documentCount: 0 };
+  }
+
+  // HNSWLib usa SynchronousInMemoryDocstore com propriedade _docs (Map)
+  let totalCount = 0;
+  let dummyCount = 0;
+
+  const docstore = instance.docstore;
+  let docsMap = null;
+
+  if (docstore) {
+    if (docstore._docs && typeof docstore._docs.size === 'number') {
+      // SynchronousInMemoryDocstore com Map interno
+      docsMap = docstore._docs;
+    } else if (typeof docstore.size === 'number') {
+      // Map direto
+      docsMap = docstore;
+    } else if (Array.isArray(docstore)) {
+      // Array
+      totalCount = docstore.length;
+      dummyCount = docstore.filter((d) => d.metadata?.psicologoId === -1).length;
+    } else if (typeof docstore === 'object') {
+      // Objeto genérico
+      const entries = Object.entries(docstore);
+      totalCount = entries.length;
+      dummyCount = entries.filter(([, doc]) => doc.metadata?.psicologoId === -1).length;
+    }
+  }
+
+  if (docsMap) {
+    totalCount = docsMap.size;
+    for (const [, doc] of docsMap) {
+      if (doc.metadata?.psicologoId === -1) dummyCount++;
+    }
+  }
+
+  // Usar globalInitialized se disponível, senão fallback para module-level
+  const initialized = getGlobalInitialized() || isInitialized;
+
+  return {
+    initialized,
+    documentCount: Math.max(0, totalCount - dummyCount),
+  };
 }
 
 /**
- * Retorna estatísticas do vector store
+ * Adiciona ou atualiza um único documento no vector store (upsert)
+ * Nota: HNSWLib não suporta deleção por ID, então isso apenas adiciona.
+ * Para updates reais, recomenda-se re-ingestão completa.
+ * @param {Object} document - Documento no formato { pageContent, metadata }
+ * @returns {Promise<void>}
  */
-export async function getVectorStoreStats() {
-  const store = await getVectorStore();
-  // MemoryVectorStore não expõe count diretamente, estimativa via busca ampla
+export async function upsertDocument(document) {
+  if (!isVectorStoreReady()) {
+    await initializeVectorStore();
+  }
+
+  const instance = getGlobalInstance() ?? vectorStoreInstance;
   try {
-    const all = await store.similaritySearchWithScore('', 1000);
-    return {
-      documentCount: all.length,
-      type: 'MemoryVectorStore',
-      embeddingModel: RAG_CONSTANTS.OLLAMA.EMBEDDING_MODEL,
-    };
-  } catch {
-    return {
-      documentCount: 0,
-      type: 'MemoryVectorStore',
-      embeddingModel: RAG_CONSTANTS.OLLAMA.EMBEDDING_MODEL,
-    };
+    await instance.addDocuments([
+      {
+        pageContent: document.pageContent,
+        metadata: document.metadata,
+      },
+    ]);
+
+    // Salvar após adicionar
+    await saveVectorStore();
+
+    logger.info(`Documento upsertado no VectorStore`, {
+      psicologoId: document.metadata?.psicologoId,
+    });
+  } catch (error) {
+    logger.error('Erro ao fazer upsert de documento', { error: error.message });
+    throw error;
   }
 }
 
 /**
- * Verifica se o vector store está saudável (consegue fazer embedding)
+ * Health check do vector store
+ * @returns {Promise<Object>} Status de saúde
  */
 export async function healthCheck() {
   try {
-    const store = await getVectorStore();
-    await store.similaritySearchWithScore('health check', 1);
-    return { status: 'healthy', type: 'MemoryVectorStore' };
+    const initialized = isVectorStoreReady();
+    const stats = getStats();
+    return {
+      status: initialized ? 'healthy' : 'initializing',
+      initialized,
+      documentCount: stats.documentCount,
+      timestamp: new Date().toISOString(),
+    };
   } catch (error) {
-    return { status: 'unhealthy', error: error.message };
+    return {
+      status: 'unhealthy',
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    };
   }
 }
 
-export default {
-  getVectorStore,
-  addDocuments,
-  similaritySearch,
-  similaritySearchWithScore,
-  clearVectorStore,
-  getVectorStoreStats,
-  healthCheck,
-};
+/**
+ * Reseta o vector store (útil para testes ou re-ingestão completa)
+ * @returns {Promise<void>}
+ */
+export async function resetVectorStore() {
+  // Limpar ambos: globalThis e module-level
+  vectorStoreInstance = null;
+  isInitialized = false;
+  setGlobalInstance(null);
+  setGlobalInitialized(false);
+
+  // Remover diretório do store
+  try {
+    await fs.rm(STORE_PATH, { recursive: true, force: true });
+  } catch {
+    // Ignorar erro se não existir
+  }
+  await initializeVectorStore();
+  logger.info('VectorStore resetado');
+}
+
+/**
+ * Alias para resetVectorStore (compatibilidade)
+ * @returns {Promise<void>}
+ */
+export async function clearVectorStore() {
+  return await resetVectorStore();
+}
+
+/**
+ * Alias para getStats (compatibilidade)
+ * @returns {Object} Estatísticas do vector store
+ */
+export function getVectorStoreStats() {
+  return getStats();
+}

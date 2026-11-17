@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
 import { getProfissionais } from '../../services/crudProfissional.js';
 import { getPacienteLogado } from '../../services/crudPaciente.js';
 import TriageChatWidget from '../../components/TriageChatWidget';
@@ -12,37 +12,29 @@ import imgCard3 from '../../assets/Card3.jpg';
 
 export default function LandingPage() {
   const [profissionais, setProfissionais] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
   const [pacienteLogado, setPacienteLogado] = useState(null);
 
   const carregarProfissionais = useCallback(async () => {
     try {
-      setLoading(true);
+      setCarregando(true);
       const dados = await getProfissionais();
-      // Filtra apenas validados para mostrar ao publico
+      // Filtrar apenas profissionais validados para a landing page
       const validados = (dados || []).filter((p) => p.validado !== false);
-      setProfissionais(validados.slice(0, 12)); // Limita a 12 para o catalogo
+      setProfissionais(validados);
+      setErro(null);
     } catch (error) {
       console.error('Erro ao carregar profissionais:', error);
-      setErro('Nao foi possivel carregar os profissionais');
+      setProfissionais([]);
+      setErro('Não foi possível carregar os profissionais');
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   }, []);
 
-  const formatarModalidade = (modalidade) => {
-    if (!modalidade) return 'Nao informado';
-    if (modalidade === 'Presencial e Remota') return 'Hibrido';
-    return modalidade;
-  };
-
-  const getInicial = (nome) => {
-    return nome ? nome.charAt(0).toUpperCase() : '?';
-  };
-
   useEffect(() => {
-    // Verifica se paciente esta logado
+    // Verifica se paciente está logado
     const storage = getPacienteLogado();
     if (storage) {
       setPacienteLogado(storage);
@@ -51,6 +43,30 @@ export default function LandingPage() {
     // Carrega profissionais da API
     carregarProfissionais();
   }, [carregarProfissionais]);
+
+  const formatarModalidade = (modalidade) => {
+    if (!modalidade) return 'Não informado';
+    if (modalidade === 'Presencial e Remota') return 'Híbrido';
+    return modalidade;
+  };
+
+  const getInicial = (nome) => {
+    return nome ? nome.charAt(0).toUpperCase() : '?';
+  };
+
+  // Formatar especialidades: parsear JSON e exibir como lista separada por vírgulas
+  const formatarEspecialidades = (especialidadesStr) => {
+    if (!especialidadesStr) return 'Não informadas';
+    try {
+      const espArray = JSON.parse(especialidadesStr);
+      if (Array.isArray(espArray)) {
+        return espArray.join(', ');
+      }
+      return especialidadesStr;
+    } catch {
+      return especialidadesStr;
+    }
+  };
 
   return (
     <>
@@ -73,7 +89,7 @@ export default function LandingPage() {
                 </Link>
               ) : (
                 <Link to="/paciente" id="inscrevaButton">
-                  FACA LOGIN
+                  FAÇA LOGIN
                 </Link>
               )}
             </li>
@@ -88,16 +104,16 @@ export default function LandingPage() {
             sua mente com a <span className="light">MentiS</span>
           </h2>
           <p>
-            Encontrar o profissional certo nao precisa ser um desafio. Nossa plataforma une voce a
+            Encontrar o profissional certo não precisa ser um desafio. Nossa plataforma une você a
             profissionais verificados de forma simples e segura. Navegue pelos perfis e cuide da sua
-            saude mental no seu ritmo.
+            saúde mental no seu ritmo.
           </p>
           <Link to="/profissional" className="btn-encontrar">
             REGISTRE-SE COMO PROFISSIONAL
           </Link>
         </div>
         <div className="imagem-direita">
-          <img src={imgConversa} alt="Ilustracao terapia" />
+          <img src={imgConversa} alt="Ilustração terapia" />
         </div>
       </section>
 
@@ -111,7 +127,7 @@ export default function LandingPage() {
               <h3>Profissional Certo</h3>
               <p>
                 Encontre o profissional ideal para o seu momento de vida, navegando por perfis
-                focados no que voce realmente busca.
+                focados no que você realmente busca.
               </p>
             </div>
           </div>
@@ -123,31 +139,31 @@ export default function LandingPage() {
             <div className="corpo">
               <h3>Terapia do Seu Jeito</h3>
               <p>
-                O conforto de casa ou o ambiente do consultorio? Descubra profissionais com a
-                modalidade que melhor se adapta a voce.
+                O conforto de casa ou o ambiente do consultório? Descubra profissionais com a
+                modalidade que melhor se adapta a você.
               </p>
             </div>
           </div>
 
           <div className="card">
             <div className="imgm">
-              <img src={imgCard3} alt="Conexao Direta" />
+              <img src={imgCard3} alt="Conexão Direta" />
             </div>
             <div className="corpo">
-              <h3>Conexao Direta</h3>
+              <h3>Conexão Direta</h3>
               <p>
-                Nossa plataforma liga voce diretamente ao contato do profissional escolhido, sem
-                intermediarios.
+                Nossa plataforma liga você diretamente ao contato do profissional escolhido, sem
+                intermediários.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Catalogo dinamico de profissionais */}
+      {/* Catálogo dinâmico de profissionais */}
       <section className="profissionais-catalogo">
         <div className="catalogo-header">
-          <h2>PROFISSIONAIS DISPONIVEIS</h2>
+          <h2>PROFISSIONAIS DISPONÍVEIS</h2>
           <p className="catalogo-subtitle">
             {profissionais.length} profissional{profissionais.length !== 1 ? 'is' : ''} verificado
             {profissionais.length !== 1 ? 's' : ''} pronto{profissionais.length !== 1 ? 's' : ''}{' '}
@@ -155,7 +171,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        {loading ? (
+        {carregando ? (
           <div className="catalogo-loading" role="status" aria-live="polite">
             <div className="spinner"></div>
             <p>Carregando profissionais...</p>
@@ -176,13 +192,13 @@ export default function LandingPage() {
               </Link>
             ) : (
               <Link to="/paciente" className="btn-primary">
-                Faca login para ser notificado
+                Faça login para ser notificado
               </Link>
             )}
           </div>
         ) : (
           <>
-            <div className="catalogo-carousel" role="list" aria-label="Catalogo de profissionais">
+            <div className="catalogo-carousel" role="list" aria-label="Catálogo de profissionais">
               {profissionais.map((profissional) => {
                 const instagramUsername = profissional.link
                   ? profissional.link
@@ -194,7 +210,7 @@ export default function LandingPage() {
                   instagramUsername && /^[a-zA-Z0-9_.]+$/.test(instagramUsername);
                 const modalidadeFormatada = formatarModalidade(profissional.modalidade);
                 const classeTag =
-                  modalidadeFormatada === 'Hibrido' ? 'ambas' : modalidadeFormatada.toLowerCase();
+                  modalidadeFormatada === 'Híbrido' ? 'ambas' : modalidadeFormatada.toLowerCase();
 
                 return (
                   <article key={profissional.id} className="catalogo-card" role="listitem">
@@ -207,9 +223,9 @@ export default function LandingPage() {
                         {profissional.validado === false && (
                           <span
                             className="catalogo-badge-nao-validado"
-                            aria-label="Profissional nao validado"
+                            aria-label="Profissional não validado"
                           >
-                            Nao validado
+                            Não validado
                           </span>
                         )}
                       </div>
@@ -219,7 +235,7 @@ export default function LandingPage() {
                       </span>
                       <p className="catalogo-especialidades">
                         <strong>Especialidades:</strong>{' '}
-                        {profissional.especialidades || 'Nao informadas'}
+                        {formatarEspecialidades(profissional.especialidades)}
                       </p>
                       <p className="catalogo-contato">
                         <strong>E-mail:</strong> {profissional.contato}
@@ -251,7 +267,7 @@ export default function LandingPage() {
                 </Link>
               ) : (
                 <Link to="/paciente" className="btn-primary">
-                  Faca login para ver detalhes e agendar
+                  Faça login para ver detalhes e agendar
                 </Link>
               )}
             </div>
@@ -271,7 +287,7 @@ export default function LandingPage() {
           </div>
           <div className="trust-item">
             <span className="material-icons">favorite_border</span>
-            <span className="tlabel">Respeito a sua historia</span>
+            <span className="tlabel">Respeito a sua história</span>
           </div>
         </div>
       </section>
@@ -338,7 +354,7 @@ export default function LandingPage() {
         </a>
         <ul className="footer-links">
           <li>
-            <a href="#">SOBRE NOS</a>
+            <a href="#">SOBRE NÓS</a>
           </li>
           <li>
             <span className="sep">|</span>
@@ -350,7 +366,7 @@ export default function LandingPage() {
             <span className="sep">|</span>
           </li>
           <li>
-            <a href="#">POLITICA DE PRIVACIDADE</a>
+            <a href="#">POLÍTICA DE PRIVACIDADE</a>
           </li>
           <li>
             <span className="sep">|</span>

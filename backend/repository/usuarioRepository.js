@@ -34,7 +34,17 @@ export const usuarioRepository = {
 
   // Escrita aninhada: Usuario e Paciente são gravados na mesma transação,
   // então uma falha no perfil não deixa um usuário órfão.
-  createPaciente: async ({ email, senha, nome, aceiteLGPD, dataNasc, data, telefone, cidade, estado }) => {
+  createPaciente: async ({
+    email,
+    senha,
+    nome,
+    aceiteLGPD,
+    dataNasc,
+    data,
+    telefone,
+    cidade,
+    estado,
+  }) => {
     try {
       const hashedSenha = await bcrypt.hash(senha, SALT_ROUNDS);
       // Aceita tanto dataNasc (novo schema) quanto data (formato antigo do frontend)
@@ -53,8 +63,8 @@ export const usuarioRepository = {
               dataNasc: dataNascDate,
               telefone: telefone || '',
               cidade: cidade || '',
-              estado: estado || ''
-            }
+              estado: estado || '',
+            },
           },
         },
       });

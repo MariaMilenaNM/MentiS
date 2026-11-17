@@ -33,7 +33,8 @@ export function useTriageChat() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, scrollToBottom]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
 
   // Inicia conversa com mensagem inicial do assistente
   useEffect(() => {
@@ -47,6 +48,7 @@ export function useTriageChat() {
       };
       setMessages([initialMsg]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const sendMessage = useCallback(

@@ -1,0 +1,1301 @@
+{
+  "timestamp": "2026-11-16T21:58:44.892Z",
+  "totalTests": 15,
+  "passed": 15,
+  "failed": 0,
+  "results": [
+    {
+      "testCase": {
+        "id": "TC001",
+        "category": "Especialidade - Ansiedade",
+        "query": "psicólogo para ansiedade",
+        "description": "Busca genérica por psicólogo especialista em ansiedade",
+        "filters": {},
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainSpecialties": ["ansiedade", "Ansiedade", "ANSIO"],
+          "relevantPsychologists": [],
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 5,
+          "nome": "Dra. Fernanda Lima",
+          "similarityScore": 0.5,
+          "modalidade": "ONLINE",
+          "estado": "RS",
+          "preco": 110,
+          "especialidades": [
+            "Gestalt",
+            "Ansiedade",
+            "Bloqueios Criativos",
+            "Identidade",
+            "Expressão Emocional",
+            "Corpo"
+          ],
+          "abordagem": "GESTALT"
+        },
+        {
+          "psicologoId": 22,
+          "nome": "Dr. Thiago Ribeiro",
+          "similarityScore": 0.4472,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 230,
+          "especialidades": [
+            "TCC",
+            "TOC",
+            "ERP",
+            "Ansiedade",
+            "Transtornos Relacionados",
+            "Protocolo Intensivo"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 10,
+          "nome": "Dr. Rafael Barbosa",
+          "similarityScore": 0.4082,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 170,
+          "especialidades": [
+            "TCC Infantojuvenil",
+            "DBT",
+            "TDAH",
+            "Ansiedade Escolar",
+            "Bullying",
+            "Regulação Emocional"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC001",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.4518
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC002",
+        "category": "Especialidade - TCC",
+        "query": "terapia cognitivo comportamental",
+        "description": "Busca por TCC (Terapia Cognitivo-Comportamental)",
+        "filters": {},
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainSpecialties": [
+            "TCC",
+            "Cognitivo",
+            "Comportamental",
+            "COGNITIVO_COMPORTAMENTAL"
+          ],
+          "relevantApproaches": ["COGNITIVO_COMPORTAMENTAL"],
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 22,
+          "nome": "Dr. Thiago Ribeiro",
+          "similarityScore": 0.4472,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 230,
+          "especialidades": [
+            "TCC",
+            "TOC",
+            "ERP",
+            "Ansiedade",
+            "Transtornos Relacionados",
+            "Protocolo Intensivo"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 10,
+          "nome": "Dr. Rafael Barbosa",
+          "similarityScore": 0.4082,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 170,
+          "especialidades": [
+            "TCC Infantojuvenil",
+            "DBT",
+            "TDAH",
+            "Ansiedade Escolar",
+            "Bullying",
+            "Regulação Emocional"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 14,
+          "nome": "Dr. Bruno Costa",
+          "similarityScore": 0.4082,
+          "modalidade": "ONLINE",
+          "estado": "SC",
+          "preco": 130,
+          "especialidades": [
+            "TCC",
+            "Ansiedade",
+            "Burnout",
+            "Estresse Ocupacional",
+            "Alta Performance",
+            "Protocolo Unificado"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC002",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.4212
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC003",
+        "category": "Modalidade - Online",
+        "query": "psicólogo online",
+        "description": "Busca por atendimento exclusivamente online",
+        "filters": {
+          "modalidade": "ONLINE"
+        },
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "allMustHaveModalidade": "ONLINE",
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 5,
+          "nome": "Dra. Fernanda Lima",
+          "similarityScore": 0.5,
+          "modalidade": "ONLINE",
+          "estado": "RS",
+          "preco": 110,
+          "especialidades": [
+            "Gestalt",
+            "Ansiedade",
+            "Bloqueios Criativos",
+            "Identidade",
+            "Expressão Emocional",
+            "Corpo"
+          ],
+          "abordagem": "GESTALT"
+        },
+        {
+          "psicologoId": 16,
+          "nome": "Dr. Felipe Lima",
+          "similarityScore": 0.5,
+          "modalidade": "ONLINE",
+          "estado": "RS",
+          "preco": 145,
+          "especialidades": [
+            "Terapia Narrativa",
+            "Mediação",
+            "Comunicação Não-Violenta",
+            "Casais",
+            "Famílias",
+            "Genograma"
+          ],
+          "abordagem": "SISTEMICA"
+        },
+        {
+          "psicologoId": 19,
+          "nome": "Dra. Camila Ferreira",
+          "similarityScore": 0.5,
+          "modalidade": "ONLINE",
+          "estado": "PE",
+          "preco": 95,
+          "especialidades": [
+            "Gestalt",
+            "Psicodrama",
+            "Arte-Terapia",
+            "Movimento Autêntico",
+            "Grupos",
+            "Expressão Criativa"
+          ],
+          "abordagem": "GESTALT"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC003",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.5
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC004",
+        "category": "Modalidade - Presencial SP",
+        "query": "psicólogo presencial em São Paulo",
+        "description": "Busca por atendimento presencial em São Paulo",
+        "filters": {
+          "modalidade": "PRESENCIAL",
+          "estado": "SP"
+        },
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "allMustHaveModalidade": "PRESENCIAL",
+          "allMustHaveEstado": "SP",
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 15,
+          "nome": "Dra. Isabela Nunes",
+          "similarityScore": 0.7071,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 155,
+          "especialidades": [
+            "Humanista",
+            "Focusing",
+            "Psicologia Positiva",
+            "Propósito",
+            "Bem-estar",
+            "Autoconhecimento"
+          ],
+          "abordagem": "HUMANISTA"
+        },
+        {
+          "psicologoId": 6,
+          "nome": "Dr. Roberto Almeida",
+          "similarityScore": 0.6325,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 280,
+          "especialidades": [
+            "Psicologia Analítica",
+            "Sonhos",
+            "Individuação",
+            "Sombra",
+            "Espiritualidade",
+            "Depressão Existencial"
+          ],
+          "abordagem": "JUNGUIANA"
+        },
+        {
+          "psicologoId": 22,
+          "nome": "Dr. Thiago Ribeiro",
+          "similarityScore": 0.6325,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 230,
+          "especialidades": [
+            "TCC",
+            "TOC",
+            "ERP",
+            "Ansiedade",
+            "Transtornos Relacionados",
+            "Protocolo Intensivo"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC004",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.6574
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC005",
+        "category": "Especialidade + Modalidade",
+        "query": "especialista em depressão que atende online",
+        "description": "Combinação: especialidade depressão + modalidade online",
+        "filters": {
+          "modalidade": "ONLINE"
+        },
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainSpecialties": ["depressão", "Depressão", "DEPRESSAO"],
+          "allMustHaveModalidade": "ONLINE",
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 2,
+          "nome": "Dr. João Santos",
+          "similarityScore": 0.7559,
+          "modalidade": "ONLINE",
+          "estado": "RJ",
+          "preco": 120,
+          "especialidades": ["TCC", "Ansiedade", "Depressão", "TOC", "Fobias", "Pânico"],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 16,
+          "nome": "Dr. Felipe Lima",
+          "similarityScore": 0.75,
+          "modalidade": "ONLINE",
+          "estado": "RS",
+          "preco": 145,
+          "especialidades": [
+            "Terapia Narrativa",
+            "Mediação",
+            "Comunicação Não-Violenta",
+            "Casais",
+            "Famílias",
+            "Genograma"
+          ],
+          "abordagem": "SISTEMICA"
+        },
+        {
+          "psicologoId": 19,
+          "nome": "Dra. Camila Ferreira",
+          "similarityScore": 0.75,
+          "modalidade": "ONLINE",
+          "estado": "PE",
+          "preco": 95,
+          "especialidades": [
+            "Gestalt",
+            "Psicodrama",
+            "Arte-Terapia",
+            "Movimento Autêntico",
+            "Grupos",
+            "Expressão Criativa"
+          ],
+          "abordagem": "GESTALT"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC005",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.752
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC006",
+        "category": "Preço - Até 150 reais",
+        "query": "psicólogo até 150 reais",
+        "description": "Busca por psicólogos com preço até R$ 150,00",
+        "filters": {
+          "precoMax": 150
+        },
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "allMustHavePrecoMax": 150,
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 16,
+          "nome": "Dr. Felipe Lima",
+          "similarityScore": 0.5,
+          "modalidade": "ONLINE",
+          "estado": "RS",
+          "preco": 145,
+          "especialidades": [
+            "Terapia Narrativa",
+            "Mediação",
+            "Comunicação Não-Violenta",
+            "Casais",
+            "Famílias",
+            "Genograma"
+          ],
+          "abordagem": "SISTEMICA"
+        },
+        {
+          "psicologoId": 19,
+          "nome": "Dra. Camila Ferreira",
+          "similarityScore": 0.5,
+          "modalidade": "ONLINE",
+          "estado": "PE",
+          "preco": 95,
+          "especialidades": [
+            "Gestalt",
+            "Psicodrama",
+            "Arte-Terapia",
+            "Movimento Autêntico",
+            "Grupos",
+            "Expressão Criativa"
+          ],
+          "abordagem": "GESTALT"
+        },
+        {
+          "psicologoId": 8,
+          "nome": "Dr. Pedro Ribeiro",
+          "similarityScore": 0.4472,
+          "modalidade": "ONLINE",
+          "estado": "PR",
+          "preco": 85,
+          "especialidades": [
+            "Humanista-Existencial",
+            "Orientação Vocacional",
+            "Jovens Adultos",
+            "Crise de Sentido",
+            "Autonomia"
+          ],
+          "abordagem": "HUMANISTA"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC006",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.4824
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC007",
+        "category": "Especialidade + Preço",
+        "query": "terapia para ansiedade até 200 reais",
+        "description": "Ansiedade com limite de preço R$ 200,00",
+        "filters": {
+          "precoMax": 200
+        },
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainSpecialties": ["ansiedade", "Ansiedade"],
+          "allMustHavePrecoMax": 200,
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 10,
+          "nome": "Dr. Rafael Barbosa",
+          "similarityScore": 0.5774,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 170,
+          "especialidades": [
+            "TCC Infantojuvenil",
+            "DBT",
+            "TDAH",
+            "Ansiedade Escolar",
+            "Bullying",
+            "Regulação Emocional"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 14,
+          "nome": "Dr. Bruno Costa",
+          "similarityScore": 0.5774,
+          "modalidade": "ONLINE",
+          "estado": "SC",
+          "preco": 130,
+          "especialidades": [
+            "TCC",
+            "Ansiedade",
+            "Burnout",
+            "Estresse Ocupacional",
+            "Alta Performance",
+            "Protocolo Unificado"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 2,
+          "nome": "Dr. João Santos",
+          "similarityScore": 0.5345,
+          "modalidade": "ONLINE",
+          "estado": "RJ",
+          "preco": 120,
+          "especialidades": ["TCC", "Ansiedade", "Depressão", "TOC", "Fobias", "Pânico"],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC007",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.5631
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC008",
+        "category": "Abordagem - Psicanálise",
+        "query": "psicanalista",
+        "description": "Busca por profissional com abordagem psicanalítica",
+        "filters": {},
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainApproaches": ["PSICANALITICA", "psicanálise", "Psicanálise"],
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 18,
+          "nome": "Dr. Rodrigo Alves",
+          "similarityScore": 0.378,
+          "modalidade": "HIBRIDO",
+          "estado": "RJ",
+          "preco": 185,
+          "especialidades": [
+            "Psicanálise Relacional",
+            "Teoria do Apego",
+            "Trauma Desenvolvimental",
+            "Regulação Afetiva",
+            "Neurociência Afetiva"
+          ],
+          "abordagem": "PSICANALITICA"
+        },
+        {
+          "psicologoId": 1,
+          "nome": "Dra. Maria Silva",
+          "similarityScore": 0.3536,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 220,
+          "especialidades": [
+            "Psicanálise",
+            "Ansiedade",
+            "Depressão",
+            "Relacionamentos",
+            "Autoconhecimento"
+          ],
+          "abordagem": "PSICANALITICA"
+        },
+        {
+          "psicologoId": 11,
+          "nome": "Dra. Carla Rocha",
+          "similarityScore": 0.3333,
+          "modalidade": "ONLINE",
+          "estado": "RJ",
+          "preco": 150,
+          "especialidades": [
+            "Psicanálise Freudiana",
+            "Depressão",
+            "Ansiedade",
+            "Sonhos",
+            "Relacionamentos",
+            "Sintomas"
+          ],
+          "abordagem": "PSICANALITICA"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC008",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.355
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC009",
+        "category": "Localização - Rio de Janeiro",
+        "query": "psicólogo no Rio de Janeiro",
+        "description": "Busca por psicólogos no estado do RJ",
+        "filters": {
+          "estado": "RJ"
+        },
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "allMustHaveEstado": "RJ",
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 2,
+          "nome": "Dr. João Santos",
+          "similarityScore": 0.378,
+          "modalidade": "ONLINE",
+          "estado": "RJ",
+          "preco": 120,
+          "especialidades": ["TCC", "Ansiedade", "Depressão", "TOC", "Fobias", "Pânico"],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 18,
+          "nome": "Dr. Rodrigo Alves",
+          "similarityScore": 0.378,
+          "modalidade": "HIBRIDO",
+          "estado": "RJ",
+          "preco": 185,
+          "especialidades": [
+            "Psicanálise Relacional",
+            "Teoria do Apego",
+            "Trauma Desenvolvimental",
+            "Regulação Afetiva",
+            "Neurociência Afetiva"
+          ],
+          "abordagem": "PSICANALITICA"
+        },
+        {
+          "psicologoId": 11,
+          "nome": "Dra. Carla Rocha",
+          "similarityScore": 0.3333,
+          "modalidade": "ONLINE",
+          "estado": "RJ",
+          "preco": 150,
+          "especialidades": [
+            "Psicanálise Freudiana",
+            "Depressão",
+            "Ansiedade",
+            "Sonhos",
+            "Relacionamentos",
+            "Sintomas"
+          ],
+          "abordagem": "PSICANALITICA"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC009",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.3631
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC010",
+        "category": "Especialidade - Casal",
+        "query": "terapia de casal",
+        "description": "Busca por terapia de casal / conjugal",
+        "filters": {},
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainSpecialties": ["casal", "Casal", "conjugal", "Conjugal", "relacionamento"],
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 4,
+          "nome": "Dr. Carlos Oliveira",
+          "similarityScore": 0.4082,
+          "modalidade": "PRESENCIAL",
+          "estado": "DF",
+          "preco": 180,
+          "especialidades": [
+            "Terapia Familiar",
+            "Terapia de Casal",
+            "Constelações",
+            "Conflitos Familiares",
+            "Comunicação"
+          ],
+          "abordagem": "SISTEMICA"
+        },
+        {
+          "psicologoId": 9,
+          "nome": "Dra. Lucia Martins",
+          "similarityScore": 0.378,
+          "modalidade": "HIBRIDO",
+          "estado": "CE",
+          "preco": 210,
+          "especialidades": [
+            "Terapia de Casal",
+            "Parentalidade",
+            "Divórcio",
+            "Vínculos Familiares",
+            "Ciclos de Vida"
+          ],
+          "abordagem": "SISTEMICA"
+        },
+        {
+          "psicologoId": 1,
+          "nome": "Dra. Maria Silva",
+          "similarityScore": 0.3536,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 220,
+          "especialidades": [
+            "Psicanálise",
+            "Ansiedade",
+            "Depressão",
+            "Relacionamentos",
+            "Autoconhecimento"
+          ],
+          "abordagem": "PSICANALITICA"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC010",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.3799
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC011",
+        "category": "Especialidade - Infantil",
+        "query": "psicólogo infantil",
+        "description": "Busca por psicólogo especialista em infantil/crianças",
+        "filters": {},
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainSpecialties": ["infantil", "Infantil", "criança", "Criança", "adolescente"],
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 10,
+          "nome": "Dr. Rafael Barbosa",
+          "similarityScore": 0.4082,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 170,
+          "especialidades": [
+            "TCC Infantojuvenil",
+            "DBT",
+            "TDAH",
+            "Ansiedade Escolar",
+            "Bullying",
+            "Regulação Emocional"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 23,
+          "nome": "Dra. Vanessa Costa",
+          "similarityScore": 0.378,
+          "modalidade": "PRESENCIAL",
+          "estado": "CE",
+          "preco": 135,
+          "especialidades": [
+            "Terapia Familiar",
+            "Violência Doméstica",
+            "Trauma Intergeracional",
+            "Proteção Infantil",
+            "Vulnerabilidade Social",
+            "Sensível ao Trauma"
+          ],
+          "abordagem": "SISTEMICA"
+        },
+        {
+          "psicologoId": 1,
+          "nome": "Dra. Maria Silva",
+          "similarityScore": 0.3536,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 220,
+          "especialidades": [
+            "Psicanálise",
+            "Ansiedade",
+            "Depressão",
+            "Relacionamentos",
+            "Autoconhecimento"
+          ],
+          "abordagem": "PSICANALITICA"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC011",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.3799
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC012",
+        "category": "Filtros Combinados Complexos",
+        "query": "psicólogo TCC para ansiedade presencial em SP até 180 reais",
+        "description": "Múltiplos filtros: especialidade, modalidade, estado, preço",
+        "filters": {
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "precoMax": 180
+        },
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainSpecialties": ["ansiedade", "Ansiedade", "TCC"],
+          "allMustHaveModalidade": "PRESENCIAL",
+          "allMustHaveEstado": "SP",
+          "allMustHavePrecoMax": 180,
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 10,
+          "nome": "Dr. Rafael Barbosa",
+          "similarityScore": 0.9129,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 170,
+          "especialidades": [
+            "TCC Infantojuvenil",
+            "DBT",
+            "TDAH",
+            "Ansiedade Escolar",
+            "Bullying",
+            "Regulação Emocional"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 15,
+          "nome": "Dra. Isabela Nunes",
+          "similarityScore": 0.6708,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 155,
+          "especialidades": [
+            "Humanista",
+            "Focusing",
+            "Psicologia Positiva",
+            "Propósito",
+            "Bem-estar",
+            "Autoconhecimento"
+          ],
+          "abordagem": "HUMANISTA"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC012",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 2,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.7918
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC013",
+        "category": "Abordagem Humanista",
+        "query": "terapia humanista",
+        "description": "Busca por abordagem humanista / pessoa-centrada / Gestalt",
+        "filters": {},
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainApproaches": [
+            "HUMANISTA",
+            "humanista",
+            "Humanista",
+            "pessoa-centrada",
+            "GESTALT"
+          ],
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 5,
+          "nome": "Dra. Fernanda Lima",
+          "similarityScore": 0.5,
+          "modalidade": "ONLINE",
+          "estado": "RS",
+          "preco": 110,
+          "especialidades": [
+            "Gestalt",
+            "Ansiedade",
+            "Bloqueios Criativos",
+            "Identidade",
+            "Expressão Emocional",
+            "Corpo"
+          ],
+          "abordagem": "GESTALT"
+        },
+        {
+          "psicologoId": 15,
+          "nome": "Dra. Isabela Nunes",
+          "similarityScore": 0.5,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 155,
+          "especialidades": [
+            "Humanista",
+            "Focusing",
+            "Psicologia Positiva",
+            "Propósito",
+            "Bem-estar",
+            "Autoconhecimento"
+          ],
+          "abordagem": "HUMANISTA"
+        },
+        {
+          "psicologoId": 19,
+          "nome": "Dra. Camila Ferreira",
+          "similarityScore": 0.5,
+          "modalidade": "ONLINE",
+          "estado": "PE",
+          "preco": 95,
+          "especialidades": [
+            "Gestalt",
+            "Psicodrama",
+            "Arte-Terapia",
+            "Movimento Autêntico",
+            "Grupos",
+            "Expressão Criativa"
+          ],
+          "abordagem": "GESTALT"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC013",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.5
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC014",
+        "category": "Especialidade - Trauma/EMDR",
+        "query": "psicólogo especialista em trauma EMDR",
+        "description": "Busca por especialista em trauma e EMDR",
+        "filters": {},
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainSpecialties": ["trauma", "Trauma", "EMDR", "ptsd", "PTSD"],
+          "minSimilarity": 0.01
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 12,
+          "nome": "Dr. Marcos Pereira",
+          "similarityScore": 0.5774,
+          "modalidade": "PRESENCIAL",
+          "estado": "MG",
+          "preco": 140,
+          "especialidades": [
+            "Gestalt",
+            "EFT",
+            "Trauma",
+            "Dissociação",
+            "Alexitimia",
+            "Corpo-Mente"
+          ],
+          "abordagem": "GESTALT"
+        },
+        {
+          "psicologoId": 7,
+          "nome": "Dra. Juliana Ferreira",
+          "similarityScore": 0.5345,
+          "modalidade": "HIBRIDO",
+          "estado": "PE",
+          "preco": 190,
+          "especialidades": [
+            "TCC",
+            "Schema Therapy",
+            "Trauma Complexo",
+            "Borderline",
+            "Transtornos de Personalidade",
+            "Regulação Emocional"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 18,
+          "nome": "Dr. Rodrigo Alves",
+          "similarityScore": 0.5345,
+          "modalidade": "HIBRIDO",
+          "estado": "RJ",
+          "preco": 185,
+          "especialidades": [
+            "Psicanálise Relacional",
+            "Teoria do Apego",
+            "Trauma Desenvolvimental",
+            "Regulação Afetiva",
+            "Neurociência Afetiva"
+          ],
+          "abordagem": "PSICANALITICA"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC014",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.5488
+        }
+      }
+    },
+    {
+      "testCase": {
+        "id": "TC015",
+        "category": "Busca Amplamente Semântica",
+        "query": "preciso de ajuda para lidar com estresse no trabalho",
+        "description": "Query em linguagem natural sem termos técnicos",
+        "filters": {},
+        "expected": {
+          "minResults": 1,
+          "maxResults": 3,
+          "mustContainSpecialties": [
+            "estresse",
+            "Estresse",
+            "ansiedade",
+            "Ansiedade",
+            "burnout",
+            "Burnout",
+            "trabalho"
+          ],
+          "minSimilarity": 0.005
+        }
+      },
+      "results": [
+        {
+          "psicologoId": 14,
+          "nome": "Dr. Bruno Costa",
+          "similarityScore": 0.5774,
+          "modalidade": "ONLINE",
+          "estado": "SC",
+          "preco": 130,
+          "especialidades": [
+            "TCC",
+            "Ansiedade",
+            "Burnout",
+            "Estresse Ocupacional",
+            "Alta Performance",
+            "Protocolo Unificado"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        },
+        {
+          "psicologoId": 5,
+          "nome": "Dra. Fernanda Lima",
+          "similarityScore": 0.3536,
+          "modalidade": "ONLINE",
+          "estado": "RS",
+          "preco": 110,
+          "especialidades": [
+            "Gestalt",
+            "Ansiedade",
+            "Bloqueios Criativos",
+            "Identidade",
+            "Expressão Emocional",
+            "Corpo"
+          ],
+          "abordagem": "GESTALT"
+        },
+        {
+          "psicologoId": 22,
+          "nome": "Dr. Thiago Ribeiro",
+          "similarityScore": 0.3162,
+          "modalidade": "PRESENCIAL",
+          "estado": "SP",
+          "preco": 230,
+          "especialidades": [
+            "TCC",
+            "TOC",
+            "ERP",
+            "Ansiedade",
+            "Transtornos Relacionados",
+            "Protocolo Intensivo"
+          ],
+          "abordagem": "COGNITIVO_COMPORTAMENTAL"
+        }
+      ],
+      "validation": {
+        "testCaseId": "TC015",
+        "passed": true,
+        "issues": [],
+        "metrics": {
+          "resultsCount": 3,
+          "recallAt3": 0,
+          "precisionAt3": 0,
+          "mrr": 0,
+          "avgSimilarity": 0.4157
+        }
+      }
+    }
+  ],
+  "summary": {
+    "passRate": "100.00%",
+    "avgSimilarity": "0.5041",
+    "byCategory": {
+      "Especialidade - Ansiedade": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Especialidade - TCC": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Modalidade - Online": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Modalidade - Presencial SP": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Especialidade + Modalidade": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Preço - Até 150 reais": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Especialidade + Preço": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Abordagem - Psicanálise": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Localização - Rio de Janeiro": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Especialidade - Casal": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Especialidade - Infantil": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Filtros Combinados Complexos": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Abordagem Humanista": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Especialidade - Trauma/EMDR": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      },
+      "Busca Amplamente Semântica": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "passRate": "100.00%"
+      }
+    }
+  }
+}

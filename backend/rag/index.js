@@ -1,21 +1,53 @@
 /**
- * Exportações principais do módulo RAG
+ * Módulo RAG - Exportações principais
+ * Sistema de Retrieval-Augmented Generation para psicólogos validados
  */
 
-export * from './vectorStore.js';
-export * from './indexer.js';
-export * from './textBuilder.js';
-export * from './utils/constants.js';
+// Embeddings
+export { createEmbeddings, getEmbeddings } from './embeddings.js';
 
-// Re-export para compatibilidade
-import * as vectorStore from './vectorStore.js';
-import * as indexer from './indexer.js';
-import * as textBuilder from './textBuilder.js';
-import * as constants from './utils/constants.js';
+// Vector Store
+export {
+  getVectorStore,
+  isVectorStoreReady,
+  initializeVectorStore,
+  addDocuments,
+  upsertDocument,
+  similaritySearch,
+  similaritySearchWithScore,
+  getStats,
+  resetVectorStore,
+} from './vectorStore.js';
 
-export default {
-  vectorStore,
-  indexer,
-  textBuilder,
-  constants,
-};
+// Ingestion
+export {
+  ingestPsychologists,
+  reingestPsychologist,
+  upsertPsychologist,
+  initializeRAG,
+  formatPsychologistDocument,
+} from './ingestion.js';
+
+// Search
+export {
+  searchPsychologists,
+  searchByEspecialidade,
+  searchByLocation,
+  searchByPrice,
+  advancedSearch,
+  getSearchSuggestions,
+} from './search.js';
+
+// Retriever (nova interface de alto nível com top-k e filtros)
+export {
+  retrieve,
+  retrieveWithScore,
+  retrieveByEspecialidade,
+  retrieveByModalidade,
+  retrieveByLocation,
+  retrieveByPrice,
+  advancedRetrieve,
+  getRetrieverStats,
+  healthCheck,
+  RETRIEVER_DEFAULTS,
+} from './retriever.js';
