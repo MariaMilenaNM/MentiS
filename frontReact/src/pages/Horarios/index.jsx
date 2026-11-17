@@ -18,8 +18,6 @@ export default function Horarios() {
     abrirEdicao,
     handleUpdate,
     handleDelete,
-    getDiaLabel,
-    getDiaCurto,
     formatarHora,
     DIAS_SEMANA,
     recarregar,

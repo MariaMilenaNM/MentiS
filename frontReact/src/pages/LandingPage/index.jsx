@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import { getProfissionais } from '../../services/crudProfissional.js';
 import { getPacienteLogado } from '../../services/crudPaciente.js';
@@ -11,7 +11,6 @@ import imgCard2 from '../../assets/Card2.jpg';
 import imgCard3 from '../../assets/Card3.jpg';
 
 export default function LandingPage() {
-  const navigate = useNavigate();
   const [profissionais, setProfissionais] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
@@ -44,16 +43,6 @@ export default function LandingPage() {
     // Carrega profissionais da API
     carregarProfissionais();
   }, [carregarProfissionais]);
-
-  const handleAgendarClick = () => {
-    // Verificar se há token no localStorage
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/painel');
-    } else {
-      navigate('/paciente');
-    }
-  };
 
   const formatarModalidade = (modalidade) => {
     if (!modalidade) return 'Não informado';

@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   getHorariosPorProfissional,
   criarHorario,
@@ -19,7 +18,6 @@ const DIAS_SEMANA = [
 ];
 
 export function useHorarios() {
-  const navigate = useNavigate();
   const [horarios, setHorarios] = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [form, setForm] = useState({

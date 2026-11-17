@@ -46,7 +46,7 @@ async function searchTriageAPI(query, isLoggedIn) {
 /**
  * Gera resposta textual do assistente baseada nos matches
  */
-function generateAssistantResponse(matches, isLoggedIn, query) {
+function generateAssistantResponse(matches, isLoggedIn) {
   if (!matches || matches.length === 0) {
     return {
       text: 'Não encontrei profissionais compatíveis com sua busca no momento. Poderia tentar descrever de outra forma? Por exemplo: "ansiedade e TCC online", "depressão presencial", "terapia de casal", "trauma EMDR".',
@@ -134,7 +134,7 @@ export function useRagTriageChat() {
         const apiResponse = await searchTriageAPI(content, isLoggedIn);
 
         // Gera resposta do assistente
-        const response = generateAssistantResponse(apiResponse.matches, isLoggedIn, content);
+        const response = generateAssistantResponse(apiResponse.matches, isLoggedIn);
 
         // Simula delay de digitação para UX
         await new Promise((resolve) => setTimeout(resolve, 600 + Math.random() * 400));
