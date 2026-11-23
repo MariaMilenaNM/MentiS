@@ -11,7 +11,17 @@ export const psicologoRepository = {
         where.validado = filters.validado;
       }
       if (filters.modalidade) {
-        where.modalidade = filters.modalidade;
+        // Expandir filtro de modalidade:
+        // - "PRESENCIAL" → inclui PRESENCIAL e HIBRIDO
+        // - "ONLINE" → inclui ONLINE e HIBRIDO
+        // - "HIBRIDO" → apenas HIBRIDO (match exato)
+        const modalidadeMap = {
+          PRESENCIAL: ['PRESENCIAL', 'HIBRIDO'],
+          ONLINE: ['ONLINE', 'HIBRIDO'],
+          HIBRIDO: ['HIBRIDO'],
+        };
+        const modalidadesPermitidas = modalidadeMap[filters.modalidade] || [filters.modalidade];
+        where.modalidade = { in: modalidadesPermitidas };
       }
       if (filters.abordagem) {
         where.abordagem = filters.abordagem;

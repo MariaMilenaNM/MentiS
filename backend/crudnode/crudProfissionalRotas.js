@@ -43,7 +43,7 @@ routes.get(
       const profissionais = psicologos.map((p) => ({
         id: p.id,
         nome: p.nome || p.usuario?.email || 'Psicólogo',
-        crp: parseInt(p.crp) || p.id,
+        crp: p.crp,
         modalidade:
           p.modalidade === 'ONLINE'
             ? 'Remota'
@@ -116,7 +116,7 @@ routes.post(
       const profissional = {
         id: psicologo.id,
         nome: dados.nome || psicologo.usuario?.email || 'Psicólogo',
-        crp: parseInt(psicologo.crp) || psicologo.id,
+        crp: psicologo.crp,
         modalidade:
           psicologo.modalidade === 'ONLINE'
             ? 'Remota'
@@ -160,7 +160,7 @@ routes.get(
       const profissional = {
         id: psicologo.id,
         nome: psicologo.nome || psicologo.usuario?.email || 'Psicólogo',
-        crp: parseInt(psicologo.crp) || psicologo.id,
+        crp: psicologo.crp,
         modalidade:
           psicologo.modalidade === 'ONLINE'
             ? 'Remota'
@@ -236,7 +236,7 @@ routes.put(
       return res.status(200).json({
         id: psicologoAtualizado.id,
         nome: psicologoAtualizado.nome || psicologoAtualizado.usuario?.email || 'Psicólogo',
-        crp: parseInt(psicologoAtualizado.crp) || psicologoAtualizado.id,
+        crp: psicologoAtualizado.crp,
         modalidade:
           psicologoAtualizado.modalidade === 'ONLINE'
             ? 'Remota'

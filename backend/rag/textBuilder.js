@@ -63,7 +63,7 @@ export function buildPsychologistText(psicologo) {
   const parts = [];
 
   // Nome e CRP
-  const nome = psicologo.usuario?.nome || psicologo.usuario?.email || 'Profissional';
+  const nome = psicologo.nome || psicologo.usuario?.nome || 'Profissional';
   const crp = psicologo.crp || 'CRP não informado';
   parts.push(`${nome} (${crp})`);
 
@@ -129,7 +129,7 @@ export function buildPsychologistMetadata(psicologo) {
   return {
     profissionalId: psicologo.id,
     usuarioId: psicologo.usuarioId,
-    nome: psicologo.usuario?.nome || psicologo.usuario?.email || 'Profissional',
+    nome: psicologo.nome || psicologo.usuario?.nome || 'Profissional',
     crp: psicologo.crp,
     abordagem: psicologo.abordagem,
     especialidades: especialidades,
