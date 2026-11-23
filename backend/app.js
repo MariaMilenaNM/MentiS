@@ -13,8 +13,10 @@ import crudConversa from './crudnode/crudConversaRotas.js';
 import authRoutes from './crudnode/authRotas.js';
 import ragRoutes from './crudnode/ragRotas.js';
 import crudTriage from './crudnode/crudTriageRotas.js';
+import crudTriageAgent from './crudnode/crudTriageAgentRotas.js';
 import { initializeRAG } from './rag/index.js';
 import { indexValidatedPsychologists } from './rag/indexer.js';
+import { initializeTriageAgent } from './agent/triageAgent.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -94,15 +96,18 @@ app.use('/agendamentos', agendamentoLimiter, crudAgendamento);
 app.use('/conversas', chatLimiter, crudConversa);
 app.use('/rag', ragRoutes);
 
-// Rota de triagem/RAG
+// Rota de triagem/RAG (busca semântica simples)
 app.use('/triage', chatLimiter, crudTriage);
+
+// Rota de triagem/LangChain Agent (chat inteligente com memória)
+app.use('/triage-agent', chatLimiter, crudTriageAgent);
 
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Inicialização assíncrona do RAG (não bloqueia o servidor)
+// Inicialização assíncrona do RAG e Agentes (não bloqueia o servidor)
 async function initializeRAGSystems() {
   try {
     // Inicializa sistema RAG principal (test-claude)
@@ -122,6 +127,16 @@ async function initializeRAGSystems() {
   } catch (error) {
     logger.error('Erro ao inicializar indexador RAG', { error: error.message });
     // Não falha o servidor se indexação falhar
+  }
+
+  try {
+    // Inicializa Agente de Triagem LangChain
+    logger.info('Inicializando Agente de Triagem LangChain...');
+    await initializeTriageAgent();
+    logger.info('Agente de Triagem inicializado com sucesso');
+  } catch (error) {
+    logger.error('Erro ao inicializar Agente de Triagem', { error: error.message });
+    // Não falha o servidor se agente falhar
   }
 }
 
