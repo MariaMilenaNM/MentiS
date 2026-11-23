@@ -2,7 +2,11 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { buscarPacientePorId, atualizarPacienteBd } from '../services/crudPainel.js';
 import { getProfissionais } from '../services/crudProfissional.js';
-import { criarAgendamento, getHorariosDisponiveis } from '../services/crudAgendamento.js';
+import {
+  criarAgendamento,
+  getHorariosDisponiveis,
+  getAgendamentosPaciente,
+} from '../services/crudAgendamento.js';
 import { getToken, isTokenExpired, logout, getPacienteLogado } from '../services/crudPaciente.js';
 
 export function usePainel() {
@@ -42,6 +46,11 @@ export function usePainel() {
   const [agendamentoCarregando, setAgendamentoCarregando] = useState(false);
   const [agendamentoErro, setAgendamentoErro] = useState('');
   const [agendamentoSucesso, setAgendamentoSucesso] = useState('');
+
+  // Estado para Minha Agenda
+  const [minhaAgendaAberta, setMinhaAgendaAberta] = useState(false);
+  const [meusAgendamentos, setMeusAgendamentos] = useState([]);
+  const [agendamentosCarregando, setAgendamentosCarregando] = useState(false);
 
   // Verificar token no carregamento E quando a janela ganha foco/aba volta ativa
   useEffect(() => {
@@ -270,6 +279,47 @@ export function usePainel() {
     }
   };
 
+  // Carregar agendamentos do paciente logado
+  const carregarMeusAgendamentos = useCallback(async () => {
+    if (!pacienteLogado) return;
+    setAgendamentosCarregando(true);
+    try {
+      const agendamentos = await getAgendamentosPaciente();
+      setMeusAgendamentos(agendamentos || []);
+    } catch (error) {
+      console.error('Erro ao carregar agendamentos:', error);
+    } finally {
+      setAgendamentosCarregando(false);
+    }
+  }, [pacienteLogado]);
+
+  // Cancelar agendamento do paciente
+  const cancelarMeuAgendamento = async (agendamentoId) => {
+    setAgendamentosCarregando(true);
+    try {
+      const { cancelarAgendamento } = await import('../services/crudAgendamento.js');
+      await cancelarAgendamento(agendamentoId);
+      // Recarregar lista após cancelar
+      await carregarMeusAgendamentos();
+    } catch (error) {
+      console.error('Erro ao cancelar agendamento:', error);
+      throw error;
+    } finally {
+      setAgendamentosCarregando(false);
+    }
+  };
+
+  // Abrir/fechar Minha Agenda
+  const abrirMinhaAgenda = useCallback(() => {
+    setMinhaAgendaAberta(true);
+    carregarMeusAgendamentos();
+  }, [carregarMeusAgendamentos]);
+
+  const fecharMinhaAgenda = useCallback(() => {
+    setMinhaAgendaAberta(false);
+    setMeusAgendamentos([]);
+  }, []);
+
   const sair = () => {
     logout();
     navigate('/');
@@ -352,5 +402,12 @@ export function usePainel() {
     abrirAgendamento,
     fecharAgendamento,
     confirmarAgendamento,
+    // Minha Agenda
+    minhaAgendaAberta,
+    meusAgendamentos,
+    agendamentosCarregando,
+    abrirMinhaAgenda,
+    fecharMinhaAgenda,
+    cancelarMeuAgendamento,
   };
 }

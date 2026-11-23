@@ -39,6 +39,13 @@ export default function Painel() {
     abrirAgendamento,
     fecharAgendamento,
     confirmarAgendamento,
+    // Minha Agenda
+    minhaAgendaAberta,
+    meusAgendamentos,
+    agendamentosCarregando,
+    abrirMinhaAgenda,
+    fecharMinhaAgenda,
+    cancelarMeuAgendamento,
   } = usePainel();
 
   // Estado local para o modal de agendamento
@@ -252,6 +259,13 @@ export default function Painel() {
         <div className="painel-header">
           <h1>Profissionais Disponíveis</h1>
           <p>Encontre o profissional ideal para o seu atendimento em nossa rede de parceiros.</p>
+          <button
+            className="btn-minha-agenda"
+            onClick={abrirMinhaAgenda}
+            aria-label="Abrir minha agenda"
+          >
+            Minha Agenda
+          </button>
         </div>
 
         {/* Barra de Filtros */}
@@ -620,7 +634,143 @@ export default function Painel() {
         )}
       </main>
 
+      {/* Modal Minha Agenda */}
+      {minhaAgendaAberta && (
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="minha-agenda-titulo"
+        >
+          <div className="modal-container modal-container-large">
+            <div className="modal-header">
+              <h2 id="minha-agenda-titulo">Minha Agenda</h2>
+              <button
+                className="modal-close"
+                onClick={fecharMinhaAgenda}
+                aria-label="Fechar minha agenda"
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body minha-agenda-body">
+              {agendamentosCarregando ? (
+                <div className="agendamentos-loading">
+                  <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>
+                    Carregando seus agendamentos...
+                  </p>
+                </div>
+              ) : meusAgendamentos.length === 0 ? (
+                <div className="agendamentos-empty">
+                  <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>
+                    Você não possui agendamentos no momento.
+                  </p>
+                  <button
+                    className="btn-novo-agendamento"
+                    onClick={fecharMinhaAgenda}
+                    style={{ marginTop: '16px' }}
+                  >
+                    Agendar Consulta
+                  </button>
+                </div>
+              ) : (
+                <div className="agendamentos-lista">
+                  {Object.entries(
+                    meusAgendamentos.reduce((acc, ag) => {
+                      const data = new Date(ag.dataHora).toISOString().split('T')[0];
+                      if (!acc[data]) acc[data] = [];
+                      acc[data].push(ag);
+                      return acc;
+                    }, {})
+                  )
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([data, agendamentosDoDia]) => (
+                      <div key={data} className="agenda-dia">
+                        <div className="agenda-dia-cabecalho">
+                          <span className="agenda-dia-data">
+                            {new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', {
+                              weekday: 'long',
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric',
+                            })}
+                          </span>
+                          <span className="agenda-dia-qtd">
+                            {agendamentosDoDia.length} agendamento(s)
+                          </span>
+                        </div>
+                        <div className="agenda-dia-itens">
+                          {agendamentosDoDia
+                            .sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora))
+                            .map((ag) => (
+                              <div
+                                key={ag.id}
+                                className={`agenda-item status-${ag.status.toLowerCase()}`}
+                              >
+                                <div className="agenda-item-horario">
+                                  {new Date(ag.dataHora).toLocaleTimeString('pt-BR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </div>
+                                <div className="agenda-item-info">
+                                  <div className="agenda-item-profissional">
+                                    {ag.psicologo?.nome || 'Profissional'}
+                                  </div>
+                                  <div className="agenda-item-detalhes">
+                                    <span className="agenda-item-crp">
+                                      CRP: {ag.psicologo?.crp || '–'}
+                                    </span>
+                                    <span className="agenda-item-modalidade">
+                                      {ag.psicologo?.modalidade || '–'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="agenda-item-status">
+                                  <span
+                                    className={`status-badge status-${ag.status.toLowerCase()}`}
+                                  >
+                                    {traduzirStatus(ag.status)}
+                                  </span>
+                                </div>
+                                <div className="agenda-item-acoes">
+                                  {['AGENDADO', 'CONFIRMADO'].includes(ag.status) && (
+                                    <button
+                                      className="btn-cancelar-agendamento"
+                                      onClick={() => cancelarMeuAgendamento(ag.id)}
+                                      disabled={agendamentosCarregando}
+                                      aria-label={`Cancelar agendamento com ${ag.psicologo?.nome}`}
+                                    >
+                                      Cancelar
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <TriageChatWidget />
     </div>
   );
+}
+
+// Função auxiliar para traduzir status
+function traduzirStatus(status) {
+  const statusMap = {
+    AGENDADO: 'Agendado',
+    CONFIRMADO: 'Confirmado',
+    CANCELADO_PACIENTE: 'Cancelado por você',
+    CANCELADO_PSICOLOGO: 'Cancelado pelo profissional',
+    REALIZADO: 'Realizado',
+    FALTOU: 'Faltou',
+  };
+  return statusMap[status] || status;
 }

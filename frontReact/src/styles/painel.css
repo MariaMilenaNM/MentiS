@@ -795,3 +795,252 @@ a:focus-visible {
   outline: 3px solid #91c1ff;
   outline-offset: 2px;
 }
+
+/* Botão Minha Agenda no header */
+.btn-minha-agenda {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: #0a0b26;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-minha-agenda:hover {
+  background: #1a1a3e;
+  transform: translateY(-1px);
+}
+
+/* Modal Minha Agenda - Container maior */
+.modal-container-large {
+  max-width: 720px;
+}
+
+.minha-agenda-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.agendamentos-loading,
+.agendamentos-empty {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.btn-novo-agendamento {
+  padding: 10px 20px;
+  background: #0a0b26;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-novo-agendamento:hover {
+  background: #1a1a3e;
+}
+
+/* Lista de agendamentos agrupados por dia */
+.agendamentos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.agenda-dia {
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+}
+
+.agenda-dia-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: #f0f1f5;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.agenda-dia-data {
+  font-weight: 600;
+  color: #0a0b26;
+  font-size: 0.95rem;
+  text-transform: capitalize;
+}
+
+.agenda-dia-qtd {
+  font-size: 0.8rem;
+  color: #6b7280;
+  background: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.agenda-dia-itens {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.agenda-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e9ecef;
+  transition: background 0.2s;
+}
+
+.agenda-item:last-child {
+  border-bottom: none;
+}
+
+.agenda-item:hover {
+  background: #f8f9fa;
+}
+
+.agenda-item-horario {
+  min-width: 70px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0a0b26;
+}
+
+.agenda-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.agenda-item-profissional {
+  font-weight: 600;
+  color: #0a0b26;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.agenda-item-detalhes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.agenda-item-crp,
+.agenda-item-modalidade {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.agenda-item-status {
+  min-width: 100px;
+  text-align: center;
+}
+
+.agenda-item-acoes {
+  min-width: 90px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.status-agendado {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-confirmado {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-cancelado_paciente,
+.status-cancelado_psicologo {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.status-realizado {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.status-faltou {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.btn-cancelar-agendamento {
+  padding: 6px 12px;
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.btn-cancelar-agendamento:hover:not(:disabled) {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.btn-cancelar-agendamento:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Media queries para responsividade do modal */
+@media (max-width: 768px) {
+  .modal-container-large {
+    max-width: 100%;
+    margin: 10px;
+  }
+
+  .agenda-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .agenda-item-horario {
+    min-width: auto;
+  }
+
+  .agenda-item-status {
+    min-width: auto;
+    text-align: left;
+  }
+
+  .agenda-item-acoes {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .agenda-dia-cabecalho {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
